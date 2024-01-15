@@ -1,0 +1,63 @@
+% !TeX encoding = UTF-8
+% !TeX program = pdflatex
+% !TeX spellcheck = en_US
+
+\documentclass[oneside]{sapthesis}
+
+\usepackage{microtype}
+
+\usepackage{hyperref}
+\hypersetup{pdftitle={PhD Thesis},pdfauthor={Michele Cipriano}}
+
+% Commands for the titlepage
+\title{PhD Thesis}
+\author{Michele Cipriano}
+\IDnumber{1764645}
+\course{Dottorato di Ricerca in Automatica, Bioingegneria e Ricerca Operativa - XXXVI Ciclo}
+\courseorganizer{Sapienza University of Rome}
+\AcademicYear{2023/2024}
+\copyyear{2024}
+\advisor{Prof. Giuseppe Oriolo}
+%\advisor{Dr. Nome Cognome}
+%\coadvisor{Dr. Nome Cognome}
+\authoremail{cipriano@diag.uniroma1.it}
+
+\examdate{TBD May 2024}
+\examiner{Prof. TBD}
+\examiner{Prof. TBD}
+\examiner{Prof. TBD}
+\versiondate{\today}
+
+
+\begin{document}
+
+\frontmatter
+
+\maketitle
+
+\dedication{Dedication.}
+
+\begin{acknowledgments}
+Acknowedgments.
+\end{acknowledgments}
+
+\begin{abstract}
+Abstract.
+\end{abstract}
+
+\tableofcontents
+
+\mainmatter
+
+\input{introduction}
+\input{conclusions}
+
+\backmatter
+% bibliography
+\cleardoublepage
+\phantomsection
+%\bibliographystyle{sapthesis} % BibTeX style
+\bibliographystyle{unsrt}
+\bibliography{bibliography} % BibTeX database without .bib extension
+
+\end{document}
