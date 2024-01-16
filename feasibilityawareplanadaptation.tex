@@ -1,2 +1,673 @@
-\chapter{Feasibility aware plan adaptation in humanoid gait generation}
+\chapter{Feasibility-aware plan adaptation in humanoid gait generation}
 Todo.
+
+
+%\begin{abstract} 
+%Most available schemes used for humanoid walking rely on the separation into a planning phase, typically off-line, and a Model Predictive Controller (MPC). Moreover, in order for the MPC to work in real time, simplifying assumptions are made both on the template model and on the constraints so that the underlying optimization problem is a Quadratic Programming (QP). The planner is unaware of the underlying humanoid dynamics and of any disturbance acting on the robot. We present an on-line Feasibility-Aware Plan Adaptation (FAPA) module which can locally adapt footsteps (positions, timings and orientation) in such a way that it guarantees feasibility of the subsequent Intrinsically Stable MPC (IS-MPC) stage. We present two versions of the proposed scheme: one with a fixed regions assignment for placing the footstep and another one where the regions are selected automatically through mixed-integer programming. Simulation results show the effectiveness of the FAPA scheme.
+%\end{abstract}
+
+\section{Introduction} 
+\label{sec:FAPA:Introduction}
+
+Humanoid robot locomotion is a complex task that involves multiple concurrent activities. It is usually tackled by breaking it down into several subproblems and solving each of them more or less independently. The first component is in general a footstep planner, which determines a sequence of footstep, e.g., leading the robot to some desired location. This sequence of footsteps must be kinematically realizable at least in terms of step lengths. The humanoid dynamics are usually accounted for in a second stage, typically based on Model Predictive Control (MPC), using a simplified robot model which is used to generate Center of Mass (CoM) trajectories. MPC, in its basic form, allows to perform real-time footstep position adaptation \cite{HePeWi:10} and obtain reactive stepping so to  reject pushes and impacts. However, in order to be able to formulate the optimization problem as a Quadratic Program (QP), constraints should be kept linear. For this reason, most schemes only adapt footstep positions, leaving out footstep orientation and step timing.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[trim={0.5cm 1.5cm 2cm 0.1cm},clip,width= \columnwidth]{figures/strobo-staircase-with-pushes.png}
+    %\caption{Stroboscopic view of Simulation 4: V-FAPA in the {\em stairs} scenario. Red arrows indicate impulsive pushes.}
+    \caption{An example simulation using the proposed architecture: the robot is walking along a staircase while being subject to multiple pushes. The adaptation module modifies position, orientation and timing of the footsteps real-time to guarantee a successful execution.}
+    \label{fig:FAPA:two-patches-mixed-integer-snapshots}
+    \vskip -0.5 truecm
+\end{figure}
+
+
+% Regarding the footstep plan as unchangeable is often too restrictive because it relinquishes the capabilities of reactive stepping. These capabilities, if properly harnessed, make humanoids remarkably robust to disturbances. For these reasons, Model Predictive Controllers (MPC) has become so popular: even when using a simplified model, it is possible to perform real-timefootstep position adaptation \cite{HePeWi:10} and gain significant ability to reject pushes and impacts. 
+
+Several efforts to improve this basic paradigm have been made. To include automatic step timing adaptation, one could make the MPC nonlinear \cite{Maximo2020,Bohorquez2017,Caron2017,Aurelien2014}, denying real-time implementation or requiring significant compromise in the control rate. A linear formulation is obtainable by considering only the duration of the first footstep \cite{Smaldone2021FeasibilityDrivenSTA,Khadiv2020}. As for footstep orientation, this is also often ignored or planned independently of the dynamics \cite{HePeWi:10}. To couple rotation decision with the dynamics, some schemes employ non-convex optimization through nonlinear \cite{Naveau2017,Bohorquez2018} or Mixed-Integer Programming (MIP) \cite{Maximo2020}. MIP can also be used to alternatively select between multiple convex regions in which to place the footsteps, which would otherwise constitute a non-convex constraint \cite{Aceituno2018,DeTe:14}.
+
+% The available schemes however have the net separation between the planner and the MPC problem so that the plan given to the MPC could lead to an unfeasible optimization problem.
+
+%Another direction for footstep planning considers restrictions on where the robot may place its feet, which is needed for walking in uneven terrain. Some formulations constrain each footstep to a predefined convex polytope, so the optimization problem remains a QP \cite{Habib2022HandlingNonConvex}. Nevertheless, for more flexibility regarding the selection of terrain regions, one may employ mixed-integer programming (MIP) to make the assignment within the optimization \cite{Aceituno2018,DeTe:14}.
+
+Our architecture is based on the Intrinsically Stable MPC (IS-MPC) of~\cite{ScDeLaOr:20}, which involves an explicit stability constraint ensuring the boundedness of the CoM trajectory with respect to the ZMP and is recursive feasibile. 
+% Furthermore, we characterized the feasibility region, i.e., the region of the state space for which the MPC admits a solution satisfying the constraint. 
+The feasibility region, i.e., the state space region for which the constrained QP admits a solution, can be used to enhance the scheme capabilities by adapting the timing of the first step \cite{Smaldone2021FeasibilityDrivenSTA}, or to allow for non-convex regions \cite{Habib2022HandlingNonConvex} without burdening the optimization problem of the MPC.
+
+%%%% Begin modified by L
+In this paper, we add an online adaptation module that can locally adapt footsteps (positions, timings and orientation) so to guarantee feasibility of the subsequent IS-MPC stage. The Feasibility-Aware Plan Adaptation (FAPA) is thus dependent on the system state and the dynamics of the chosen template dynamic model.
+
+% by simultaneously deciding positions, orientations, and timings. This planner is feasibility-aware, meaning that the result it produces is always aimed at guaranteeing the feasibility of the subsequent MPC stage and is thus dependent on the state of the system and informed by dynamic considerations.
+%%%% End modified by L
+
+\begin{figure*}[t]
+\centering\includegraphics[width=\textwidth]{figures/BlockScheme-NLP-STA.pdf}
+\caption{A block scheme of the proposed architecture. The candidate footstep subplan $\mathcal{\hat{P}}$ is adapted by the FAPA module, guaranteeing the feasibility of IS-MPC. The IS-MPC module receives the adapted footstep subplan $\mathcal{P}$, and generates a desired trajectory of the CoM $\bm{p^*}_c$, which is used by the kinematic controller, together with the desired trajectory of the swing foot $\bm{p^*}_{\rm swg}$, to generate the desired joint velocities $\dot{\bm{q^*}}$.}
+\label{fig:FAPA:block_scheme}
+\vskip -0.6 truecm
+\end{figure*}
+
+We obtain the generality given by nonlinear constraints without sacrificing much performance as the number of variables in the planner is much lower than that of the variables of the MPC, making it very fast and capable of working in real time. Furthermore, we explore the inclusion of integer variables, further increasing the range of situations that can be covered.
+
+Modules for online footstep adaptation using nonlinear optimization have been proposed \cite{Ding2019IROS}, but not in conjunction with MPC. Our approach is not only designed to work along with the MPC module, but it specifically aimed at enhancing its capabilities.
+
+The remainder of the paper is organized as follows. Sect.~\ref{sec:FAPA:ProblemFormulation} gives a general formulation of the problem. Sect.~\ref{sec:FAPA:Preliminaries} introduces some preliminary notions. Sect.~\ref{sec:FAPA:GaitGeneration} details the MPC formulation. Sect.~\ref{sec:FAPA:FeasibilityAwarePlanAdaptation} describes both versions of the proposed FAPA: without and with integer variables. Sect.~\ref{sec:FAPA:Simulations} shows and discusses some simulations. Finally, Sect.~\ref{sec:FAPA:Conclusions} presents concluding remarks and future extensions.
+
+\section{Problem Formulation} 
+\label{sec:FAPA:ProblemFormulation}
+
+%The input of the FAPA scheme, shown in Fig.~\ref{fig:FAPA:block_scheme}, is given by a high-level subplan $\mathcal{\hat{P}}^l$, portion of the off-line plan generated to achieve the desired task. Any available off-line technique can be used to create this preliminary plan. In this paper, we use either basic plans to demonstrate simple motions or plans based on randomized exploration \cite{Cipriano2023RAS} for more complex environments.
+
+%The FAPA scheme is shown in Fig.~\ref{fig:FAPA:block_scheme}. A complete footstep plan is computed externally, and a subplan, i.e., a portion of the complete plan, is given as input to the scheme at each timestep. In this paper, to generate the complete plan, we use either basic plans to demonstrate simple motions or plans based on randomized exploration \cite{Cipriano2023RAS} for more complex environments.
+
+The proposed architecture is shown in Fig.~\ref{fig:FAPA:block_scheme}. An external candidate plan is provided, which in this paper will be either a basic plan to demonstrate simple motions, or a plan generated by randomized exploration \cite{Cipriano2023RAS} for more complex environments. A subplan, i.e., a portion of the candidate plan, is given as input to the scheme at each timestep.
+
+The basic components of the considered scheme are:
+\begin{itemize}
+\item a Feasibility-Aware Plan Adaptation (FAPA) block, that can modify locally the high-level footstep plan;
+\item an IS-MPC gait generation block that generates CoM/ZMP trajectories based on the output of FAPA;
+\item a kinematic controller that realizes at the joint level the generated CoM and swing foot trajectories.
+\end{itemize}
+
+% The high-level footstep plan is not influenced by dynamic considerations. 
+While the high-level footstep plan is designed considering the humanoid's kinematic limitations, it is entirely unaware of its dynamics and is not informed by the robot state since it is fully generated off-line.
+To make up for this deficiency, the FAPA module performs a local adaptation of the planned footsteps before these enter the IS-MPC stage. 
+
+%%%% Modified by L (Begin)
+This adaptation is based on a {\em gait feasibility constraint} that guarantees feasibility of the next IS-MPC stage while trying to match the original plan. It can concurrently change the footstep positions, orientations, as well as step timings. 
+% Its goal is to match the original plan if possible, but it also includes a {\em gait feasibility constraint} that guarantees the IS-MPC stage is feasible.
+% To make up for this deficiency, the FAPA module performs a local adaptation of the planned footsteps before these enter the IS-MPC stage. This adaptation can concurrently change the footstep positions, orientations, as well as step timings. Its goal is to match the original plan if possible, but it also includes a {\em gait feasibility constraint} that guarantees the IS-MPC stage is feasible.
+%%%% Modified by L (End)
+
+To formulate this constraint, we leverage the feasibility region of IS-MPC, i.e., the subset of the state space where the problem is feasible at a given time. While in previous analyses we provided approximate closed-form expressions for these region bounds, here we rather define the feasibility region in an implicit form with the nonlinear dependency on the footstep positions, orientations, and step timings.
+% ultima frase sopra modificata da L (check se è corretto)
+
+The fact that the feasibility of the MPC can be efficiently captured by the expression of this constraint is a crucial aspect of the formulation, because it means that the scheme can harness the power of nonlinear optimization without burdening the MPC itself, which remains linear and can run at a high rate. The nonlinear optimization part is external to the MPC, which allows the number of variables to be kept small and thus to keep the computation time manageable.
+
+We propose two versions of the FAPA module, that differ by the optimization problem required for their implementation. In particular, the first version only uses continuous optimization, while the second one also employs discrete variables and is formulated as a Mixed Integer Nonlinear Program (MINLP). Being the latter very general it can be used to account for more adaptation scenarios, e.g., in which the footsteps can also be moved to different terrain patches than the ones assigned by the high-level planner. As will be discussed extensively in Sect.~\ref{sec:FAPA:Simulations}, the second version is more demanding in terms of computation time, but we present it as a proof of concept as we strongly believe it can be made to work in real time with proper code optimization.
+
+\section{Preliminaries}
+\label{sec:FAPA:Preliminaries}
+
+In this section we describe the environment and the structure of the footstep plan used in our scheme.
+
+\subsection{Environment}
+
+The considered environment is a world of stairs, i.e., constituted by flat horizontal regions. The robot is allowed to walk across different regions if these are relatively close in height, and if there is sufficient available surface to step on them, otherwise they will constitute obstacles to be avoided.
+
+The arrangement of these regions is assumed to be known, and it is processed and encoded in the following way:
+\begin{itemize}
+\item regions are reduced in size so that they represent the collision-free area available for the center of the footprint. This is done by performing a Minkowski difference between each flat region and the area swept by a footprint (accounting for all possible footstep orientations);
+\item after reduction, non-convex regions are subdivided into non-overlapping convex polytopic {\em patches}.
+\end{itemize}
+A patch $P$ is identified by the inequality $\bfA(P) \bfp \le \bfb(P)$, where $\bm{A}(P) \in \mathbb{R}^{V(P) \times 2}$ and $\bm{b}(P) \in \mathbb{R}^{V(P)} $ define a polytope (with $V(P)$ vertices) and $\bfp = (x, y)^T$ is a generic 2D point. 
+In this way, non-polytopic portions of ground (e.g., round edges) are approximated, but the number of vertices can be arbitrarily large.
+Since each patch $P$ is flat, its height is denoted simply as $z(P)$.
+
+
+%We assume the arrangement of these regions known and stored in the form of $R$ horizontal convex polytopic patches $P^\kappa$, with $\kappa=1,\dots,R$. If there are non-convex regions, these should be further subdivided into convex components each counted as a separate patch.Under these assumptions, any patch $P$ is identified by the inequality $\bfA(P) \bfp \le \bfb(P)$, where $\bm{A}(P) \in \mathbb{R}^{V(P) \times 2}$ and $\bm{b}(P) \in \mathbb{R}^{V(P)} $ define a polytope (with $V(P)$ vertices) and $\bfp = (x, y)^T$ is a generic 2D point. 
+%Polytops can approximate with a sufficient number of vertices more complex shapes. 
+%Since each patch $P$ is flat, its height is denoted simply as $z(P)$.
+
+%Patches represent the allowed portion of flat ground for the center of the footstep. Since the entire footstep should be contained within a single region, each patch must be correspondingly reduced in size. This is done by performing a Minkowski difference between the unrestricted portion of ground and the area swept by a footprint (accounting for all possible footstep orientations).
+
+\subsection{Footstep plan}
+
+The high-level footstep plan is a sequence of {\em candidate footsteps} $\hat\bff$, each identified by the tuple $\hat\bff = (\hat x_f, \hat y_f, \hat z_f, \hat\theta_f, \hat T_{\rm ss}, \hat T_{\rm ds})$. For each planned footstep $\hat\bff$
+
+\begin{itemize}
+\item $\hat x_f$, $\hat y_f$ and $\hat z_f$ are the coordinates of its center;
+\item $\hat\theta_f$ is its orientation around the $z$ axis;
+\item $\hat T_{\rm ds}$ and $\hat T_{\rm ss}$ are the durations of its  double support and single support phases, respectively;
+\item we denote by $\Pi(\hat\bff)$ the patch that contains the footstep, i.e., the patch $P$ such that\footnote{Note that this patch is unique because the environment is subdivided into non-overlapping patches.}
+\[
+(\hat{x}_f, \hat{y}_f)^T \in P,\quad \hat{z}_f = z(P).
+\]
+\end{itemize}
+
+% Note that, given  the coordinate of the center of the footstep $\hat\bff$ are such that there always exists a patch $P$ such that:
+% \begin{equation}
+%     (\hat{x}_f, \hat{y}_f)^T \in P,\ \hat{z}_f = z(P).
+% \end{equation}
+% In the following, we will denote such patch $P$ as $\Pi(\hat\bff)$.
+
+The footstep plan $\mathcal{\hat P}$ is computed off-line, and at each time $t_k$ a subplan $\mathcal{\hat P}^l$ of size $F+1$ is extracted, where $l$ is the index of the first footstep of the current subplan (at $t_k$), and $F$ a fixed parameter. The subplan contains the next $F$ candidate footsteps:
+\begin{equation*}
+\mathcal{\hat P}^l = \left\{
+\hat\bff^{l},\,\dots,\,\hat\bff^{l+F}
+\right\}.
+\end{equation*}
+The FAPA block, which performs footsteps adaptation, modifies $\mathcal{\hat P}^l$ in the adapted subplan $\mathcal{P}^l$, i.e., in the input of the IS-MPC block
+\begin{equation*}
+\mathcal{P}^l = \left\{
+\bff^{l},\,\dots,\,\bff^{l+F}
+\right\}.
+\end{equation*}
+
+After every iteration, if adaptation took place (i.e., $\mathcal{P}^l$ differs from $\mathcal{\hat P}^l$), the algorithm performs a {\em footstep plan override}, i.e., the corresponding portion of the high-level footstep plan is substituted with the adapted subplan $\mathcal{P}^l$. Note that the remaining part of the plan (after the index $l+F$) is unchanged, so if the adaptation makes the robot stray from the initial path it will later try to catch up. This behavior is often acceptable, but might sometimes be undesirable, and can be improved in future versions if we allow the high-level planner to replan on-line (see \cite{Cipriano2023RAS}).
+
+\section{Gait Generation via IS-MPC}
+\label{sec:FAPA:GaitGeneration}
+
+We first illustrate the IS-MPC block in order to introduce concepts that are necessary to explain the FAPA block.
+
+We describe the prediction model, the constraints, and the optimization problem to be solved. Furthermore, we give an expression for the feasibility region of IS-MPC in a suitable form to be used by the proposed scheme.
+
+\subsection{Prediction Model}
+
+The prediction model is derived from balancing moments around the ZMP. To allow vertical motion of the CoM, some works \cite{CaEdLaMa:18} use the VH-IP model, in which height variations cause a change to the natural frequency of an inverted pendulum. This makes the prediction model nonlinear, negatively impacting performance. It is however possible to generate 3D trajectories using a linear model if we constrain the systems to obey the linear dynamics
+\begin{equation}\label{eq:FAPA:3dLIP}
+\ddot{\bfp}_c = \eta^2 (\bfp_c - \bfp_z) + \bfg,
+\end{equation}
+ as in~\cite{Cipriano2023RAS}, where $\bfp_c = (x_c,y_c,z_c)^T$ is the CoM position, $\bfp_z = (x_z,y_z,z_z)^T$ is the ZMP position, $\eta$ is a design parameter\footnote{The parameter $\eta$ should be chosen by taking into account the desired resting height of the humanoid, because eq.~\eqref{eq:FAPA:3dLIP} has an equilibrium when CoM and ZMP are vertically displaced by $\bfg/\eta^2$.} and $\bfg = (0,0,-9.81)^T$~[m/s$^2$] is the gravity acceleration vector.
+In order to have smoother trajectories, we dynamically extend \eqref{eq:FAPA:3dLIP} by having the derivative of the ZMP ${\dot \bfp}_z$, instead of the ZMP itself, be the input of the model.
+
+Through the change of coordinates $\bfp_u = \bfp_c + \dot{\bfp}_c / \eta$, the dynamics of the unstable component (also {\em divergent component of motion} \cite{EnOtAl:15} or {\em capture point} \cite{PrCaDrGo:06}) can be highlighted:
+\begin{equation*}
+\dot{\bfp}_u = \eta (\bfp_u - \bfp_z) + \bfg/\eta.
+\end{equation*}
+Despite this unstable dynamics, the CoM trajectory is bounded with respect to the ZMP if the following {\em stability condition} is satisfied:
+\begin{equation}\label{eq:FAPA:stability_condition}
+{\bfp}_u^k = \eta\int_{t_k}^\infty e^{-\eta(\tau-t_k)}\bfp_z(\tau)d\tau - \frac{\bfg}{\eta},
+\end{equation}
+where the superscript in ${\bfp}_u^k$ indicates that the variable is sampled at time $t_k$.
+
+The MPC module works over discrete time-steps of duration $\delta$, over which the input $\dot \bfp_z$ is constant, i.e., $\dot \bfp_z(t) = \dot \bfp_z^k$ for $t\in[t_k, t_{k+1})$.
+The prediction model \eqref{eq:FAPA:3dLIP} is used to forecast the evolution of the system over a \emph{control horizon} $T_c=C\delta$, while we assume to know the footstep plan over a \emph{preview horizon} $T_p=P\delta$, with $P\ge C$.
+
+Relating the dynamics of the CoM to those of the ZMP is essential since the latter encodes information about the realizability of ground reaction forces, and thus provides a criterion for balance. 
+% While on flat ground this criterion consists in keeping the ZMP within the support polygon of the robot, an extension for the 3D case is required. 
+A common way to extend the basic 2D balance criterion consists in prescribing the 3D ZMP to be inside a 3D pyramid $\cal Z$ (see Fig.~\ref{fig:FAPA:balance3D}), having the base defined by the contact surfaces and the CoM vertex \cite{Sugihara2002ICRA, Cipriano2023RAS}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width= 0.75\columnwidth]{figures/balance3d.pdf}
+    \caption{3D balance: the ZMP $\bfp_z$ must be inside the pyramid $\mathcal{Z}$.}
+    \label{fig:FAPA:balance3D}
+    \vskip -0.6 truecm
+\end{figure}
+
+\subsection{ZMP Constraint}
+
+The IS-MPC block receives the adapted subplan ${\cal P}^l$ and uses it to construct ZMP constraints. As described in the previous subsection, the criterion for balance is satisfied if the ZMP belongs to the pyramid $\cal Z$. However, enforcing this condition directly would lead to a nonlinear constraint in the MPC because the vertex of the pyramid is the CoM of the robot. Thus, we adopt a conservative approximation called the {\em moving constraint}.
+
+The moving constraint requires for the ZMP to be at all times within a convex polyhedron of fixed shape, in our case a box of dimensions $d_x$, $d_y$ and $d_z$ centered in $\bfp_{\rm mc}=(x_{\rm mc}, y_{\rm mc}, z_{\rm mc})$, which we call the {\em moving box}. Along the prediction, the moving box can translate but not rotate, and its center moves in such a way that it is always fully contained within the 3D pyramid $\mathcal{Z}$ (see Fig. 5 in \cite{ZaScLaOr:18}). The vector $\bm{X}_{\rm mc}^{k+1} = (x_{\rm mc}^{k+1}, \dots, x_{\rm mc}^{k+C})^T$ collects the $x$ coordinate of the center of the moving box in the control horizon.
+
+Because of its constant orientation in the prediction, at each time we can choose the orientation of the axes to align with the orientation of the moving box (taken as the orientation of the current support foot) and obtain a ZMP constraint that is decoupled along the 3 axes. Focusing on the component along $x$, we can write it as
+\begin{equation}\label{eq:FAPA:ZMP_constraints}
+    \bm{X}_z^{\rm m,k+1} \le \bm{X}_z^{k+1} \le \bm{X}_z^{M,k+1},
+\end{equation}
+where $\bm{X}_z^{k+1} = (x_z^{k+1}, \dots, x_z^{k+C})^T$ is a vector of predicted ZMP positions, and $\bm{X}_z^{\rm m,k+1}$ and $\bm{X}_z^{\rm M,k+1}$ are the ZMP bounds along the prediction.
+By defining
+\begin{equation*}
+    \bm{Z} =
+    \begin{pmatrix}
+        \delta & 0 & \cdots & 0 \\
+        \delta & \delta & \cdots & 0 \\
+        \vdots & \vdots & \ddots & \vdots \\
+        \delta & \delta & \cdots & \delta
+    \end{pmatrix},
+    \qquad
+    \bm{z} =
+    \begin{pmatrix}
+        1 \\ 1 \\ \vdots \\ 1
+    \end{pmatrix},
+\end{equation*}
+$\bm{X}_z^{k+1}$ can be expressed as
+\begin{equation}
+    \label{eq:FAPA:zmp-model-matrix-form}
+    \bm{X}_z^{k+1} = \bm{Z} \dot{\bm{X}}_z^{k} + \bm{z} x_z^k,
+\end{equation}
+where $\dot{\bm{X}}_z^{k} = (\dot x_z^{k}, \dots, \dot x_z^{k+C-1})^T$ is the vector of ZMP velocities, i.e., the decision variables. The ZMP bounds along the prediction can be expressed as
+\begin{equation}
+    \bm{X}_z^{\rm m,k+1} = \bm{X}_{\rm mc}^{k+1} - \bfz \frac{d_x}{2}, \quad 
+    \bm{X}_z^{\rm M,k+1} = \bm{X}_{\rm mc}^{k+1} + \bfz \frac{d_x}{2}.
+\label{eq:FAPA:zmp_constraint_displacement}
+\end{equation}
+The center of the moving box $\bfp_{\rm mc}$ must be expressed in terms of the subplan $\mathcal{P}^l$. First we define the {\em piecewise-linear sigmoid} function 
+\begin{equation*}
+\sigma (t,t_i,t_f)=\frac{1}{t_f-t_i} \left(\rho(t-t_i)-\rho(t-t_f)\right),
+%\label{eq:FAPA:sigma}
+\end{equation*}
+where $\rho(t)=t\delta_{-1}(t)$ is the unit ramp. $\sigma (t,t_i,t_f)$ is 0 before $t_i$,  1 after $t_f$, and it transitions linearly in the interval $[t_i,t_f]$. This function is useful to represent the transition between consecutive footsteps.
+
+$\bm{X}_{\rm mc}^{k+1}$ can be written as
+\begin{equation}
+\label{eq:FAPA:mapping}
+\bm{X}_{\rm mc}^{k+1} = \bm{M} \bm{X}_f^l + \bm{m}x_f^l,
+\end{equation}
+where $\bm{X}_{f}^{l} = (x_{f}^{l}, \dots, x_{f}^{l+F})^T$ collects the footstep positions. $\bm{M}\in\mathbb{R}^{C\times F}$ is a mapping matrix whose elements $M_{ij}$ are defined as
+\begin{equation}\begin{split}
+M_{ij} &= \sigma(t_{k+i}, t_s^{l+j},t_s^{l+j}+T_{\rm ds}^{l+j})\\ &- \sigma(t_{k+i}, t_s^{l+j-1},t_s^{l+j-1}+T_{\rm ds}^{l+j-1}),
+\end{split}\end{equation}
+and $\bfm\in\mathbb{R}^{C}$ is a vector whose elements $m_i$ are given by
+\begin{equation*}
+m_{i} = 1 - \sigma(t_{k+i}, t_s^{l},t_s^{l}+T_{\rm ds}^{1}),
+\end{equation*}
+where $t_s^l$ is the starting time of the $l$-th step and
+\begin{equation*}
+    t^j_s = t^l_s + \sum^{l+j-1}_{\lambda=l} \left(T_{\rm ds}^\lambda + T_{\rm ss}^\lambda\right).
+\end{equation*}
+
+\subsection{Stability Constraint}
+
+The stability constraint is derived from the stability condition \eqref{eq:FAPA:stability_condition}. We focus here on the $x$ component, but the other components can be similarly derived (see~\cite{Cipriano2023RAS}).
+
+Since the MPC has a limited control horizon we split the integral at $t_{k+C}$. Before $t_{k+C}$ the stability condition can be expressed in terms of the decision variables, while after it must be conjectured. We adopt the anticipative tail $\tilde x_z$ \cite{ScDeLaOr:20} to get an approximation of the ZMP trajectory after the horizon:
+\begin{equation*}
+    \eta \int_{t_k}^{t_{k+C}} e^{-\eta(\tau-t_k)} x_z(\tau) d\tau = x_u^k - \tilde{c}_x^k,
+\end{equation*}
+where $x_u^k$ is the $x$-component of $\bfp_u^k$ and
+\begin{equation*}
+    \tilde{c}_x^k = \eta \int_{t_{k+C}}^{\infty} e^{-\eta(\tau-t_k)} \tilde{x}_z(\tau) d\tau.
+\end{equation*}
+
+The second step is to make the decision variables appear explicitly, i.e., the ZMP velocities $\dot{\bm{X}}_z$ over the control horizon, by computing the integral over a piecewise linear ZMP trajectory. The final form of the constraint can be found in \cite{ScDeLaOr:20}. For the purpose of this analysis, we will use the compact expression
+\begin{equation}\label{eq:FAPA:stability_constraint}
+    \bfs^T \dot{\bm{X}}_z = b_x^k + x_u^k,
+\end{equation}
+where $\bfs\in\mathbb{R}^C$ and $b_x^k\in\mathbb{R}$ denote respectively a vector and a scalar whose explicit expressions can be recovered from the cited reference.
+
+\subsection{IS-MPC Algorithm}
+
+IS-MPC solves, at each time $t_k$, the following QP problem:
+\begin{braced}
+\begin{equation*}\begin{split}
+\min_{\dot{\bm{X}}_\text{z}^k, \dot{\bm{Y}}_\text{z}^k, \dot{\bm{Z}}_\text{z}^k}
+&\|\dot{\bm{X}}_z^k\|^2 + \|\dot{\bm{Y}}_z^k\|^2 + \|\dot{\bm{Z}}_z^k\|^2+\beta \|\bm{X}_z^{k+1} - \bfX_{\rm mc}^{k+1}\|^2 \\& + \beta \|\bm{Y}_z^{k+1} - \bfY_{\rm mc}^{k+1}\|^2 + \beta \|\bm{Z}_z^{k+1} - \bfZ_{\rm mc}^{k+1}\|^2 \\
+\end{split}\end{equation*}
+\hspace{0.25cm} subject to:
+\begin{itemize}
+\item ZMP constraints (\ref{eq:FAPA:ZMP_constraints})
+\item stability constraints (\ref{eq:FAPA:stability_constraint})
+\end{itemize}
+\end{braced}
+
+\medskip
+In the cost function, the first three terms act as regularization while the remaining attempt to bring the ZMP as close as possible to the center of the moving box, with a strength modulated by the weight $\beta$.
+
+The first sample $\dot \bfp_z^k = (\dot x_z^k, \dot y_z^k, \dot z_z^k)$ of the optimal sequence is used to integrate the prediction model and the resulting CoM position $\bfp_c^{k+1}$ is sent to the kinematic controller together with a suitable swing foot trajectory that allows to reach the target footstep position at the proper time.
+
+\subsection{Feasibility Region}
+
+The {\em feasibility region} is the region of the state space in which the IS-MPC optimization problem is feasible.
+
+\medskip
+\begin{proposition}
+\label{prop:feasibility}
+IS-MPC is feasible at time $t_k$ if
+\begin{align}
+\label{eq:FAPA:mpc-feasibility-constraint}
+\bm{s}^T \bm{Z}^{-1} (\bm{X}_z^{{\rm m}, k+1} \!-\! \bm{z} x_z^k)  \!&\le\! x_u^k \!+\! b_x^k \!\le\! \bm{s}^T \bm{Z}^{-1} (\bm{X}_z^{{\rm M}, k+1} \!-\! \bm{z} x_z^k),
+\nonumber\\
+\bm{s}^T \bm{Z}^{-1} (\bm{Y}_z^{{\rm m}, k+1} \!-\! \bm{z} y_z^k)  \!&\le\! y_u^k \!+\! b_y^k \!\le\! \bm{s}^T \bm{Z}^{-1} (\bm{Y}_z^{{\rm M}, k+1} \!-\! \bm{z} y_z^k),
+\nonumber\\
+\bm{s}^T \bm{Z}^{-1} (\bm{Z}_z^{{\rm m}, k+1} \!-\! \bm{z} z_z^k)  \!&\le\! z_u^k \!+\! b_z^k \!\le\! \bm{s}^T \bm{Z}^{-1} (\bm{Z}_z^{{\rm M}, k+1} \!-\! \bm{z} z_z^k).
+\end{align}
+\end{proposition}
+{\em Proof}.
+We focus the proof on the inequalities for the $x$ component, as the logic, for the other components is identical. The bounds of the feasibility region along $x$ are given by
+\begin{align*}
+x_u^{k,b1} &= \bm{s}^T \bm{Z}^{-1} (\bm{X}_z^{{\rm m}, k+1} - \bm{z} x_z^k) - b_x^k, \\
+x_u^{k,b2} &= \bm{s}^T \bm{Z}^{-1} (\bm{X}_z^{{\rm M}, k+1} - \bm{z} x_z^k) - b_x^k.
+\end{align*}
+Then, if $x_u^k$ is inside the feasibility region, it is possible to express it as a convex combination of the two bounds, i.e.,
+\begin{equation}\label{eq:FAPA:xu_convex}
+x_u^k = \alpha x_u^{k,b1} + (1-\alpha)x_u^{k,b2}, \alpha \in [0, 1].
+\end{equation}
+
+Consider the following ZMP velocity trajectory:
+\begin{equation}\label{eq:FAPA:candidate_trajectory}
+\dot{\bm{X}}_z^k = \alpha \bm{Z}^{-1}(\bm{X}_z^{{\rm m}, k+1} - \bm{z} x_z^k) + (1-\alpha)\bm{Z}^{-1}(\bm{X}_z^{{\rm M}, k+1} - \bm{z} x_z^k).
+\end{equation}
+We will show that this particular trajectory satisfies both the stability constraint and the ZMP constraints. As for the stability constraint, multiply both sides of (\ref{eq:FAPA:candidate_trajectory}) by $\bm{s}^T$
+% \begin{equation}
+% \bm{s}^T\bm{\dot X}_z^k = \bm{s}^T(\alpha \bm{Z}^{-1}(\bm{X}_z^{{\rm m}, k+1} - \bm{z} x_z^k) + (1-\alpha)\bm{Z}^{-1}(\bm{X}_z^{{\rm M}, k+1} - \bm{z} x_z^k)),
+% \end{equation}
+and plug in the definitions of $x_u^{k,b1}$ and $x_u^{k,b2}$ to obtain
+\begin{equation*}
+\bm{s}^T\dot{\bm X}_z^k = (\alpha (x_u^{k,b1} + b^k_x)) + (1-\alpha)(x_u^{k,b2} + b^k_x)).
+\end{equation*}
+Using (\ref{eq:FAPA:xu_convex}), this is equivalent to the stability constraint (\ref{eq:FAPA:stability_constraint}).
+
+To prove satisfaction of the ZMP constraint. Left-multiplying \eqref{eq:FAPA:zmp-model-matrix-form} by $\bm{Z}$, the chosen ZMP velocity trajectory can be rewritten as
+\begin{equation*}
+\bm{X}_z^k - \bm{z} x_z^k = \alpha (\bm{X}_z^{{\rm m}, k+1} - \bm{z} x_z^k) + (1-\alpha)(\bm{X}_z^{{\rm M}, k+1} - \bm{z} x_z^k),
+\end{equation*}
+which simplifies to
+$\bm{X}_z^k = \alpha \bm{X}_z^{{\rm m}, k+1} + (1-\alpha)\bm{X}_z^{{\rm M}, k+1}$,
+and therefore the ZMP constraint (\ref{eq:FAPA:ZMP_constraints}) is satisfied. \hfill\bull
+
+In the following section, we will describe how to use the feasibility region to formulate a constraint for the FAPA module, and thus ensure that the output of FAPA can be used by IS-MPC to construct a feasible QP.
+
+\section{Feasibility-Aware Plan Adaptation}
+\label{sec:FAPA:FeasibilityAwarePlanAdaptation}
+The FAPA module runs in real-time and performs a local adaptation of the subplan $\mathcal{\hat P}^l$, including their timing. We now describe the constraints and the optimization problems that define the adaptation procedure.
+%For reasons that will be clarified later, we also assume to have information about which patches are adjacent. This information can be stored as an adjacency matrix $\bfN$, whose terms $n_{ij}$ are defined as follows
+%\begin{equation}
+%n_{ij} =
+%\begin{cases}
+%1, & \text{if $P_i$ is adjacent or coincides with $P_j$}\\
+%0, & \text{otherwise}
+%\end{cases}
+%\end{equation}
+% The next subsections will describe the constraint that are enforced by the FAPA module, and finally the optimization problem to be solved.
+
+\subsection{Kinematic Constraint}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\columnwidth]{figures/humanoids_kinconstr.pdf}
+    \caption{Admissible region of the kinematic constraint in the $x$-$y$ plane.}
+    \label{fig:FAPA:kinematic-constraint}
+    \vskip -0.6 truecm
+\end{figure}
+
+%The $j$-th footstep $\bff^{j}$ is ensured to be kinematically feasible by limiting its displacement with respect to the $(j-1)$-th footstep $\bff^{j-1}$.
+%In practice we constrain the geometric components of $\bff^{j}$ to be within a hyperrectangle, i.e.:
+%\begin{gather}
+    %\Delta x^{\min} \le \cos\theta_{j-1} (x_{j} - x_{j-1}) + \sin\theta_{j-1} (y_{j} - y_{j-1}) \le \Delta x^{\max}, \\
+    %\bar{y} - \Delta y \le - \sin\theta_{j-1} (x_{j} - x_{j-1}) + \cos\theta_{j-1} (y_{j} - y_{j-1}) \le \bar{y} + \Delta y, \\
+    %\Delta z^{\min} \le z_{j} - z_{j-1} \le \Delta z^{\max}, \\
+    %\Delta \theta^{\min} \le \theta_{j} - \theta_{j-1} \le \Delta \theta^{\max}, 
+%\end{gather}
+%\begin{gather}
+%\left(\!\begin{array}{c} -\Delta x^{\rm m} \\ \bar y - \Delta y^{\rm m} \end{array}\!\right) \le
+%R(\theta_f^j)^T\left(\!\left(\!\begin{array}{c} x_f^j \\ y_f^j \end{array}\right)
+%- \left(\begin{array}{c} x_f^{j-1} \\ y_f^{j-1} \end{array}\!\right)\!\right)
+%\le 
+%\left(\!\begin{array}{c} \Delta x^{\rm M} \\ \bar y + \Delta y^{\rm M} \end{array}\!\right)
+%\nonumber\\
+%\Delta z^{\rm m} \le z_{j} - z_{j-1} \le \Delta z^{\rm M}, \nonumber\\
+%\Delta \theta^{\rm m} \le \theta_{j} - \theta_{j-1} \le \Delta \theta^{\rm M}, 
+%\end{gather}
+%where $R(\theta_f^j)$ is a 2D rotation matrix, $\Delta x^{\rm m}$, $\Delta x^{\rm M}$, $d$, $\Delta y$, $\Delta z^{\rm m}$, $\Delta z^{\rm M}$, $\Delta \theta^{\rm m}$, and $\Delta \theta^{\rm M}$ define limits for the foot reachability, $\bar{y}$ is a lateral displacement which alternatively takes on negative and positive values to account for the alternating of left and right feet. It can be evaluated using the expression $\bar{y} = (-1)^{b_{ls}+j-1} \ell$, where $b_{ls}$ indicates if the left foot is the current swing foot and $\ell$ is the displacement magnitude. Notice that when $j=1$, then $\bff^{j-1}$ indicates the current pose of the support foot $\bff^0$, which is not a decision variable but rather depends on the current robot state.
+The $j$-th footstep $\bff^{j}$ is ensured to be kinematically feasible by limiting its displacement with respect to the previous footstep $\bff^{j-1}$. In practice we constrain the geometric components of $\bff^{j}$ to be within the \textit{admissible region}
+\begin{equation}
+\label{eq:FAPA:kinematic-constraint}
+\begin{split}
+\begin{pmatrix}
+    \bm{n}_1^T\left(\bm{p}_{xy}^{l+j} - \bm{p}_{xy}^{l+j-1} - \bm{R}(\theta_f^{l+j-1})\bm{v}_1\right) \\
+    \vdots \\
+    \bm{n}_V^T\left(\bm{p}_{xy}^{l+j} - \bm{p}_{xy}^{l+j-1} - \bm{R}(\theta_f^{l+j-1})\bm{v}_V\right) \\
+\end{pmatrix} \ge \bm{0},\\
+    \Delta z^{\rm m} \le z_{l+j} - z_{l+j-1} \le \Delta z^{\rm M}, \\
+    \Delta \theta^{\rm m} \le \theta_{l+j} - \theta_{l+j-1} \le \Delta \theta^{\rm M}, 
+\end{split}
+\end{equation}
+with $\bm{R}(\theta_f^{l+j-1})$ a 2D rotation matrix, $\bm{n}_i$ the vector normal to the $i$-th segment of the convex region computed as
+\begin{equation*}
+    \bm{n}_i =
+    \begin{pmatrix}
+        0 & -1 \\ 1 & 0
+    \end{pmatrix}
+    \bm{R}(\theta_f^{l+j-1})(\bm{v}_{i+1}-\bm{v}_i),
+\end{equation*}
+and $\bm{v}_i$ being the vertices defining the convex polygon (different depending whether the support foot is left or right), shown in Fig. \ref{fig:FAPA:kinematic-constraint}. Furthermore, $\Delta_z^m$, $\Delta z^{\rm M}$, $\Delta \theta^{\rm m}$, and $\Delta \theta^{\rm M}$ define limits for the foot reachability over vertical displacement and relative orientation.
+
+\subsection{Timing Constraint}
+Single and double support duration are subject to minimum and maximum duration constraints
+\begin{equation}
+    T_{\rm ds}^{\min} \le T_{\rm ss}^{l+j} \le T_{\rm ds}^{\max}, \quad T_{\rm ss}^{\min} \le T_{\rm ds}^{l+j} \le T_{\rm ss}^{\max},
+    \label{eq:FAPA:timing-constraint}
+\end{equation}
+where the bounds $T_{\rm ds}^{\min}$, $T_{\rm ds}^{\max}$, $T_{\rm ss}^{\min}$, $T_{\rm ss}^{\max}$ are chosen in such a way to avoid excessively fast trajectories that might be difficult to track, as well as very slow steps that could result in quasi-static motion.
+
+\subsection{Patch Constraints}
+\label{sec:FAPA:patch_constraint}
+
+We describe alternative versions of this constraint, as we will later compare the module using either of them, both in terms of the quality of the resulting plan and of the computational load.
+% NOTE: \Pi(\bff^{l+j}) replaces P^{\hat r^{l+j}}.
+The first version of the constraint simply restrict the $(l+j)$-th footstep to lie within its associated patch $\Pi(\bff^{l+j})$, which is the one originally chosen by the high-level planner. This constraint can be written as
+\begin{equation}
+    \begin{cases}
+		\bm{A}(\Pi(\bff^{l+j})) \left( x_f^{l+j} \ y_f^{l+j} \right)^T \leq \bm{b}(\Pi(\bff^{l+j})), \\
+		z_f^{l+j} = z(\Pi(\bff^{l+j})).
+    \end{cases}
+	\label{eq:FAPA:fixed_patch_constraint}
+\end{equation}
+
+%The second version of the patch constraint allows the footstep to be moved to a different patch. The first version can be restrictive if the robot is subject to a disturbance when close to a patch boundary. In such occasions, withstanding the disturbance may require placing the foot in a different patch.
+
+The second version of the patch constraint allows the footstep to be moved to a different patch. To entertain this possibility, we introduce binary variables in order to formulate a mixed-integer constraint. This constraint defines a logical implication in which, if a certain binary variable $b_{l+j,\kappa}$ is {\em true}, then a linear constraint must be verified:
+\begin{equation}
+	b_{l+j,\kappa}=1 \Rightarrow 
+	\begin{cases}
+		\bm{A}(P^\kappa) \left( x_f^{l+j} \ y_f^{l+j} \right)^T \leq \bm{b}(P^\kappa), \\
+		z_f^{l+j} = z(P^\kappa).
+	\end{cases}
+	\label{eq:FAPA:implication}
+\end{equation}
+This forces the $(l+j)$-th footstep to lie within the $\kappa$-th patch. Since each footstep can only be inside a single patch, we also impose
+\begin{equation}
+    \sum^R_{\kappa=1} b_{l+j,\kappa} = 1.
+    \label{eq:FAPA:sum_one}
+\end{equation}
+
+In MIP, logical implications can be implemented using binary variables through the so-called {\em big-M} technique \cite{Afonso2020}. In this case, we rewrite \eqref{eq:FAPA:implication} as
+\begin{equation}
+	\begin{cases}
+		\bm{A}(P^\kappa)\left( x_f^{l+j} \ y_f^{l+j} \right)^T \leq \bm{b}(P^\kappa) + (1 - b_{l+j,\kappa}) M \bm{1}_{V(P^\kappa)}, \\
+		z_{l+j} \leq z(P^\kappa) + (1 - b_{l+j,\kappa}) M, \\
+		-z_{l+j} \leq -z(P^\kappa) + (1 - b_{l+j,\kappa}) M,
+	\end{cases}
+\label{eq:FAPA:mi_patch_constraint}
+\end{equation}
+where $M$ is a constant large enough to relax the constraints if $b_{l+j,\kappa}=0$ and $\bm{1}_{V(P^\kappa)}$ is a row vector with $V(P^\kappa)$ ones. We define $\hat \kappa_{l+j}$ as the index of $\Pi(\hat \bff^{l+j})$. Note that this requires turning the equality constraint into two inequality constraints. Based on the patches of the candidate footsteps in $\mathcal{\hat P}^l$, we also define candidate binary variables as
+\begin{equation*}
+\hat b_{l+j,\kappa} =
+\begin{cases}
+1, \ \text{if } \kappa = \hat \kappa_{l+j}, \\
+0, \ \text{if } \kappa \neq \hat \kappa_{l+j}.
+\end{cases}
+\end{equation*}
+Finally, \eqref{eq:FAPA:sum_one} and \eqref{eq:FAPA:mi_patch_constraint} assume that every footstep may be mapped to every patch, which requires $F \times R$ binary variables. However, since the computational load of a MIP is largely related to the number of binary variables, we employ a heuristic that allows a footstep $\bff^j$ to be assigned only to the patches adjacent to $\Pi(\hat \bff^j)$.
+% In this case, let us denote $\bm{\mathcal{P}}_j = \{ \mathcal{P}^1_j,\cdots,\mathcal{P}^{R_j}_j \}$ as the set of patches associated to the $j$-th footstep, where $R_j$ is the number of patches in $\bm{\mathcal{P}}_j$. Then, the patch constraints may be written as
+% \begin{equation}
+% 	\left\{
+% 	\begin{array}{l}
+% 		\bm{A}(\mathcal{P}^r_j)\left( x_f^j \ y_f^j \right)^T \leq \bm{b}(\mathcal{P}^{r}_j) + (1 - b_{j,r}) M \bm{1}_{V(\mathcal{P}^r)}, \\
+% 		z_j \leq z(\mathcal{P}^r_j) + (1 - b_{j,r}) M, \\
+% 		-z_j \leq -z(\mathcal{P}^r_j) + (1 - b_{j,r}) M,
+% 	\end{array}
+% 	\right.
+% \label{eq:FAPA:mi_patch_constraint_closest}
+% \end{equation}
+% \begin{equation}
+%     \sum^{R_j}_{r} b_{j,r} = 1,
+% \label{eq:FAPA:sum_ones_closest}
+% \end{equation}
+
+\subsection{Current Footstep Constraints}
+
+The first footstep in the subplan $\bff^l$ corresponds to the footstep currently in contact with the ground, which means that some of its components cannot be changed. In particular, its geometric components should be constrained to be equal to the corresponding components of $\hat\bff^l$, i.e.,
+\begin{equation}
+x_f^l = \hat x_f^l, \quad
+y_f^l = \hat y_f^l, \quad
+z_f^l = \hat z_f^l, \quad
+\theta_f^l = \hat \theta_f^l.
+\label{eq:FAPA:current_geometric_constraint}
+\end{equation}
+Note that, because of the footstep plan override, the components of $\hat\bff^l$ are not the same as in the original plan, but rather those adapted at the previous iteration.
+
+If $t_k$ belongs to a single support phase, the double support of the current step cannot be changed anymore because it is already passed. This is expressed by the constraint
+\begin{equation}
+	t_k - t_s^l > T^l_{\rm{ds}} \quad \Rightarrow \quad  T^l_{\rm{ds}} = \hat T^l_{\rm{ds}}.
+	\label{eq:FAPA:double_support_decided}
+\end{equation}
+Note that the implication in \eqref{eq:FAPA:double_support_decided} is handled at the code level and does not require introducing binary variables.
+%Note that \eqref{eq:FAPA:double_support_decided} is not implemented through binary variables since the decision does not involve decision variables of the optimization. Therefore, the check is executed during the construction of the optimization problem and the equality constraint present in \eqref{eq:FAPA:double_support_decided} is only added if the check is true.
+
+To avoid footstep changes when the swing foot is close to touching the ground, when nearing the end we add the following constraint:
+\begin{equation}
+\label{eq:FAPA:swing_foot_constraint}
+	T^l_{\rm ds} + T^l_{\rm ss} - t_k + t_s^l < t_{\mathrm{change}} \quad \Rightarrow \quad
+	\bff^{l+1} = \hat\bff^{l+1}.
+\end{equation}
+
+\subsection{Gait Feasibility Constraints}
+
+The gait feasibility constraints are introduced to ensure that IS-MPC is feasible. They do so by constraining the current state to be within the feasibility region \eqref{eq:FAPA:mpc-feasibility-constraint}.
+
+The expression of the feasibility region \eqref{eq:FAPA:mpc-feasibility-constraint} uses the ZMP bounds, that clearly depend on the motion of the moving box, and thus on the footsteps positions and timings. To derive a constraint, we simply make this dependency explicit by plugging \eqref{eq:FAPA:zmp_constraint_displacement} and \eqref{eq:FAPA:mapping} inside \eqref{eq:FAPA:mpc-feasibility-constraint}. Focusing on the right inequality of the $x$ component, this results in
+\begin{equation}\label{eq:FAPA:gait_feasibility_constraint}
+x_u^k + b_x^k \le \bm{s}^T \bm{Z}^{-1} \left(\bfM\bfX_f^l + \bfm x_f^l + \bm{z} \left(\frac{d_x}{2} - x_z^k\right)\right).
+\end{equation}
+The $y$ and $z$ components, as well as the left inequalities result in analogous expressions, which we omit for space concerns.
+
+\subsection{Feasibility-Driven Plan Adaptation Algorithm}
+
+We present two different versions of the FAPA algorithm. The first one is not allowed to move footsteps from a different patch to the one in the original plan, and is thus referred to as Fixed patches FAPA (F-FAPA). The second one is instead allowed to choose different patches, and goes under the name of Variables patches FAPA (V-FAPA).
+
+The decision variable over the planning horizon are collected as
+% per recuperare spazio anche se c'è overfull ....
+\begin{align*}
+    \bfX_f^l & =  (x_f^l,\dots,x_f^{l+F}), \quad 
+    \,\, \bfY_f^l  =  (y_f^l,\dots,y_f^{l+F}), \\
+    \,\, \bfZ_f^l & = (z_f^l,\dots,z_f^{l+F}), \quad
+    \bm{\Theta}_f^l = (\theta_f^l,\dots,\theta_f^{l+F}), \\
+    \,\, \bfT_{\rm ds}^l & =  (T_{\rm ds}^l,\dots,T_{\rm ds}^{l+F}), \quad \bfT_{\rm ss}^l \!=\! (T_{\rm ss}^l,\dots,T_{\rm ss}^{l+F}), 
+\end{align*}
+\begin{equation*}
+\bfB^l = \left(
+\begin{array}{ccc}b_{l,1} & \dots & b_{l,L}\\ \vdots & \ddots & \vdots \\ b_{l+F,1} & \dots & b_{l+F,L} \end{array}
+\right),
+\end{equation*}
+while the corresponding candidate values are identified by the vectors $\hat \bfX_f^l$, $\hat \bfY_f^l$, $\hat \bfZ_f^l$, $\hat {\bm{\Theta}}_f^l$, $\hat \bfT^l_{\rm ds}$, $\hat \bfT^l_{\rm ss}$, $\hat \bfB^l$, similarly defined.
+
+F-FAPA solves the following problem, with decision variables  $\bfU^l = (\bm{X}_f^l, \bm{Y}_f^l, \bm{Z}_f^l, \bm{\Theta}_f^l, \bm{T}_{\rm ds}^l, \bm{T}_{\rm ss}^l)$:
+\begin{braced}
+\begin{equation*}\begin{split}
+\min_{\bfU^l}\quad
+& w_x \| \hat{\bm{X}}_f^l - \bm{X}_f^l \|^2 + w_y \| \hat{\bm{Y}}_f^l - \bm{Y}_f^l \|^2 + \\& w_z \| \hat{\bm{Z}}_f^l - \bm{Z}_f^l \|^2 + w_{\theta} \| \hat{\bm{\Theta}}_f^l - \bm{\Theta}_f^l \|^2 + \\& w_{\rm ds} \| \hat{\bm{T}}_{\rm ds}^l - \bm{T}_{\rm ds}^l \|^2 + w_{\rm ss} \| \hat{\bm{T}}_{\rm ss}^l - \bm{T}_{\rm ss}^l \|^2
+\end{split}\end{equation*}
+\hspace{0.25cm} subject to:
+\begin{itemize}
+\item kinematic constraints \eqref{eq:FAPA:kinematic-constraint}, for $j=1,\dots,F$
+\item timing constraints \eqref{eq:FAPA:timing-constraint}, for $j=0,\dots,F$
+\item fixed patch constraints \eqref{eq:FAPA:fixed_patch_constraint}, for $j=1,\dots,F$
+\item current footsteps constraints \eqref{eq:FAPA:current_geometric_constraint}, \eqref{eq:FAPA:double_support_decided} and \eqref{eq:FAPA:swing_foot_constraint}
+\item gait feasibility constraints \eqref{eq:FAPA:gait_feasibility_constraint}
+\end{itemize}
+\end{braced}
+
+\medskip
+
+Since F-FAPA does not have binary variables, it can be implemented using a regular nonlinear solver (i.e., \texttt{ipopt}).
+
+V-FAPA solves the following problem, with decision variables which now include the binary variables $\bm{B}^{l}$ that is $\bfW^l = (\bm{X}_f^l, \bm{Y}_f^l, \bm{Z}_f^l, \bm{\Theta}_f^l, \bm{T}_{\rm ds}^l, \bm{T}_{\rm ss}^l, \bm{B}^{l})$:
+\begin{braced}
+\begin{equation*}\begin{split}
+\min_{\bfW^l} \quad
+& w_x \| \hat{\bm{X}}_f^l - \bm{X}_f^l \|_2^2 + w_y \| \hat{\bm{Y}}_f^l - \bm{Y}_f^l \|_2^2 + \\& w_z \| \hat{\bm{Z}}_f^l - \bm{Z}_f^l \|_2^2 + w_{\theta} \| \hat{\bm{\Theta}}_f^l - \bm{\Theta}_f^l \|_2^2 + \\& w_{\rm ds} \| \hat{\bm{T}}_{\rm ds}^l - \bm{T}_{\rm ds}^l \|_2^2 + w_{\rm ss} \| \hat{\bm{T}}_{\rm ss}^l - \bm{T}_{\rm ss}^l \|_2^2 +  \\&
+w_{\rm b} \| \hat{\bm{B}}^l - \bm{B}^l \|_2^2
+\end{split}\end{equation*}
+\hspace{0.25cm} subject to:
+\begin{itemize}
+\item kinematic constraints \eqref{eq:FAPA:kinematic-constraint}, for $j=1,\dots,F$
+\item timing constraints \eqref{eq:FAPA:timing-constraint}, for $j=0,\dots,F$
+\item variable patch constraints \eqref{eq:FAPA:sum_one} and \eqref{eq:FAPA:mi_patch_constraint}, for $j=1,\dots,F$
+\item current footsteps constraints \eqref{eq:FAPA:current_geometric_constraint}, \eqref{eq:FAPA:double_support_decided} and \eqref{eq:FAPA:swing_foot_constraint}
+\item gait feasibility constraints \eqref{eq:FAPA:gait_feasibility_constraint}
+\end{itemize}
+\end{braced}
+
+\medskip
+
+Since V-FAPA contains the binary variables $\bm{B}$ it is implemented as a MINLP. %Benchmarks and comments about the practical applicability when it comes to real-time performance will be given in the next section.
+
+\section{Simulations}
+\label{sec:FAPA:Simulations}
+
+\begin{figure}
+    %\includegraphics[trim={0 1cm 0 0},clip,width=\columnwidth]{figures/empty-fixed-plot-starting.pdf}
+    \centering
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/empty-fixed-plot-after-push.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/empty-fixed-plot-completing-task.pdf}
+    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\columnwidth]{figures/empty-fixed-plot-completing-task.pdf}
+    \caption{F-FAPA in the {\em empty} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Green footsteps represent the original candidate plan, while the footsteps that are actually executed are shown in grey. Red footsteps represent the current adapted subplan. The two bands on the bottom show the nominal and adapted timings (green for double support and blue for single support). The same color scheme is used for the rest of the figures.}
+    \label{fig:FAPA:matlab_empty}
+    \vskip -0.6 truecm
+\end{figure}
+
+\begin{figure}
+    %\includegraphics[trim={0 1cm 0 0},clip,width=\columnwidth]{figures/two-patches-fixed-plot-starting.pdf}
+    \centering
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/two-patches-fixed-plot-after-push.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/two-patches-fixed-completing-task.pdf}
+    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\columnwidth]{figures/two-patches-fixed-completing-task.pdf}
+    \caption{F-FAPA in the {\em 2-patches} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Since changing patches is not allowed, the magnitude of the push that can be tolerated is quite small, compared to that of the other simulations.}
+    \label{fig:FAPA:matlab_2pacf}
+    \vskip -0.5 truecm
+\end{figure}
+
+\begin{figure}
+    %\includegraphics[trim={0 1cm 0 0},clip,width=\columnwidth]{figures/two-patches-mixed-integer-plot-starting.pdf}
+    \centering
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/two-patches-mixed-integer-after-push.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/two-patches-mixed-integer-completing-task.pdf}
+    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\columnwidth]{figures/two-patches-mixed-integer-completing-task.pdf}
+    \caption{V-FAPA in the {\em 2-patches} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Now the robot is allowed to adapt the footstep position to the other patch, and is able to tolerate a stronger push.}
+    \label{fig:FAPA:matlab_2pacmi}
+    \vskip -0.7 truecm
+\end{figure}
+
+%\begin{figure}
+    %\centering
+    %\includegraphics[width=\columnwidth]{figures/empty-fixed-strobo.png}
+    %\caption{Replanning after a push in the {\em empty} scenario, using the fixed patches version of the FAPA.}
+    %\label{fig:FAPA:empty-fixed-snapshots}
+%\end{figure}
+
+%\begin{figure}
+    %\centering
+    %\includegraphics[width=\columnwidth]{figures/two-patches-fixed-strobo.png}
+    %\caption{Replanning after a push in the {\em 2-patches} scenario, using the fixed patches version of the FAPA.}
+    %\label{fig:FAPA:two-patches-fixed-snapshots}
+%\end{figure}
+
+%OLD STROBO SPOT
+%\begin{figure}
+    %\centering
+    %\includegraphics[trim={0 0cm 0 0cm},clip,width=\columnwidth]{figures/strobo-staircase-with-pushes.png}
+    %\caption{Stroboscopic view of Simulation 4: V-FAPA in the {\em stairs} scenario. Red arrows indicate impulsive pushes.}
+    %\label{fig:FAPA:two-patches-mixed-integer-snapshots}
+%\end{figure}
+
+We ran four simulations in MATLAB, using CoppeliaSim to kinematically visualize the resulting motions. The system is an AMD Ryzen 9 5900X (4.8 GHz, 12 core) with 16 GB DDR4 3600 MHz running Ubuntu 22.04 LTS. IS-MPC runs at 100~Hz and is solved using \texttt{quadprog}, while FAPA runs at 10~Hz and is solved using the CasADi interface. In CasADi, we used \texttt{ipopt} for F-FAPA, and \texttt{bonmin} for V-FAPA. We also ran tests with the commercial solver \texttt{knitro}, to compare the performance (see Table~\ref{tab:benchmarks}).
+
+All the simulations use the following parameters: $\delta=0.01$~s, $T_c=2.0$~s, $T_p=4.0$~s, $\eta=3.6$~s$^{-1}$, $\beta = 100$, the size of the moving box are $d_x = d_y = d_z = 0.035$~m. $F=3$, $\bm{v}_1=(0.28, 0.13)^T $~m, $\bm{v}_2=(0.2, 0.43)^T$~m, $\bm{v}_3=(-0.12, 0.43)^T$~m, $\bm{v}_4=(-0.2, 0.13)^T$~m, $\Delta_z^m=-0.10$~m, $\Delta_z^M=0.10$~m, $\Delta_{\theta}^m=-0.4$~rad, $\Delta_{\theta}^M=0.4$~rad, $T_{\rm ds}^{\min}=0.3 $~s, $T_{\rm ds}^{\max}=0.5$~s, $T_{\rm ss}^{\min}=0.5$~s, $T_{\rm ss}^{\max}=0.7$~s, $t_{\rm change}=0.1$~s, $M=100$, $w_x=w_y=w_z=w_{\theta}=w_{\rm ds}=w_{\rm ss}=1.0$ and $w_b=0.01$. Simulation videos are available at \url{https://youtu.be/4_QYsZH1E7Y}.%The full simulations are shown in the accompanying video at \url{https://youtu.be/4_QYsZH1E7Y}.
+
+Simulations take place in 3 different scenarios: {\em empty}, which is completely flat with no obstacles, and is represented using a single patch; {\em 2-patches} is constituted by two patches at different heights (0 and 0.06~m); {\em stairs} has a total of 7 patches of increasing height. While walking, the robot is subject to impulsive pushes (lasting 0.01~s), transformed in equivalent acceleration imparted on the CoM.
+
+In the first simulation, the robot is walking forward in the {\em empty} scenario. At 4.5~s it receives a 15.6~m/s$^2$ push in the direction $(-2, -1, 0)$, that without FAPA would make the MPC infeasible. F-FAPA reacts by adapting footstep positions, orientations and timings concurrently, allowing the MPC to recover feasibility. Figure \ref{fig:FAPA:matlab_empty} shows nominal and adapted footsteps, trajectories and step timings.
+
+In the second simulation (shown in Fig.~\ref{fig:FAPA:matlab_2pacf}), the scenario is {\em 2-patches}, and the robot must climb a step. Upon receiving the push, the footsteps do not change significantly, because the F-FAPA algorithm is not allowed to move the footstep to the other patch. As a result, the tolerable push is smaller, i.e., 7.8~m/s$^2$.
+
+In the third simulation (shown in Fig.~\ref{fig:FAPA:matlab_2pacmi} ), the scenario is still {\em 2-patches}, but now the scheme is using V-FAPA. When the push is perceived, the first predicted footstep is moved to the lower patch, and as a result the increase of the tolerable push intensity is very significant, i.e., the same as in the {\em empty} scenario.
+
+In the last simulation, the robot is moving through a more complex environment constituted by a long staircase. While climbing, the robot is subject to multiple pushes, triggering several footstep adjustments. Figure \ref{fig:FAPA:two-patches-mixed-integer-snapshots} shows a stroboscopic view of the motion.
+
+\begin{table}
+    \centering
+    \begin{tabular}{*{6}{c}}
+        Algorithm & Solver & Average [s] & Std dev. [s] & Max [s] \\
+        \hline
+        F-FAPA & \texttt{ipopt} & 0.0207 & 0.0041 & 0.0467 \\
+        F-FAPA & \texttt{knitro} & 0.0144 & 0.0032 & 0.0329 \\
+        V-FAPA & \texttt{bonmin} & 0.3164 & 0.2075 & 1.2098 \\
+        V-FAPA & \texttt{knitro} & 0.0316 & 0.0393 & 0.3985
+    \end{tabular}
+    \caption{Performance metrics of F-FAPA in the {\em empty} scenario and V-FAPA in the {\em 2-patches} scenario, using different solvers.}
+    \label{tab:benchmarks}
+    \vskip -1.0 truecm
+\end{table}
+
+To discuss the real-time applicability of the scheme, we report performance metrics in Table~\ref{tab:benchmarks}. The solvers used are \texttt{ipopt} and \texttt{knitro} for F-FAPA, and \texttt{bonmin} and \texttt{knitro} for V-FAPA. \texttt{knitro} is faster overall, but \texttt{ipopt} still demonstrates good performance for F-FAPA, compatible with real-time requirements. For V-FAPA, \texttt{bonmin} is clearly too slow, while \texttt{knitro} has an average performance that is real-time on average, but some outliers violate the requirements. Since all results in this paper are simulated, real-time performance is desirable but not critical. However, it is necessary for hardware implementation, which is why we will be working to guarantee real-time performance in future works.
+
+
+\section{Conclusions}
+\label{sec:FAPA:Conclusions}
+%Conclusions, summary and future works.
+
+We presented a module for adapting positions, orientations and timings in such a way to enhance our IS-MPC scheme, using a gait feasibility constraint. Simulated results show that the plan is adapted in a very flexible way in reaction to strong pushes. In our MATLAB prototype, the performance is fully compatible with real time in the case of F-FAPA, while not yet in the case of V-FAPA. We believe that an optimized C++ implementation will be able to meet real-time requirements. Future work will be aimed at fully accommodating these requirements, as well as including the high-level planner \cite{Cipriano2023RAS} inside the architecture so that global replanning is possile.
