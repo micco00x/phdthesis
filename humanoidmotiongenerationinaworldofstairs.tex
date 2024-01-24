@@ -42,14 +42,11 @@
 	
 %\begin{abstract} 
 %Consider the problem of generating humanoid motions in an environment consisting of horizontal patches located at different heights ({\em world of stairs}).
-%To this end, the paper proposes an integrated scheme which combines footstep planning and gait generation. 
+%To this end, the chapter proposes an integrated scheme which combines footstep planning and gait generation. 
 %In particular, footsteps are produced by a randomized algorithm that guarantees both feasibility and quality of the plan according to a chosen criterion; whereas for 3D gait generation we devise an ad hoc extension of the Intrinsically Stable MPC scheme. 
 %In its basic form, the proposed scheme addresses the off-line case (known environments), but a sensor-based adaptation is developed for the on-line case (unknown environments) based on an anytime version of the footstep planner.
 %In order to validate the proposed approach, we present simulations in CoppeliaSim for the HRP-4 humanoid robot navigating scenarios of different complexity, both in the on-line and off-line case.
 %\end{abstract}
-
-\section{Introduction} 
-\label{sec:WoS:Introduction}
 
 Humanoid robots, thanks to their ability to perform legged locomotion, are in principle capable of moving through 3D environments, for which complex motions might be required. These can include stepping over or onto obstacles, climbing and descending stairs, moving through surfaces located at different height, overcoming gaps, and so on.
 
@@ -57,35 +54,12 @@ Walking on uneven ground, however, is a challenging task. Management of the foot
 
 Also from a control standpoint, walking on uneven ground introduces complications in the dynamic model that are not present in flat ground locomotion. In fact, traditional humanoid locomotion is realized by approximating the dynamics using linear models, which are relatively accurate in many application. Straight up extending these models to 3D environments can lead, without additional considerations, to nonlinearities which can severely impact the performance and theoretical guarantees of the controller.
 
-In this paper we consider the problem of generating a humanoid motion in a \textit{world of stairs}, a specific kind of uneven ground consisting of horizontal patches located at different heights. In order to successfully achieve this, it is necessary to plan a footstep sequence and a whole body motion for the humanoid realizing such sequence. We choose to approach the problem by keeping these two stages separate. The reason for this choice is that in this way we can better control the quality of the produced motions. In fact, the quality of the footstep plan can be evaluated based on global requirements, such as the number of steps taken, or a different performance index. As for the quality of the motion itself, this should be mainly addressed by its capability to satisfy all the required constraints, in order to avoid falls and instabilities. Maintaining a separation between planning and control also greatly simplifies the tuning because the domain in which any given parameter has effect is reduced.
+In this chapter we consider the problem of generating a humanoid motion in a \textit{world of stairs}, a specific kind of uneven ground consisting of horizontal patches located at different heights. In order to successfully achieve this, it is necessary to plan a footstep sequence and a whole body motion for the humanoid realizing such sequence. We choose to approach the problem by keeping these two stages separate. The reason for this choice is that in this way we can better control the quality of the produced motions. In fact, the quality of the footstep plan can be evaluated based on global requirements, such as the number of steps taken, or a different performance index. As for the quality of the motion itself, this should be mainly addressed by its capability to satisfy all the required constraints, in order to avoid falls and instabilities. Maintaining a separation between planning and control also greatly simplifies the tuning because the domain in which any given parameter has effect is reduced.
 
-Keeping planning and control separated is relatively straightforward when the planning is done off-line. However, it might be more difficult to realize if one wants to allow for on-line planning and replanning. In this paper, we will discuss an on-line architecture that achieves this by having short planning stages interleaved with the motion, in such a way that the planning can fully utilize sensor information gathered by the robot as it moves, and that the robot itself can take advantage of the on-line planner to find more efficient and safe footstep sequences.
+Keeping planning and control separated is relatively straightforward when the planning is done off-line. However, it might be more difficult to realize if one wants to allow for on-line planning and replanning. In this chapter, we will discuss an on-line architecture that achieves this by having short planning stages interleaved with the motion, in such a way that the planning can fully utilize sensor information gathered by the robot as it moves, and that the robot itself can take advantage of the on-line planner to find more efficient and safe footstep sequences.
+Moreover, we consider planning both in off-line situations, in which the environment is completely known, and on-line situations, in which the geometry of the environment is not known in advance and must be reconstructed by the robot itself during motion using on-board sensors. In this case, planning and execution are interdependent: the former clearly requires the latter in order to determine where to place the footsteps, but the converse is also true, as the real-time motion of the robot is necessary to acquire information about the environment.
 
-In the following, we present a review of the state-of-the-art by separating the literature that is more focused on the planning aspect from the literature about gait generation and humanoid robot control. Subsequently, we will describe the contributions of the paper, focusing on the improvements with respect to the state-of-the-art.
-
-\subsection{Contribution and paper organization}
-
-In this paper, we consider planning both in off-line situations, in which the environment is completely known, and on-line situations, in which the geometry of the environment is not known in advance and must be reconstructed by the robot itself during motion using on-board sensors. In this case, planning and execution are interdependent: the former clearly requires the latter in order to determine where to place the footsteps, but the converse is also true, as the real-time motion of the robot is necessary to acquire information about the environment.
-
-With respect to the previously reviewed contributions, our work improves the following points:
-
-\begin{itemize}
-\item the proposed footstep planner finds sequences of footsteps that are optimal with respect to a chosen optimality criterion, whereas most of the literature that makes use of randomized methods does not in any way consider the quality of the produced sequences \cite{Liu_IROS2012}; we do this by using a planner based on RRT*, which is a probabilistic method with guarantees of asymptotic convergence to an optimal solution;
-
-\item in our formulation, optimality does not significantly compromise performance, unlike techniques that make use of A*-based algorithms \cite{Chestnutt_IROS2009,Maier_IROS2013,Karkowski_HUM2016}, or others that make use of quadratic optimization \cite{DeTe:14};
-
-\item we propose a scheme capable of working both with off-line planning, in known environments, and in on-line situations;
-
-
-\item to generate a gait that realizes the footstep plan we adopt and improve our Intrinsically Stable MPC (IS-MPC) scheme \cite{ScDeLaOr:20}. IS-MPC incorporates an explicit stability constraint in order to deal with the instability in the humanoid robot dynamics. Along with the stability constraint, we enforce a ZMP position constraint and a ZMP velocity constraint, and show that the combination of all the imposed constraints guarantees satisfaction of the balance condition in 3D.
-
-\end{itemize}
-
-
-Compared to our previous work on the subject, \cite{FeScLaOr:19}, the main additions presented in this paper consist of the introduction of optimality criteria in the planner, the extension to on-line situations with the use of on-board sensors, and the inclusion of the ZMP velocity constraint in the IS-MPC. We validate the proposed architectures for the off-line and on-line case via simulations on the HRP-4 humanoid robot in scenarios of different complexity.
-
-
-The paper is structured as follows. Section~\ref{sec:WoS:Formulation} formulates the problem both in the off-line and in the on-line case. Section~\ref{sec:WoS:offlineCase} presents in detail the off-line case by discussing its general architecture in Sect.~\ref{sec:WoS:offlineCase:GeneralArchitecture}, describing the footstep planner and the scenarios used for testing in Sect.~\ref{sec:WoS:offlineCase:FootstepPlanner}, the gait generation module together with theoretical developments in Sect.~\ref{sec:WoS:offlineCase:GaitGeneration}, the localization module in Sect.~\ref{sec:WoS:offlineCase:Localization} and the simulations in Sect. \ref{sec:WoS:offlineCase:Simulations}. Section~\ref{sec:WoS:onlineCase} extends the work to the on-line case, presenting its architecture in Sect.~\ref{sec:WoS:onlineCase:GeneralArchitecture}, the mapping module in Sect.~\ref{sec:WoS:onlineCase:MappingModule}, the sensor-based footstep planner in Sect.~\ref{sec:WoS:onlineCase:FootstepPlanner}, the visual task generation module in Sect.~\ref{sec:WoS:onlineCase:VisualTaskGeneration} and simulations in both static and dynamic environments in Sect. \ref{sec:WoS:onlineCase:Simulations}. Section~\ref{sec:WoS:discussion} puts the paper in perspective with respect to the state of the art, and Sect.~\ref{sec:WoS:Conclusions} concludes the paper with mentions to possible future work.
+The chapter is structured as follows. Section~\ref{sec:WoS:Formulation} formulates the problem both in the off-line and in the on-line case. Section~\ref{sec:WoS:offlineCase} presents in detail the off-line case by discussing its general architecture in Sect.~\ref{sec:WoS:offlineCase:GeneralArchitecture}, describing the footstep planner and the scenarios used for testing in Sect.~\ref{sec:WoS:offlineCase:FootstepPlanner}, the localization module in Sect.~\ref{sec:WoS:offlineCase:Localization} and the simulations in Sect. \ref{sec:WoS:offlineCase:Simulations}. Section~\ref{sec:WoS:onlineCase} extends the work to the on-line case, presenting its architecture in Sect.~\ref{sec:WoS:onlineCase:GeneralArchitecture}, the mapping module in Sect.~\ref{sec:WoS:onlineCase:MappingModule}, the sensor-based footstep planner in Sect.~\ref{sec:WoS:onlineCase:FootstepPlanner}, the visual task generation module in Sect.~\ref{sec:WoS:onlineCase:VisualTaskGeneration} and simulations in both static and dynamic environments in Sect. \ref{sec:WoS:onlineCase:Simulations}. Section~\ref{sec:WoS:discussion} puts the chapter in perspective with respect to the state of the art, and Sect.~\ref{sec:WoS:Conclusions} concludes the chapter with mentions to possible future work.
 
 	
 \section{Problem formulation}
@@ -135,7 +109,7 @@ In the off-line case, ${\cal M}_{z}$ is available a priori, while in the on-line
     
 \item[A3] The humanoid is endowed with a localization module which provides an estimate of the camera pose at each time instant, based on information gathered by the RGB-D camera. This is used in both the off-line and on-line cases.
 
-\item[A4] The friction between the robot feet and the ground is sufficiently large to avoid slipping at the contact surfaces\footnote{Since our objective is to generate walking gaits in a world of stairs, we expect that the horizontal components of the ground reaction forces will be rather limited with respect to the vertical components, making this assumption reasonable. To support this claim, we explicitly verified that Assumption A4 holds in our simulations, see the related comment toward the end of Sect.~\ref{sec:WoS:offlineCase:Simulations}. Nevertheless, the constraint that ground reaction forces must always be contained in the friction cone can be incorporated in our formulation; this extension would be required in the case of non-horizontal contact surfaces.}.
+\item[A4] The friction between the robot feet and the ground is sufficiently large to avoid slipping at the contact surfaces\footnote{Since our objective is to generate walking gaits in a world of stairs, we expect that the horizontal components of the ground reaction forces will be rather limited with respect to the vertical components, making this assumption reasonable. Nevertheless, the constraint that ground reaction forces must always be contained in the friction cone can be incorporated in our formulation; this extension would be required in the case of non-horizontal contact surfaces.}.
 
 \end{itemize}
 
@@ -598,12 +572,6 @@ To solve the QP problems we used \texttt{hpipm}, which requires less than $1$~ms
 Figure \ref{fig:WoS:offlineCase:Ditch:Snapshots} shows the robot traversing the scenario \textit{Ditch}. The robot starts by moving to its left (first snapshot), approaching the accessible patch (second snapshot). It then accesses the platform in the middle correctly avoiding the obstacle (third and fourth snapshots), eventually reaching the goal region by climbing the final two patches (fifth and sixth snapshots).
 Figure \ref{fig:WoS:offlineCase:Corridor:Snapshots} shows the robot moving inside the scenario \textit{Corridor}. The robot first exits the room in which it starts (first and second snapshots), approaching the stairway (third snapshot). Then, it goes up and down the staircases avoiding the obstacles (fourth and fifth snapshots), finally reaching the goal region (sixth snapshot).
 
-In order to verify the validity of Assumption A4, we computed the ground reaction forces associated with the generated trajectories, and verified that the no-slipping condition is always satisfied. Indeed, in our simulations the ratio between the horizontal and vertical components of the ground reaction force peaks around $0.1$, which is a completely acceptable value under normal circumstances (e.g., steel-concrete friction coefficients are normally not lower than $0.5$ \cite{Rabbat1985Friction}).
-
-
-We invite the reader to watch the accompanying video, %available at the link \pf{URL},
-which includes clips related to the above simulations as well as additional cases.
-
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/OfflineDitch.png}
@@ -812,9 +780,6 @@ For example, this may happen when the humanoid must exit a long corridor or when
 In this specific situation, a simple solution consists in keeping the portion of the current footstep plan that is still valid after the updating step of the planner. 
 If this happens multiple times in a row, the robot reaches the subgoal and stops. At this point, the footstep planner is invoked with an unlimited time budget and terminates as soon as a new subgoal is found. As before, the robot starts by moving outside the initial room, moving towards its left (first and second snapshots). The footstep plan is invalidated by moving an obstacle in front of the robot (third snapshots), which stops its motion upon reaching the current subgoal (fourth snapshot). As soon as the footstep planner finds a new subgoal, the robot starts moving again (fifth snapshot), eventually reaching the desired goal region (sixth snapshot).
 
-Clips of the described simulations are included in the accompanying video.% available at the same link indicated in Sect. \ref{sec:WoS:offlineCase:Simulations}.
-
-
 \section{Discussion}
 \label{sec:WoS:discussion}
 
@@ -857,13 +822,13 @@ It is well known that weighted $A^\ast$ works quite well in environments where t
     \label{tab:benchmark-wastar-w5}
 \end{table}
 
-As for the gait generation component, there are several alternatives to our method that employ MPC on reduced-order models. The advantage of the proposed approach lies in the introduction of the stability constraint, which allows to prove rigorously recursive feasibility and internal stability of the MPC scheme. The effectiveness of this approach was extensively analyzed in \cite{ScDeLaOr:20}, by means of comparisons to state-of-the-art schemes. What we proposed in this paper is an extension accounting for the fact that the CoM height changes. Based on the additional theoretical results which we proved (namely, Props.~\ref{prop:velocityBound} and~\ref{prop:conservative-box}), we can claim that our 3D gait generation retains the same properties of the original 2D scheme. 
+As for the gait generation component, there are several alternatives to our method that employ MPC on reduced-order models. The advantage of the proposed approach lies in the introduction of the stability constraint, which allows to prove rigorously recursive feasibility and internal stability of the MPC scheme. The effectiveness of this approach was extensively analyzed in \cite{ScDeLaOr:20}, by means of comparisons to state-of-the-art schemes. What we proposed in this chapter is an extension accounting for the fact that the CoM height changes. Based on the additional theoretical results which we proved (namely, Props.~\ref{prop:velocityBound} and~\ref{prop:conservative-box}), we can claim that our 3D gait generation retains the same properties of the original 2D scheme. 
 
 \section{Conclusions} 
 \label{sec:WoS:Conclusions}
 
 
-In this paper, we addressed the problem of motion generation for a humanoid robot that must reach a certain goal region walking in an environment consisting of horizontal patches located at different heights, called \textit{world of stairs}.
+In this chapter, we addressed the problem of motion generation for a humanoid robot that must reach a certain goal region walking in an environment consisting of horizontal patches located at different heights, called \textit{world of stairs}.
 We considered two versions of such problem: the off-line and on-line case. 
 In the first, the geometry of the environment is completely known in advance, while in the second, it is reconstructed by the robot itself during motion using an on-board sensor. In both cases, available information about the environment is maintained in the form of an elevation map. 
 
@@ -883,6 +848,26 @@ Our future work will explore several directions, such as
     \item implementing the presented architectures on a real humanoid robot;
     \item extending them to the case of large-scale and multi-floor environments.
 \end{enumerate}
+
+---
+
+With respect to the previously reviewed contributions, our work improves the following points:
+
+\begin{itemize}
+\item the proposed footstep planner finds sequences of footsteps that are optimal with respect to a chosen optimality criterion, whereas most of the literature that makes use of randomized methods does not in any way consider the quality of the produced sequences \cite{Liu_IROS2012}; we do this by using a planner based on RRT*, which is a probabilistic method with guarantees of asymptotic convergence to an optimal solution;
+
+\item in our formulation, optimality does not significantly compromise performance, unlike techniques that make use of A*-based algorithms \cite{Chestnutt_IROS2009,Maier_IROS2013,Karkowski_HUM2016}, or others that make use of quadratic optimization \cite{DeTe:14};
+
+\item we propose a scheme capable of working both with off-line planning, in known environments, and in on-line situations;
+
+
+\item to generate a gait that realizes the footstep plan we adopt and improve our Intrinsically Stable MPC (IS-MPC) scheme \cite{ScDeLaOr:20}. IS-MPC incorporates an explicit stability constraint in order to deal with the instability in the humanoid robot dynamics. Along with the stability constraint, we enforce a ZMP position constraint and a ZMP velocity constraint, and show that the combination of all the imposed constraints guarantees satisfaction of the balance condition in 3D.
+
+\end{itemize}
+
+
+Compared to our previous work on the subject, \cite{FeScLaOr:19}, the main additions presented in this chapter consist of the introduction of optimality criteria in the planner, the extension to on-line situations with the use of on-board sensors, and the inclusion of the ZMP velocity constraint in the IS-MPC. We validate the proposed architectures for the off-line and on-line case via simulations on the HRP-4 humanoid robot in scenarios of different complexity.
+
 
 \subsection{Pseudocode}
 \label{sec:WoS:Pseudocode}
