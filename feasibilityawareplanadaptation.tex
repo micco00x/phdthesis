@@ -1,6 +1,4 @@
 \chapter{Feasibility-aware plan adaptation in humanoid gait generation}
-Todo.
-
 
 %\begin{abstract} 
 %Most available schemes used for humanoid walking rely on the separation into a planning phase, typically off-line, and a Model Predictive Controller (MPC). Moreover, in order for the MPC to work in real time, simplifying assumptions are made both on the template model and on the constraints so that the underlying optimization problem is a Quadratic Programming (QP). The planner is unaware of the underlying humanoid dynamics and of any disturbance acting on the robot. We present an on-line Feasibility-Aware Plan Adaptation (FAPA) module which can locally adapt footsteps (positions, timings and orientation) in such a way that it guarantees feasibility of the subsequent Intrinsically Stable MPC (IS-MPC) stage. We present two versions of the proposed scheme: one with a fixed regions assignment for placing the footstep and another one where the regions are selected automatically through mixed-integer programming. Simulation results show the effectiveness of the FAPA scheme.
@@ -14,7 +12,7 @@ Humanoid robot locomotion is a complex task that involves multiple concurrent ac
 
 \begin{figure}
     \centering
-    \includegraphics[trim={0.5cm 1.5cm 2cm 0.1cm},clip,width= \columnwidth]{figures/strobo-staircase-with-pushes.png}
+    \includegraphics[trim={0.5cm 1.5cm 2cm 0.1cm},clip,width=0.9\columnwidth]{figures/strobo-staircase-with-pushes.png}
     %\caption{Stroboscopic view of Simulation 4: V-FAPA in the {\em stairs} scenario. Red arrows indicate impulsive pushes.}
     \caption{An example simulation using the proposed architecture: the robot is walking along a staircase while being subject to multiple pushes. The adaptation module modifies position, orientation and timing of the footsteps real-time to guarantee a successful execution.}
     \label{fig:FAPA:two-patches-mixed-integer-snapshots}
@@ -40,12 +38,12 @@ In this paper, we add an online adaptation module that can locally adapt footste
 % by simultaneously deciding positions, orientations, and timings. This planner is feasibility-aware, meaning that the result it produces is always aimed at guaranteeing the feasibility of the subsequent MPC stage and is thus dependent on the state of the system and informed by dynamic considerations.
 %%%% End modified by L
 
-\begin{figure*}[t]
+\begin{figure}
 \centering\includegraphics[width=\textwidth]{figures/BlockScheme-NLP-STA.pdf}
 \caption{A block scheme of the proposed architecture. The candidate footstep subplan $\mathcal{\hat{P}}$ is adapted by the FAPA module, guaranteeing the feasibility of IS-MPC. The IS-MPC module receives the adapted footstep subplan $\mathcal{P}$, and generates a desired trajectory of the CoM $\bm{p^*}_c$, which is used by the kinematic controller, together with the desired trajectory of the swing foot $\bm{p^*}_{\rm swg}$, to generate the desired joint velocities $\dot{\bm{q^*}}$.}
 \label{fig:FAPA:block_scheme}
 \vskip -0.6 truecm
-\end{figure*}
+\end{figure}
 
 We obtain the generality given by nonlinear constraints without sacrificing much performance as the number of variables in the planner is much lower than that of the variables of the MPC, making it very fast and capable of working in real time. Furthermore, we explore the inclusion of integer variables, further increasing the range of situations that can be covered.
 
@@ -181,7 +179,7 @@ A common way to extend the basic 2D balance criterion consists in prescribing th
 
 \begin{figure}
     \centering
-    \includegraphics[width= 0.75\columnwidth]{figures/balance3d.pdf}
+    \includegraphics[width=0.55\textwidth]{figures/balance3d.pdf}
     \caption{3D balance: the ZMP $\bfp_z$ must be inside the pyramid $\mathcal{Z}$.}
     \label{fig:FAPA:balance3D}
     \vskip -0.6 truecm
@@ -357,7 +355,7 @@ The FAPA module runs in real-time and performs a local adaptation of the subplan
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.9\columnwidth]{figures/humanoids_kinconstr.pdf}
+    \includegraphics[width=0.7\textwidth]{figures/humanoids_kinconstr.pdf}
     \caption{Admissible region of the kinematic constraint in the $x$-$y$ plane.}
     \label{fig:FAPA:kinematic-constraint}
     \vskip -0.6 truecm
@@ -580,33 +578,33 @@ Since V-FAPA contains the binary variables $\bm{B}$ it is implemented as a MINLP
 \label{sec:FAPA:Simulations}
 
 \begin{figure}
-    %\includegraphics[trim={0 1cm 0 0},clip,width=\columnwidth]{figures/empty-fixed-plot-starting.pdf}
+    %\includegraphics[trim={0 1cm 0 0},clip,width=\textwidth]{figures/empty-fixed-plot-starting.pdf}
     \centering
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/empty-fixed-plot-after-push.pdf}
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/empty-fixed-plot-completing-task.pdf}
-    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\columnwidth]{figures/empty-fixed-plot-completing-task.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/empty-fixed-plot-after-push.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/empty-fixed-plot-completing-task.pdf}
+    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/empty-fixed-plot-completing-task.pdf}
     \caption{F-FAPA in the {\em empty} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Green footsteps represent the original candidate plan, while the footsteps that are actually executed are shown in grey. Red footsteps represent the current adapted subplan. The two bands on the bottom show the nominal and adapted timings (green for double support and blue for single support). The same color scheme is used for the rest of the figures.}
     \label{fig:FAPA:matlab_empty}
     \vskip -0.6 truecm
 \end{figure}
 
 \begin{figure}
-    %\includegraphics[trim={0 1cm 0 0},clip,width=\columnwidth]{figures/two-patches-fixed-plot-starting.pdf}
+    %\includegraphics[trim={0 1cm 0 0},clip,width=\textwidth]{figures/two-patches-fixed-plot-starting.pdf}
     \centering
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/two-patches-fixed-plot-after-push.pdf}
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/two-patches-fixed-completing-task.pdf}
-    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\columnwidth]{figures/two-patches-fixed-completing-task.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-fixed-plot-after-push.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-fixed-completing-task.pdf}
+    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/two-patches-fixed-completing-task.pdf}
     \caption{F-FAPA in the {\em 2-patches} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Since changing patches is not allowed, the magnitude of the push that can be tolerated is quite small, compared to that of the other simulations.}
     \label{fig:FAPA:matlab_2pacf}
     \vskip -0.5 truecm
 \end{figure}
 
 \begin{figure}
-    %\includegraphics[trim={0 1cm 0 0},clip,width=\columnwidth]{figures/two-patches-mixed-integer-plot-starting.pdf}
+    %\includegraphics[trim={0 1cm 0 0},clip,width=\textwidth]{figures/two-patches-mixed-integer-plot-starting.pdf}
     \centering
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/two-patches-mixed-integer-after-push.pdf}
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\columnwidth]{figures/two-patches-mixed-integer-completing-task.pdf}
-    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\columnwidth]{figures/two-patches-mixed-integer-completing-task.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-mixed-integer-after-push.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-mixed-integer-completing-task.pdf}
+    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/two-patches-mixed-integer-completing-task.pdf}
     \caption{V-FAPA in the {\em 2-patches} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Now the robot is allowed to adapt the footstep position to the other patch, and is able to tolerate a stronger push.}
     \label{fig:FAPA:matlab_2pacmi}
     \vskip -0.7 truecm
@@ -614,14 +612,14 @@ Since V-FAPA contains the binary variables $\bm{B}$ it is implemented as a MINLP
 
 %\begin{figure}
     %\centering
-    %\includegraphics[width=\columnwidth]{figures/empty-fixed-strobo.png}
+    %\includegraphics[width=\textwidth]{figures/empty-fixed-strobo.png}
     %\caption{Replanning after a push in the {\em empty} scenario, using the fixed patches version of the FAPA.}
     %\label{fig:FAPA:empty-fixed-snapshots}
 %\end{figure}
 
 %\begin{figure}
     %\centering
-    %\includegraphics[width=\columnwidth]{figures/two-patches-fixed-strobo.png}
+    %\includegraphics[width=\textwidth]{figures/two-patches-fixed-strobo.png}
     %\caption{Replanning after a push in the {\em 2-patches} scenario, using the fixed patches version of the FAPA.}
     %\label{fig:FAPA:two-patches-fixed-snapshots}
 %\end{figure}
@@ -629,7 +627,7 @@ Since V-FAPA contains the binary variables $\bm{B}$ it is implemented as a MINLP
 %OLD STROBO SPOT
 %\begin{figure}
     %\centering
-    %\includegraphics[trim={0 0cm 0 0cm},clip,width=\columnwidth]{figures/strobo-staircase-with-pushes.png}
+    %\includegraphics[trim={0 0cm 0 0cm},clip,width=\textwidth]{figures/strobo-staircase-with-pushes.png}
     %\caption{Stroboscopic view of Simulation 4: V-FAPA in the {\em stairs} scenario. Red arrows indicate impulsive pushes.}
     %\label{fig:FAPA:two-patches-mixed-integer-snapshots}
 %\end{figure}

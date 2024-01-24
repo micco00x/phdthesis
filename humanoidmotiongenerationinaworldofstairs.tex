@@ -1,5 +1,4 @@
 \chapter{Humanoid motion generation in a world of stairs}
-Todo.
 
 % Define and set new counter for environment procedure:
 \newcounter{procedure}
@@ -35,46 +34,6 @@ Todo.
  {\par\smallskip\hbox to\columnwidth\bgroup
   \hss$\left\{\begin{minipage}{\columnwidth}}
  {\end{minipage}\right.$\hss\egroup\smallskip}
-
-% \include{preamble}
-
-% Definition of figures
-
-\def\WoSScenario{\centerline{\includegraphics[width=0.98\columnwidth]{figures/WoS_Scenario.PNG}}}
-
-\def\BlockSchemeOffline{\centerline{\includegraphics[scale=0.25]{figures/BlockSchemeOffline.pdf}}}
-
-\def\KinCon{\centerline{\includegraphics[width=0.85\columnwidth]{figures/kinematic_limits.png}}}
-
-\def\ReqCollisionCheck{\centerline{\includegraphics[width=0.6\columnwidth]{figures/R3_CollisionCheck.png}}}
-
-\def\BlockSchemeOnline{\centerline{\includegraphics[scale=0.25]{figures/BlockSchemeOnline.pdf}}}
-
-\def\Primitives{\centerline{\includegraphics[width=0.8\columnwidth]{figures/Primitives.pdf}}}
-
-\def\FootstepPlanner{\centerline{\includegraphics[width=0.9\textwidth]{figures/FootstepPlanner.pdf}}}
-
-\def\BalanceCondition{\centering{\includegraphics[width=\columnwidth]{figures/balance3d.pdf}}}
-
-\def\ConservativeApprox{\centering{\includegraphics[width=\columnwidth]{figures/conservative.pdf}}}
-
-%% results 
-
-\def\PlanningScenarios{\centerline{\includegraphics[width=1.00\textwidth]{figures/PlanningScenarios.png}}}
-
-\def\ExampleResults{\centerline{\includegraphics[width=1.00\textwidth]{figures/ExampleResults.png}}}
-
-\def\ExampleResultsCompare{\centerline{\includegraphics[width=0.666\textwidth]{figures/ExampleResultsCompare.png}}}
-
-\def\OfflineCorridor{\centerline{\includegraphics[width=1.00\textwidth]{figures/OfflineCorridor.png}}}
-
-\def\OfflineDitch{\centerline{\includegraphics[width=1.00\textwidth]{figures/OfflineDitch.png}}}
-
-\def\OnlineCorridor{\centerline{\includegraphics[width=1.00\textwidth]{figures/OnlineCorridor.png}}}
-
-\def\OnlineMazeDynamic{\centerline{\includegraphics[width=1.00\textwidth]{figures/OnlineMazeDynamic.png}}}
-
-\def\OnlineMazeStopandgo{\centerline{\includegraphics[width=1.00\textwidth]{figures/OnlineMazeStopandgo.png}}}
 
 	
 	%%%%%%%%%%%%%%%%%%%%%%%%
@@ -178,16 +137,18 @@ The paper is structured as follows. Section~\ref{sec:WoS:Formulation} formulates
 
 
 \begin{figure}
-\WoSScenario
+\centering
+\includegraphics[width=0.9\textwidth]{figures/WoS_Scenario.PNG}
 \caption{An instance of the considered problem. The robot must reach the goal region (in yellow) by traversing a {\em world of stairs}. Patches that are not visible correspond to infinitely deep holes or trenches.}
 \label{fig:WoS:WoSScenario}
 \end{figure}
 
-\begin{figure*}[t]
-\BlockSchemeOffline
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/BlockSchemeOffline.pdf}
 \caption{Block scheme of the proposed solution approach for the off-line case.}
 \label{fig:WoS:blockScheme1}
-\end{figure*}
+\end{figure}
 
 In the situation of interest (Fig.~\ref{fig:WoS:WoSScenario}), a humanoid robot moves in a {\em world of stairs}, a specific kind of uneven ground consisting of horizontal patches that {\em (i)} are located at different heights, and {\em (ii)} constitute a partition\footnote{This implies that the whole volume of space below any horizontal patch is occupied.} of $\RealSet^2$. 
 Depending on its elevation with respect to the neighboring areas, a patch may be accessible for the humanoid to climb on from an appropriate direction; otherwise, it actually represents an {\em obstacle} to be avoided. Any accessible patch may be stepped on, stepped over or even circumvented, depending on the generated motion.  
@@ -269,8 +230,9 @@ The planning algorithm builds a tree $\cal T$, where each vertex $v = (\bff_{\rm
 
 The expansion process makes use of a catalogue $U$ of {\em primitives}, which allows to generate new footsteps by selecting them from a finite set of displacements with respect to the support foot. The catalogue is split in two subsets, one for the case of left support  and the other for the case of right support; at each instant, the appropriate subset is used. An example catalogue is shown in Fig.~\ref{fig:WoS:Primitives}.
 
-\begin{figure}[t]
-\Primitives
+\begin{figure}
+\centering
+\includegraphics[width=0.65\textwidth]{figures/Primitives.pdf}
 \caption{An example catalogue $U$ of primitives, containing a finite set of landings for the swing foot with respect to the left or right support foot.}
 %The figure refers to the case of left support; the catalogue for right support is specular. When generating a candidate vertex, the support foot is placed at $\bff_{\rm sup}^{\rm near}$ and the chosen primitive will be taken as $\bff_{\rm sup}^{\rm cand}$.}
 \label{fig:WoS:Primitives}
@@ -320,8 +282,9 @@ x_f^j - x_f^{j-1} \\[5pt] y_f^j - y_f^{j-1}
 \end{gather}
 Here, $R_{j-1}$ is the planar rotation matrix associated with $\theta_f^{j-1}$ and the $\Delta$ symbols are lower and upper maximum increments, see Fig.~\ref{fig:WoS:KinCon}.
 
-\begin{figure}[t]
-\KinCon
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{figures/kinematic_limits.png}
 \caption{The 3D admissible region identified by the first two kinematic constraints of requirement R2, i.e., eqs. (\ref{eq:WoS:XYAdmissible}-- \ref{eq:WoS:ZAdmissible}). Footstep orientation is not represented.}
 \label{fig:WoS:KinCon}
 \end{figure}
@@ -363,8 +326,9 @@ where $r_{\rm neigh}$ is a threshold distance and
 \end{equation}
 is a footstep-to-footstep metric, with $k_{\gamma}\ge 0$.
 
-\begin{figure}[t]
-\ReqCollisionCheck
+\begin{figure}
+\centering
+\includegraphics[width=0.55\textwidth]{figures/R3_CollisionCheck.png}
 \caption{Visual representation of the process for checking requirement R3. The red cylinder accounts for the maximum occupancy of the humanoid upper body, while the yellow line represents the swing foot trajectory.}
 \label{fig:WoS:ReqCollisionCheck}
 \end{figure}
@@ -384,11 +348,12 @@ l_1(v^a, v^b) = 1,
 \end{equation}
 for all edges in $\cal T$. The corresponding vertex cost will be denoted by $c_1(v)$ and represents the length of the corresponding plan in terms of number of edges (i.e., steps). 
     
-\begin{figure*}[t!]
-\FootstepPlanner
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/FootstepPlanner.pdf}
 \caption{The four steps of a generic iteration of the footstep planner. From left to right: selecting a vertex for expansion, generating a candidate vertex, choosing a parent, rewiring.}
 \label{fig:WoS:FootstepPlanner}
-\end{figure*}    
+\end{figure}   
     
 The second edge cost represents the net height variation of the swing foot during a step:
 \begin{equation}
@@ -494,23 +459,26 @@ We considered the five different scenarios (see Fig. \ref{fig:WoS:Scenarios}) of
 
 The height of each step is 8 cm for all scenarios except \textit{Ditch} where the height is 10 cm. 
 
-\begin{figure*}
-\PlanningScenarios
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/PlanningScenarios.png}
 \caption{The considered scenarios, from left to right: \textit{Rod}, \textit{Ditch}, \textit{Corridor}, \textit{Maze}, \textit{Spacious}.}
 \label{fig:WoS:Scenarios}
-\end{figure*}
+\end{figure}
 
 
-\begin{figure*}
-\ExampleResults
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/ExampleResults.png}
 \caption{Examples of footstep plans found in the scenarios \textit{Rod}, \textit{Ditch}, \textit{Corridor} and \textit{Maze}, respectively, when minimizing the number of steps.}
 \label{fig:WoS:ExampleResults}
-\end{figure*}
-\begin{figure*}
-\ExampleResultsCompare
+\end{figure}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/ExampleResultsCompare.png}
 \caption{Examples of footstep plans found in the scenario \textit{Spacious} when minimizing the number of steps, minimizing the height variation and maximizing the clearance, respectively.}
 \label{fig:WoS:ExampleResultsCompare}
-\end{figure*}
+\end{figure}
 
 In all scenarios, the robot has to reach a circular goal region of radius 0.5 m.
 The catalogue of primitives $U$ is generated by listing all possible combinations of the following parameters: longitudinal displacement $\{-0.08,0.00,0.08,0.16,0.2\}$ [m], lateral displacement $\{0.20,0.30\}$ [m] for right support and $\{-0.20,-0.30\}$ [m] for left support, angular displacement $\{0.00,0.40\}$ [rad] for right support and $\{0.00,-0.40\}$ [rad] for left support (see Fig. \ref{fig:WoS:Primitives}).
@@ -769,13 +737,15 @@ As already noted, the humanoid is balanced as long as the ZMP is inside the pyra
 
 
 \begin{figure}
-    \BalanceCondition
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/balance3d.pdf}
     \caption{Balance condition in 3D: the ZMP must lie inside the yellow pyramid.}
     \label{fig:WoS:balance3d}
 \end{figure}
 
 \begin{figure}
-    \ConservativeApprox
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/conservative.pdf}
     \caption{The red rectangle represents a section of the moving box in the $x$-$z$ plane. This region is fully contained inside the yellow pyramid as long as the CoM belongs to the blue region. Here, two scenarios are considered: one in which the CoM is well within the blue region, and a worst-case scenario in which the CoM is in a lower vertex of the blue region.}
     \label{fig:WoS:conservative}
 \end{figure}
@@ -884,18 +854,20 @@ In order to verify the validity of Assumption A4, we computed the ground reactio
 We invite the reader to watch the accompanying video, %available at the link \pf{URL},
 which includes clips related to the above simulations as well as additional cases.
 
-\begin{figure*}
-    \OfflineDitch
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/OfflineDitch.png}
     \caption{The robot reaches the goal going through the ditch, which can only be accessed from the left and exited from the right.}
     \label{fig:WoS:offlineCase:Ditch:Snapshots}
-\end{figure*}
-\begin{figure*}
-    \OfflineCorridor
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/OfflineCorridor.png}
     \caption{The robot reaches the goal avoiding the
     corridor, climbing and descending the staircase while
     avoiding the obstacles.}
     \label{fig:WoS:offlineCase:Corridor:Snapshots}
-\end{figure*}
+\end{figure}
 
 
 \section{The on-line Case} 
@@ -907,11 +879,12 @@ Then, we describe the mentioned components and present some simulation results.
 
 \subsection{General Architecture}
 \label{sec:WoS:onlineCase:GeneralArchitecture}
-\begin{figure*}
-\BlockSchemeOnline
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/BlockSchemeOnline.pdf}
 \caption{Block scheme of the on-line case. The red blocks and arrows highlight the additional modules and signals compared to the off-line case.}
 \label{fig:WoS:blockScheme2}
-\end{figure*}
+\end{figure}
 
 The proposed architecture for the on-line case is given in Fig. \ref{fig:WoS:blockScheme2}, where the additional modules and feedback signals are shown in red.
 
@@ -1062,21 +1035,24 @@ The produced reference pose $\bfs^r$ is passed to the kinematic controller which
 \subsection{Simulations}
 \label{sec:WoS:onlineCase:Simulations}
 
-\begin{figure*}
-    \OnlineCorridor
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/OnlineCorridor.png}
     \caption{The on-line footstep planner in the scenario \textit{Corridor} minimizing the number of steps. Here the planner finds a footstep sequence of 54 steps.}
     \label{fig:WoS:onlineCase:Corridor:Simulation}
-\end{figure*}
-\begin{figure*}
-    \OnlineMazeDynamic
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/OnlineMazeDynamic.png}
     \caption{The on-line footstep planner in the environment \textit{Maze} minimizing the number of steps. The environment is dynamic, namely the elevation map can be changed by moving obstacles around. Here the planner finds a footstep sequence of 106 steps.}
     \label{fig:WoS:onlineCase:MazeDynamic:Simulation}
-\end{figure*}
-\begin{figure*}
-    \OnlineMazeStopandgo
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/OnlineMazeStopandgo.png}
     \caption{The on-line footstep planner in the dynamic environment \textit{Maze} minimizing the number of steps. Here the planner finds a footstep sequence of 103 steps.}
     \label{fig:WoS:onlineCase:MazeStopAndGo:Simulation}
-\end{figure*}
+\end{figure}
 
 In this section we present simulations obtained with the discussed architecture for the on-line case. Parameters are set to the same values of Sects. \ref{sec:WoS:offlineCase:FP:PlanningResults} and \ref{sec:WoS:offlineCase:Simulations}, with the only exception of setting $k_\gamma = 1$ in \eqref{eq:WoS:footstepToFootstepMetric} when used in \eqref{eq:WoS:metricIdentifyRoot}, $\bar{n}=0.9$, $\bar{z}=0.02$ and ${\bar{\kappa}}=5$. For each $j$-th invocation of the footstep planner the time budget $\Delta T^j$ is set to $T_{ss}+T_{ds}$. In all performed simulations, the quality criteria considered by the footstep planner is the number of steps, while the \textit{cost-to-go} of each vertex $v$ is an underestimation of the number of steps needed to reach the goal region $\mathcal{G}$ from the double support configuration specified by $v$. This value is computed as the distance between the position of the support foot specified by $v$ and $\mathcal{G}$, divided by the longest step among the catalogue of primitives $U$. 
 %In all our simulations the planner is replanning the footsteps every second (which corresponds to the duration of a step of the robot).

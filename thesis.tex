@@ -21,6 +21,10 @@
 
 \usepackage{cleveref}
 
+% Change font size in all tabular environments:
+\BeforeBeginEnvironment{tabular}{\begin{center}\scriptsize}
+\AfterEndEnvironment{tabular}{\end{center}}
+
 \hypersetup{pdftitle={PhD Thesis},pdfauthor={Michele Cipriano}}
 
 % Commands for the titlepage
