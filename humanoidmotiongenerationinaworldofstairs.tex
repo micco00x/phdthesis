@@ -119,8 +119,7 @@ In the following, we first address in full detail the off-line case and then pro
 
 \section{The off-line case} 
 \label{sec:WoS:offlineCase}
-
-We start this section by describing the general structure of the proposed method. Then we will describe in detail its main components, i.e., the footstep planner and the gait generation scheme based on IS-MPC. Some simulation results will also be presented.   
+We start this section by describing the general structure of the proposed method. Then we will describe the footsep planner and present some simulations. The gait generation scheme used is the one presented in Sec. \ref{sec:WoS:offlineCase:GaitGeneration}.
 
 \subsection{General architecture}
 \label{sec:WoS:offlineCase:GeneralArchitecture}
@@ -310,8 +309,72 @@ In general, it may be advisable to use a weighted combination of several optimal
 \subsubsection{Algorithm}
 \label{sec:WoS:offlineCase:FP:PlannerOverview}
 
+We now describe the footstep planning algorithm for the off-line case (Algorithm \ref{alg:FootstepPlanner}).
+
 At the beginning, $\cal T$ is rooted at $(\bff_{\rm swg}^{\rm ini}, \bff_{\rm sup}^{\rm ini})$, the initial stance of the humanoid.
 Then, $\cal T$ is expanded using an RRT*-like strategy. The generic iteration consists of: selecting a vertex for expansion, generating a candidate vertex, choosing a parent for the new vertex and rewiring the tree. These individual steps are described in the following, see also Fig.~\ref{fig:WoS:FootstepPlanner}.
+
+\begin{algorithm}%[!t]
+	\small
+	\removelatexerror
+    %\caption{FootstepPlanner$(({\bff}_{\rm swg}^{\rm ini}, {\bff}_{\rm sup}^{\rm ini}), {\cal G}, {\Delta T}, {\cal M}_z)$}
+	
+	\caption{FootstepPlanner}
+	\label{alg:FootstepPlanner}
+
+	\KwIn{$({\bff}_{\rm swg}^{\rm ini}, {\bff}_{\rm sup}^{\rm ini}), {\cal G}, {\Delta T}, {\cal M}_z$}
+	\vspace{2pt}
+	\KwOut{${\cal P}^*$}
+    \BlankLine
+    
+	$v^{\rm ini}$ $\leftarrow$ $({\bff}_{\rm swg}^{\rm ini}$, ${\bff}_{\rm sup}^{\rm ini})$\; 
+	
+	AddVertex$(\cal T$, $\emptyset$, $v^{\rm ini}$, $\emptyset)$\;
+	
+	ExpandTree$(\cal T$, ${\Delta T}$, ${\cal M}_z)$\;
+	
+    ${\cal P}^*$ $\leftarrow$ RetrieveBestPlan$({\cal T}, {\cal G})$\;	
+    \Return{${\cal P}^*$}\;
+\end{algorithm}
+
+\begin{procedure}%[!t]
+	\small
+	\removelatexerror
+	%\caption{ExpandTree(${\cal T}$, ${\Delta T}$, ${\cal M}_z$)}
+	
+	\caption{ExpandTree()}
+	\label{proc:ExpandTree}
+
+	\KwIn{${\cal T}, {\Delta T}, {\cal M}_z$}
+	\vspace{2pt}
+	\KwOut{none}
+    \BlankLine
+    
+	\While{\rm \textbf{not} TimeExpired$({\Delta T})$}{
+	 	$\bfp_{xy}^{\rm rand}$ $\leftarrow$ SamplePoint$()$\;
+	 	$v^{\rm near}$ $\leftarrow$ NearestVertex$(\mathcal{T}, \bfp_{xy}^{\rm rand})$\;
+	 	$\bff^{\rm cand}_{\rm sup}$ $\leftarrow$ GenerateCandidateFootstep$(\bff_{\rm sup}^{\rm near}, U, \mathcal{M}_z)$\;
+	 	
+	 	\If{\rm R1$(\bff^{\rm cand}_{\rm sup})$ \rm \textbf{and} \rm R2$(\bff^{\rm cand}_{\rm sup}, \bff^{\rm near}_{\rm sup})$}{
+	 	 	$\bfvarphi^{\rm near}$ $\leftarrow$ SwingTrajectoryEngine$(\bff_{\rm swg}^{\rm near}, \bff_{\rm sup}^{\rm cand})$\;
+		 	
+		 	\If{\rm R3$(\bfvarphi^{\rm near}, (\bff^{\rm near}_{\rm sup}, \bff^{\rm cand}_{\rm sup}))$}{
+		 	    $v^{\rm cand}$ $\leftarrow (\bff^{\rm near}_{\rm sup}, \bff^{\rm cand}_{\rm sup})$\;
+		 		
+		 		$\mathcal{N} \leftarrow$ Neighbors$(\mathcal{T}, v^{\rm cand})$\;
+		 		
+		 		$(v^{\rm min}, \bfvarphi^{\rm min}) \leftarrow$ ChooseParent$(\mathcal{T}, \mathcal{N}, v^{\rm near}, v^{\rm cand}, \bfvarphi^{\rm near})$\;
+		 		
+                $v^{\rm new} \leftarrow (\bff^{\rm min}_{\rm sup}, \bff^{\rm cand}_{\rm sup})$\;
+		 		
+		 		AddVertex$(\mathcal{T}, v^{\rm min}, v^{\rm new}, \bfvarphi^{\rm min})$\;	
+		 		
+		 		ReWire$(\mathcal{T}, \mathcal{N}, v^{\rm new})$\;	
+		 	}   			
+	 	}    
+	 }
+	 \Return{}\;
+\end{procedure}
 
 {\bf Selecting a vertex for expansion}: A point $\bfp_{xy}^{\rm rand}$ is randomly selected on the $xy$-plane, and
 the vertex $v^{\rm near}$ that is closest to $\bfp_{xy}^{\rm rand}$ is identified. To this end, we define a vertex-to-point metric as
@@ -319,6 +382,7 @@ the vertex $v^{\rm near}$ that is closest to $\bfp_{xy}^{\rm rand}$ is identifie
 \mu(v, \bfp_{xy}) = \lVert \bfm_{xy}(v) - \bfp_{xy} \rVert + k_{\mu} |\psi(v,\bfp_{xy})|,
 \end{equation*}
 where $\bfm_{xy}(v)$ represents the planar position of the midpoint between the feet at stance $v$, $k_{\mu}$ is a positive scalar, and $\psi(v,\bfp_{xy})$ is the angle between the robot sagittal axis (whose orientation is the average of the orientations of the two footsteps) and the line joining $\bfm_{xy}$ to $\bfp_{xy}$. 
+This step corresponds to the functions SamplePoint and NearestVertex in Procedure \ref{proc:ExpandTree}.
 \hfill $\blacktriangleleft$
 
 {\bf Generating a candidate vertex}:  
@@ -326,12 +390,41 @@ where $\bfm_{xy}(v)$ represents the planar position of the midpoint between the 
 After identifying the vertex $v^{\rm near}=(\bff_{\rm swg}^{\rm near},\bff_{\rm sup}^{\rm near})$, a candidate footstep is first generated using the catalogue $U$ (see Fig.~\ref{fig:WoS:Primitives}). In particular, we set the support foot to $\bff_{\rm sup}^{\rm near}$ and randomly select one element from the subset of $U$ associated to the identity of $v^{\rm near}$, which may be $L$ (left) or $R$ (right). Note that all elements of $U$ are chosen so as to automatically satisfy conditions~(\ref{eq:WoS:XYAdmissible}--\ref{eq:WoS:ThetaAdmissible}) of requirement R2.
 Call $\bff_{\rm sup}^{\rm cand}$ the chosen candidate footstep. The $z$ coordinate to be associated to the footstep $\bff_{\rm sup}^{\rm cand}$ is then retrieved from ${\cal M}_{z}$, and both the requirement R1 and the last condition~(\ref{eq:WoS:ZAdmissible}) of R2 can now be checked.
 
-To test the last requirement R3, we invoke an engine that generates a swing foot trajectory $\bfvarphi^{\rm near}$ from $\bff_{\rm swg}^{\rm near}$ to $\bff_{\rm sup}^{\rm cand}$. Such engine uses a parameterized trajectory which, given the endpoints, can be deformed\footnote{As a deformable trajectory we used a polynomial, but other choices (e.g., B-splines and Bezier curves) are possible.} by varying the maximum height $h$ along the motion. 
+To test the last requirement R3, we invoke an engine (Procedure \ref{proc:genswgtraj}) that generates a swing foot trajectory $\bfvarphi^{\rm near}$ from $\bff_{\rm swg}^{\rm near}$ to $\bff_{\rm sup}^{\rm cand}$. Such engine uses a parameterized trajectory which, given the endpoints, can be deformed\footnote{As a deformable trajectory we used a polynomial, but other choices (e.g., B-splines and Bezier curves) are possible.} by varying the maximum height $h$ along the motion. 
 %Using the elevation map, the engine tries increasing values of $h$ in a certain range looking for a collision-free trajectory.
 Using the elevation map and increments of $\Delta h$, the engine tries growing values of $h$ in a certain range $[h^{\rm min}, h^{\rm max}]$ looking for a collision-free trajectory.
 
 If all requirements have been satisfied, a candidate vertex is generated as $v^{\rm cand} = (\bff_{\rm swg}^{\rm cand}, \bff_{\rm sup}^{\rm cand})$, with $\bff_{\rm swg}^{\rm cand} = \bff_{\rm sup}^{\rm near}$; however, $v^{\rm cand}$ is not added to $\cal T$ because the planner first needs to identify the best parent for it.
-If any requirement among R1--R3 is violated, the current expansion attempt is aborted and a new iteration is started.\hfill $\blacktriangleleft$
+If any requirement among R1--R3 is violated, the current expansion attempt is aborted and a new iteration is started.
+This step corresponds to lines 4-8 in Procedure \ref{proc:ExpandTree}.
+\hfill $\blacktriangleleft$
+
+\begin{procedure}%[!t]
+	\small
+	\removelatexerror
+	
+	%\caption{SwingTrajectoryEngine($\bff^a$, $\bff^b$)}
+	\caption{SwingTrajectoryEngine()}
+	\label{proc:genswgtraj}
+
+	\KwIn{$\bff^a$, $\bff^b$}
+	\KwOut{$\bfvarphi^a$}
+    \BlankLine
+
+	$h$ $\leftarrow$ $h^{\rm min}$\;
+	
+	\While{$h \leq h^{\rm max}$}{
+		$\bfvarphi^a \leftarrow$ DeformTrajectory$(\bff^a, \bff^b, h)$\;		 	
+	
+	   	\If{\rm CollisionFree$(\bfvarphi^a)$}{
+            \Return{$\bfvarphi^a$}\;	   	
+	   	}
+		
+	    $h \leftarrow h + \Delta h$\;
+	}
+			
+	\Return{$\emptyset$}\;	
+\end{procedure}
 
 {\bf Choosing a parent}: Although $v^{\rm cand}$ was generated from $v^{\rm near}$, there might be a different vertex in the tree that leads to the same vertex with a lower cost. To find it, the planner checks for each vertex $v' = (\bff'_{\rm swg}, \bff'_{\rm sup})\in {\cal N} (v^{\rm cand})$ whether setting $v'$ as parent of $v^{\rm cand}$ satisfies requirements R2-R3, and whether this connection reduces the cost of $v^{\rm cand}$, that is 
 \[
@@ -339,7 +432,39 @@ c(v') + l(v', v^{\rm cand}) < c(v^{\rm near}) + l(v^{\rm near}, v^{\rm cand}).
 \]
 The vertex $v^{\rm min} = (\bff_{\rm swg}^{\rm min}, \bff_{\rm sup}^{\rm min})$ that allows to reach $v^{\rm cand}$ with minimum cost is chosen as its parent. If $v^{\rm min} = v^{\rm near}$, then $v^{\rm cand}$ can be added to the tree together with the edge joining it to $v^{\rm near}$. However, if a different parent $v^{\rm min} \neq v^{\rm near}$ is chosen, the candidate vertex $v^{\rm cand}$ must be modified by relocating its swing footstep to the support footstep of $v^{\rm min}$.
 To this end, a new vertex $v^{\rm new} = (\bff_{\rm swg}^{\rm new}, \bff_{\rm sup}^{\rm new})$ with $\bff_{\rm swg}^{\rm new} = \bff_{\rm sup}^{\rm min}$ and $\bff_{\rm sup}^{\rm new} = \bff_{\rm sup}^{\rm cand}$ is generated and added to ${\cal T}$ as child of $v^{\rm min}$. The edge between $v^{\rm min}$ and $v^{\rm new}$ corresponds to the swing foot trajectory $\bfvarphi^{\rm min}$. 
+This step corresponds to the function ChooseParent in Procedure \ref{proc:chooseparent}.
 \hfill $\blacktriangleleft$
+
+\begin{procedure}%[!t]
+	\small
+	\removelatexerror
+	%\caption{ChooseParent($\cal T$, $\cal N$, $v^{\rm near}$, $v^{\rm cand}$, $\bfvarphi^{\rm cand}$)}
+	
+	\caption{ChooseParent()}
+	\label{proc:chooseparent}
+
+	\KwIn{${\cal T}, {\cal N}, v^{\rm near}, v^{\rm cand}, \bfvarphi^{\rm cand}$}
+	\vspace{2pt}
+	\KwOut{$v^{\rm min}, \bfvarphi^{\rm min}$}
+    \BlankLine
+	
+	$v^{\rm min}$ $\leftarrow$ $v^{\rm near}$\;
+	$\bfvarphi^{\rm min}$ $\leftarrow$ $\bfvarphi^{\rm cand}$\;
+	$c^{\rm min}$ $\leftarrow$ $c(v^{\rm near}) + l(v^{\rm near}, v^{\rm cand})$\;
+	
+	\ForEach{$v'$ $\in$ $\cal N$}{
+    	\If{\rm R2$(\bff_{\rm sup}^{\rm cand}, \bff'_{\rm sup})$}{
+    		$\bfvarphi' \leftarrow$ SwingTrajectoryEngine$(\bff'_{\rm swg}, \bff_{\rm sup}^{\rm cand})$\;
+    		
+    		\If{\rm R3$(\bfvarphi', (\bff'_{\rm sup}, \bff_{\rm sup}^{\rm cand}))$ \rm \textbf{and} $c(v') +l(v', v^{\rm cand}) < c^{\rm min}$}{
+				$v^{\rm min}$ $\leftarrow$ $v'$\;
+				$\bfvarphi^{\rm min}$ $\leftarrow$ $\bfvarphi'$\;
+				$c^{\rm min}$ $\leftarrow$ $c(v') +l(v', v^{\rm cand})$\;
+    		}
+    	}
+	}
+	\Return{$(v^{\rm min}$, $\bfvarphi^{\rm min})$}\;	
+\end{procedure}
 
 {\bf Rewiring}: This final step checks whether $v^{\rm new}$ allows to reach with a lower cost some vertex already in $\cal T$, and updates the tree accordingly. In particular, for each $v' = (\bff'_{\rm swg}, \bff'_{\rm sup}) \in {\cal N} (v^{\rm new})$, the procedure checks whether setting $v'$ as a child of $v^{\rm new}$ satisfies requirements R2-R3, and whether this connection reduces the cost of $v'$, that is 
 \[
@@ -347,9 +472,55 @@ c(v^{\rm new}) + l(v^{\rm new}, v') < c(v').
 \]
 If this is the case, $v'$ is modified (similarly to what was done when choosing a parent) by relocating its swing footstep to $\bff_{\rm sup}^{\rm new}$, and then  reconnected to $\cal T$ as a child of $v_{\rm new}$. The edge between $v^{\rm new}$ and $v'$ corresponds to the swing foot trajectory $\bfvarphi^{\rm new}$.
 Finally, for each child $v'' = (\bff''_{\rm swg}, \bff''_{\rm sup})$ of $v'$, the swing foot trajectory $\bfvarphi'$ from the relocated $\bff'_{\rm swg}$ to $\bff''_{\rm sup}$ is generated and the edge between $v'$ and $v''$ is accordingly updated\footnote{In case the engine fails to find such trajectory, the subtree rooted at vertex $v''$ (including $v''$ itself) is simply removed from $\cal T$.}.
+This step corresponds to the function ReWire in Procedure \ref{proc:rewire}.
 
 Note that, although ${\cal N} (v^{\rm new})$ can contain ancestors of $v^{\rm new}$, no cycle will be generated by rewiring.
-In fact, it can be easily shown that any ancestor of $v^{\rm new}$ will have a cost lower or equal than $c(v^{\rm new})$, so that it will never be set as its child. \hfill $\blacktriangleleft$
+In fact, it can be easily shown that any ancestor of $v^{\rm new}$ will have a cost lower or equal than $c(v^{\rm new})$, so that it will never be set as its child.
+\hfill $\blacktriangleleft$
+
+\begin{procedure}%[!t]
+	\small
+	\removelatexerror
+	%\caption{ReWire($\cal T$, $\cal N$, $v^{\rm new}$)}
+    \caption{ReWire()}
+	\label{proc:rewire}
+
+	\KwIn{${\cal T}, {\cal N}, v^{\rm new}$}
+	\vspace{2pt}
+	\KwOut{none}
+    \BlankLine
+			
+	\ForEach{$v'$ $\in$ $\cal N$}{
+        \If{\rm R2$(\bff'_{\rm sup}, \bff^{\rm new}_{\rm sup})$}{
+ 	 	
+ 	 	    $\bfvarphi^{\rm new} \leftarrow$ SwingTrajectoryEngine$(\bff_{\rm swg}^{\rm new}, \bff'_{\rm sup})$\;
+	 	
+    	 	\If{\rm $R3(\bfvarphi^{\rm new}, (\bff'_{\rm swg}, \bff'_{\rm sup}))$ \textbf{and} $c(v^{\rm new}) + l(v^{\rm new}, v') < c(v')$}{
+                
+                UpdateVertex$({\cal T}, v', (\bff_{\rm sup}^{\rm new}, \bff'_{\rm sup}))$\;
+                
+                UpdateEdge$({\cal T}, v^{\rm new}, v', \bfvarphi^{\rm new})$\;
+                
+                ${\cal V}_{\rm child} \leftarrow$ ChildVertexes$({\cal T}, v')$\;
+                
+                \ForEach{$v''$ $\in$ ${\cal V}_{\rm child}$}{
+                    $\bfvarphi'$ $\leftarrow$ SwingTrajectoryEngine$(\bff'_{\rm swg}, \bff''_{\rm sup})$\;
+                    
+                    \eIf{$\bfvarphi' \neq \emptyset$}{
+                        UpdateEdge$({\cal T}, v', v'', \bfvarphi')$\;
+                    }
+                    {
+                        RemoveSubtree$({\cal T}, v'')$\; 	
+                    }
+    	 	    }
+                 	   
+    	 	}
+ 	    }
+	}
+		
+	\Return\;	
+
+\end{procedure}
 
 \smallskip
 %%%% UP TO HERE 
@@ -366,16 +537,13 @@ and the corresponding footstep plan ${\cal P}^*$ is retrieved from the branch of
 Clearly, the larger the time budget, the better the quality of the obtained footstep plan. %(i.e., the planner asymptotically converges to the optimal solution as the number of iterations increases).
 We conjecture that our planner inherits the asymptotic optimality property of the general RRT* algorithm \cite{KaFr:11}, although we do not have a formal proof yet.
 
-\subsubsection{Planning Results}
+\subsubsection{Planning results}
 \label{sec:WoS:offlineCase:FP:PlanningResults}
 
 To assess the performance of the proposed footstep planner, we performed a campaign of planning experiments through our C++ implementation on an Intel Core i7-8700K CPU running at 3.7~GHz.
 The tree constructed by the planner is stored in a k-d tree structure \cite{Yershova2007ImprovingMotionPlanning}, which allows to efficiently perform search and insertion operations.
 The used robot is HRP-4, a 1.5~m tall humanoid with 34 degrees of freedom
 by Kawada Robotics.
-
-
-
 
 We considered the five different scenarios (see Fig. \ref{fig:WoS:Scenarios}) of different complexity described in the following.
 \begin{itemize}
@@ -428,7 +596,7 @@ Examination of the table confirms that increasing the time budget both solves th
 This result supports our conjecture about the asymptotic optimality of the proposed footstep planner.
 
 Figure \ref{fig:WoS:ExampleResults} shows the plans generated by minimizing the number of steps in the scenarios \textit{Rod}, \textit{Ditch}, \textit{Corridor} and \textit{Maze}.
-In particular, in \textit{Rod} the plan allow to correctly pass over the thin obstacle and walk the stairway, eventually reaching the goal region; in \textit{Ditch} the plan reaches the left patch before traversing the low central patches; in \textit{Corridor} the plan manages to exit the first room, reaching the stairway and avoiding the obstacles; in \textit{Maze} the plan takes the left path among the two available, which is the optimal one. 
+In particular, in \textit{Rod} the plan allows to correctly pass over the thin obstacle and walk the stairway, eventually reaching the goal region; in \textit{Ditch} the plan reaches the left patch before traversing the low central patches; in \textit{Corridor} the plan manages to exit the first room, reaching the stairway and avoiding the obstacles; in \textit{Maze} the plan takes the left path among the two available, which is the optimal one. 
 Figure \ref{fig:WoS:ExampleResultsCompare} compares the plans generated in the scenario \textit{Spacious} for each considered cost function. 
 In particular, when minimizing the number of steps the plan goes straight towards the goal region; when minimizing the height variation, the plan avoids the stairway; when maximizing the clearance the plan first moves away from the wall placed on the left flank of the robot at its starting configuration, and then moves towards the goal region while keeping the other obstacles at a safe distance.
 
@@ -654,6 +822,33 @@ Meanwhile, during the planner operation, the map $\mathcal{M}_z$ is continuously
 \label{sec:WoS:onlineCase:FootstepPlanner}
 
 This module consists in a sensor-based version of the footstep planner proposed in Sect. \ref{sec:WoS:offlineCase:FootstepPlanner} which works using the knowledge about the environment incrementally acquired by the robot during motion. 
+We now describe the footstep planning algorithm for the on-line case (Algorithm \ref{alg:AnytimeFootstepPlanner}).
+
+\begin{algorithm}%[!t]
+	\small
+	\removelatexerror
+    %\caption{SensorBasedFootstepPlanner$(({\bff}_{\rm swg}^{j+1}, {\bff}_{\rm sup}^{j+1}), {\cal G}, {\Delta T}^j, {\cal M}_z^j)$}
+	
+	\caption{SensorBasedFootstepPlanner}
+	\label{alg:AnytimeFootstepPlanner}
+
+	\KwIn{$({\bff}_{\rm swg}^{j+1}, {\bff}_{\rm sup}^{j+1}), {\cal G}, {\Delta T}^j, {\cal M}_z^j$}
+	\vspace{2pt}
+	\KwOut{${\cal P}^{j+1,*}$}
+    \BlankLine
+
+    $({\cal T}^{j+1}, v^{\rm root})$ $\leftarrow$ InitializeTree$({\cal T}^j, ({\bff}_{\rm swg}^{j+1}, {\bff}_{\rm sup}^{j+1}))$\; 
+	
+    ${\cal V}_{\rm child}$ $\leftarrow$ ChildVertexes$({\cal T}^{j+1}, v^{\rm root})$\;
+	\ForEach{$v'$ $\in$ ${\cal V}_{\rm child}$}{
+        UpdateTree$({\cal T}^{j+1}, v', {\cal M}_z^j)$\;
+    } 	
+
+	ExpandTree$({\cal T}^{j+1}, {\Delta T}^j - {\Delta T}_{\rm e}, {\cal M}_z^j)$\;
+
+	${\cal P}^{j+1,*}$ $\leftarrow$ RetrieveBestPlan$({\cal T}^{j+1}, {\cal G})$\;
+    \Return{${\cal P}^{j+1,*}$}\;
+\end{algorithm}
 
 The input data for the $j$-th invocation of the footstep planner are the next robot stance $(\bff_{\rm swg}^{j+1}, \bff_{\rm sup}^{j+1})$, the goal region $\cal G$, the time budget ${\Delta T}^j$ and the elevation map ${\cal M}_z^j$. 
 Given an optimality criterion, the footstep planner returns the best footstep plan ${\cal P}^{j+1,*}$, found within ${\Delta T}^j$, either leading to $\cal G$ or terminating in proximity of the frontier of ${\cal M}_z^j$.
@@ -672,7 +867,30 @@ The generic invocation consists of: initializing, updating and expanding the tre
 \end{equation}
 where $\gamma(\cdot)$ is the footstep-to-footstep metric defined in (\ref{eq:WoS:footstepToFootstepMetric}).
 The subtree of $\mathcal{T}^{j}$ rooted at $v^{\rm root}$ is extracted (including $v^{\rm root}$ itself) and represents the initial version of $\mathcal{T}^{j+1}$.
-To match the stance that the humanoid is supposed to reach at the end of the simultaneously executed step, $v^{\rm root}$ is modified by relocating $\bff_{\rm swg}^{\rm root}$ to $\bff_{\rm swg}^{j+1}$ and $\bff_{\rm sup}^{\rm root}$ to $\bff_{\rm sup}^{j+1}$. \hfill $\blacktriangleleft$
+To match the stance that the humanoid is supposed to reach at the end of the simultaneously executed step, $v^{\rm root}$ is modified by relocating $\bff_{\rm swg}^{\rm root}$ to $\bff_{\rm swg}^{j+1}$ and $\bff_{\rm sup}^{\rm root}$ to $\bff_{\rm sup}^{j+1}$.
+This step corresponds to Procedure \ref{proc:InitializeTree}.
+\hfill $\blacktriangleleft$
+\begin{procedure}%[!t]
+	\small
+	\removelatexerror
+	%\caption{InitializeTree(${\cal T}^j$, ($\bff_{\rm swg}^{j+1}$, $\bff_{\rm sup}^{j+1}$))}
+	\caption{InitializeTree()}
+	\label{proc:InitializeTree}
+
+	\KwIn{${\cal T}^j, (\bff_{\rm swg}^{j+1}, \bff_{\rm sup}^{j+1}))$}
+	\vspace{2pt}
+	\KwOut{${\cal T}^{j+1}, v^{\rm root}$}
+    \BlankLine
+	
+	$v^{\rm root}$ $\leftarrow$ NearestVertex$({\cal T}^j, (\bff_{\rm swg}^{j+1}, \bff_{\rm sup}^{j+1}))$\;
+	
+	${\cal T}^{j+1}$ $\leftarrow$ ExtractSubtree$({\cal T}^j, v^{\rm root})$\;
+	
+	UpdateVertex$({\cal T}^{j+1}, v^{\rm root}, (\bff_{\rm swg}^{j+1}, \bff_{\rm sup}^{j+1}))$\;
+	
+    \Return{$({\cal T}^{j+1}, v^{\rm root})$}\;
+	
+\end{procedure}
 
 {\bf Updating}: At this point, requirements R1--R3 are satisfied by construction in $\mathcal{T}^{j+1}$ according to the previous map $\mathcal{M}_z^{j-1}$.
 Then, R1--R3 must now be checked in $\mathcal{T}^{j+1}$ using the most recent map $\mathcal{M}_z^{j}$, consequently updating vertexes and edges in order to satisfy them.
@@ -705,7 +923,55 @@ Once $v$ has been updated, requirements R1--R3 are checked similarly to what was
 
 If any requirement among R1--R3 is violated, vertex $v$ is removed from $\mathcal{T}^{j+1}$, along with its descendants.
 Otherwise, the edge connecting $v$ to $v^{\rm parent}$ is replaced by the trajectory $\bfvarphi^{\rm parent}$ generated while checking R3; the set ${\cal V}_{\rm child}$ of child vertexes of $v$ is retrieved, and the procedure is recursively invoked on them. 
-To guarantee on-line performance and save time to be used for expanding $\mathcal{T}^{j+1}$, recursion is stopped on vertexes having a maximum depth $\bar{\kappa}$. \hfill $\blacktriangleleft$
+To guarantee on-line performance and save time to be used for expanding $\mathcal{T}^{j+1}$, recursion is stopped on vertexes having a maximum depth $\bar{\kappa}$.
+This step corresponds to Procedure \ref{proc:UpdateTree}.
+\begin{procedure}%[!t]
+	\small
+	\removelatexerror
+	
+    %\caption{UpdateTree(${\cal T}^{j+1}$, $v$, ${\cal M}_z^j$)}
+    \caption{UpdateTree()}
+	\label{proc:UpdateTree}
+
+	\KwIn{${\cal T}^{j+1}, v, {\cal M}_z^j$}
+	\vspace{2pt}
+	\KwOut{none}
+    \BlankLine
+	
+	$v^{\rm parent}$ $\leftarrow$ ParentVertex$({\cal T}^{j+1}, v)$\;
+    
+    $z_{f, \rm sup}$ $\leftarrow$ DetermineFootstepHeight$(\bff_{\rm sup}, {\cal M}_z^j)$\;
+    
+    UpdateVertex$({\cal T}^{j+1}, v, (\bff_{\rm sup}^{\rm parent}, (x_{f, \rm sup}, y_{f, \rm sup}, z_{f, \rm sup})))$\;
+    
+    \eIf{\rm R1$(\bff_{\rm sup})$ \rm \textbf{and} \rm R2$(\bff_{\rm sup}$, $\bff^{\rm parent}_{\rm sup})$}{
+ 	 	$\bfvarphi^{\rm parent}$ $\leftarrow$ SwingTrajectoryEngine$(\bff_{\rm swg}^{\rm parent}, \bff_{\rm sup})$\;
+	 	
+	 	\eIf{\rm R3$(\bfvarphi^{\rm parent}, (\bff_{\rm swg}, \bff_{\rm sup}))$}{
+            UpdateEdge$({\cal T}^{j+1}, v^{\rm parent}, v, \bfvarphi^{\rm parent})$\;
+            
+            \If{\rm Depth$({\cal T}^{j+1}, v))$ = $\bar\kappa$}{
+                \Return\;    	
+            } 	
+            
+            ${\cal V}_{\rm child}$ $\leftarrow$ ChildVertexes$({\cal T}^{j+1}, v)$\;
+            \ForEach{$v'$ $\in$ ${\cal V}_{\rm child}$}{
+                UpdateTree$({\cal T}^{j+1}, v', {\cal M}_z^j)$\;
+            }
+             	   
+	 	} 
+	 	{
+	 	    RemoveSubtree$({\cal T}^{j+1}, v)$\; 	
+	 	}
+ 	}
+	{
+ 	    RemoveSubtree$({\cal T}^{j+1}, v)$\; 	
+ 	}
+	 
+    \Return\;   
+	
+\end{procedure}
+\hfill $\blacktriangleleft$
 
 {\bf Expanding}: Once $\mathcal{T}^{j+1}$ has been updated, it can be further expanded in the map $\mathcal{M}_z^j$.
 Let ${\Delta T}_{\rm e}$ be the time elapsed since the beginning of the current invocation of the footstep planner, i.e., the time spent in initializing and updating $\mathcal{T}^{j+1}$.
@@ -822,12 +1088,10 @@ It is well known that weighted $A^\ast$ works quite well in environments where t
     \label{tab:benchmark-wastar-w5}
 \end{table}
 
-As for the gait generation component, there are several alternatives to our method that employ MPC on reduced-order models. The advantage of the proposed approach lies in the introduction of the stability constraint, which allows to prove rigorously recursive feasibility and internal stability of the MPC scheme. The effectiveness of this approach was extensively analyzed in \cite{ScDeLaOr:20}, by means of comparisons to state-of-the-art schemes. What we proposed in this chapter is an extension accounting for the fact that the CoM height changes. Based on the additional theoretical results which we proved (namely, Props.~\ref{prop:velocityBound} and~\ref{prop:conservative-box}), we can claim that our 3D gait generation retains the same properties of the original 2D scheme. 
+%As for the gait generation component, there are several alternatives to our method that employ MPC on reduced-order models. The advantage of the proposed approach lies in the introduction of the stability constraint, which allows to prove rigorously recursive feasibility and internal stability of the MPC scheme. The effectiveness of this approach was extensively analyzed in \cite{ScDeLaOr:20}, by means of comparisons to state-of-the-art schemes. What we proposed in this chapter is an extension accounting for the fact that the CoM height changes. Based on the additional theoretical results which we proved (namely, Props.~\ref{prop:velocityBound} and~\ref{prop:conservative-box}), we can claim that our 3D gait generation retains the same properties of the original 2D scheme. 
 
-\section{Conclusions} 
+\section{Conclusions}
 \label{sec:WoS:Conclusions}
-
-
 In this chapter, we addressed the problem of motion generation for a humanoid robot that must reach a certain goal region walking in an environment consisting of horizontal patches located at different heights, called \textit{world of stairs}.
 We considered two versions of such problem: the off-line and on-line case. 
 In the first, the geometry of the environment is completely known in advance, while in the second, it is reconstructed by the robot itself during motion using an on-board sensor. In both cases, available information about the environment is maintained in the form of an elevation map. 
@@ -841,6 +1105,16 @@ To this end, we presented a sensor-based version of the footstep planner that us
 
 We validated  the proposed architectures by providing simulation results obtained in CoppeliaSim on the HRP-4 humanoid robot in scenarios of different complexity.
 
+%With respect to the previously reviewed contributions, our work improves the following points:
+%\begin{itemize}
+%\item the proposed footstep planner finds sequences of footsteps that are optimal with respect to a chosen optimality criterion, whereas most of the literature that makes use of randomized methods does not in any way consider the quality of the produced sequences \cite{Liu_IROS2012}; we do this by using a planner based on RRT*, which is a probabilistic method with guarantees of asymptotic convergence to an optimal solution;
+%\item in our formulation, optimality does not significantly compromise performance, unlike techniques that make use of A*-based algorithms \cite{Chestnutt_IROS2009,Maier_IROS2013,Karkowski_HUM2016}, or others that make use of quadratic optimization \cite{DeTe:14};
+%\item we propose a scheme capable of working both with off-line planning, in known environments, and in on-line situations;
+%\item to generate a gait that realizes the footstep plan we adopt and improve our Intrinsically Stable MPC (IS-MPC) scheme \cite{ScDeLaOr:20}. IS-MPC incorporates an explicit stability constraint in order to deal with the instability in the humanoid robot dynamics. Along with the stability constraint, we enforce a ZMP position constraint and a ZMP velocity constraint, and show that the combination of all the imposed constraints guarantees satisfaction of the balance condition in 3D.
+%\end{itemize}
+
+%Compared to our previous work on the subject, \cite{FeScLaOr:19}, the main additions presented in this chapter consist of the introduction of optimality criteria in the planner, the extension to on-line situations with the use of on-board sensors, and the inclusion of the ZMP velocity constraint in the IS-MPC. We validate the proposed architectures for the off-line and on-line case via simulations on the HRP-4 humanoid robot in scenarios of different complexity.
+
 Our future work will explore several directions, such as
 \begin{enumerate}
     \item providing a formal proof of asymptotic optimality of the proposed footstep planner;
@@ -848,279 +1122,3 @@ Our future work will explore several directions, such as
     \item implementing the presented architectures on a real humanoid robot;
     \item extending them to the case of large-scale and multi-floor environments.
 \end{enumerate}
-
----
-
-With respect to the previously reviewed contributions, our work improves the following points:
-
-\begin{itemize}
-\item the proposed footstep planner finds sequences of footsteps that are optimal with respect to a chosen optimality criterion, whereas most of the literature that makes use of randomized methods does not in any way consider the quality of the produced sequences \cite{Liu_IROS2012}; we do this by using a planner based on RRT*, which is a probabilistic method with guarantees of asymptotic convergence to an optimal solution;
-
-\item in our formulation, optimality does not significantly compromise performance, unlike techniques that make use of A*-based algorithms \cite{Chestnutt_IROS2009,Maier_IROS2013,Karkowski_HUM2016}, or others that make use of quadratic optimization \cite{DeTe:14};
-
-\item we propose a scheme capable of working both with off-line planning, in known environments, and in on-line situations;
-
-
-\item to generate a gait that realizes the footstep plan we adopt and improve our Intrinsically Stable MPC (IS-MPC) scheme \cite{ScDeLaOr:20}. IS-MPC incorporates an explicit stability constraint in order to deal with the instability in the humanoid robot dynamics. Along with the stability constraint, we enforce a ZMP position constraint and a ZMP velocity constraint, and show that the combination of all the imposed constraints guarantees satisfaction of the balance condition in 3D.
-
-\end{itemize}
-
-
-Compared to our previous work on the subject, \cite{FeScLaOr:19}, the main additions presented in this chapter consist of the introduction of optimality criteria in the planner, the extension to on-line situations with the use of on-board sensors, and the inclusion of the ZMP velocity constraint in the IS-MPC. We validate the proposed architectures for the off-line and on-line case via simulations on the HRP-4 humanoid robot in scenarios of different complexity.
-
-
-\subsection{Pseudocode}
-\label{sec:WoS:Pseudocode}
-  
-We report here a pseudocode description of the footstep planners presented in Sections \ref{sec:WoS:offlineCase:FootstepPlanner} and \ref{sec:WoS:onlineCase:FootstepPlanner}, along with the relevant procedures. 
-
-\begin{algorithm}%[!t]
-	\small
-	\removelatexerror
-	\label{alg:FootstepPlanner}
-    %\caption{FootstepPlanner$(({\bff}_{\rm swg}^{\rm ini}, {\bff}_{\rm sup}^{\rm ini}), {\cal G}, {\Delta T}, {\cal M}_z)$}
-	
-	\caption{FootstepPlanner}
-	\KwIn{$({\bff}_{\rm swg}^{\rm ini}, {\bff}_{\rm sup}^{\rm ini}), {\cal G}, {\Delta T}, {\cal M}_z$}
-	\vspace{2pt}
-	\KwOut{${\cal P}^*$}
-    \BlankLine
-    
-	$v^{\rm ini}$ $\leftarrow$ $({\bff}_{\rm swg}^{\rm ini}$, ${\bff}_{\rm sup}^{\rm ini})$\; 
-	
-	AddVertex$(\cal T$, $\emptyset$, $v^{\rm ini}$, $\emptyset)$\;
-	
-	ExpandTree$(\cal T$, ${\Delta T}$, ${\cal M}_z)$\;
-	
-    ${\cal P}^*$ $\leftarrow$ RetrieveBestPlan$({\cal T}, {\cal G})$\;	
-    \Return{${\cal P}^*$}\;
-\end{algorithm}
-
-\begin{procedure}%[!t]
-	\small
-	\removelatexerror
-	\label{proc:ExpandTree}
-	%\caption{ExpandTree(${\cal T}$, ${\Delta T}$, ${\cal M}_z$)}
-	
-	\caption{ExpandTree()}
-	\KwIn{${\cal T}, {\Delta T}, {\cal M}_z$}
-	\vspace{2pt}
-	\KwOut{none}
-    \BlankLine
-    
-	\While{\rm \textbf{not} TimeExpired$({\Delta T})$}{
-	 	$\bfp_{xy}^{\rm rand}$ $\leftarrow$ SamplePoint$()$\;
-	 	$v^{\rm near}$ $\leftarrow$ NearestVertex$(\mathcal{T}, \bfp_{xy}^{\rm rand})$\;
-	 	$\bff^{\rm cand}_{\rm sup}$ $\leftarrow$ GenerateCandidateFootstep$(\bff_{\rm sup}^{\rm near}, U, \mathcal{M}_z)$\;
-	 	
-	 	\If{\rm R1$(\bff^{\rm cand}_{\rm sup})$ \rm \textbf{and} \rm R2$(\bff^{\rm cand}_{\rm sup}, \bff^{\rm near}_{\rm sup})$}{
-	 	 	$\bfvarphi^{\rm near}$ $\leftarrow$ SwingTrajectoryEngine$(\bff_{\rm swg}^{\rm near}, \bff_{\rm sup}^{\rm cand})$\;
-		 	
-		 	\If{\rm R3$(\bfvarphi^{\rm near}, (\bff^{\rm near}_{\rm sup}, \bff^{\rm cand}_{\rm sup}))$}{
-		 	    $v^{\rm cand}$ $\leftarrow (\bff^{\rm near}_{\rm sup}, \bff^{\rm cand}_{\rm sup})$\;
-		 		
-		 		$\mathcal{N} \leftarrow$ Neighbors$(\mathcal{T}, v^{\rm cand})$\;
-		 		
-		 		$(v^{\rm min}, \bfvarphi^{\rm min}) \leftarrow$ ChooseParent$(\mathcal{T}, \mathcal{N}, v^{\rm near}, v^{\rm cand}, \bfvarphi^{\rm near})$\;
-		 		
-                $v^{\rm new} \leftarrow (\bff^{\rm min}_{\rm sup}, \bff^{\rm cand}_{\rm sup})$\;
-		 		
-		 		AddVertex$(\mathcal{T}, v^{\rm min}, v^{\rm new}, \bfvarphi^{\rm min})$\;	
-		 		
-		 		ReWire$(\mathcal{T}, \mathcal{N}, v^{\rm new})$\;	
-		 	}   			
-	 	}    
-	 }
-	 \Return{}\;
-\end{procedure}
-
-\begin{procedure}%[!t]
-	\small
-	\removelatexerror
-	\label{proc:genswgtraj}
-	
-	%\caption{SwingTrajectoryEngine($\bff^a$, $\bff^b$)}
-	\caption{SwingTrajectoryEngine()}
-	\KwIn{$\bff^a$, $\bff^b$}
-	\KwOut{$\bfvarphi^a$}
-    \BlankLine
-
-	$h$ $\leftarrow$ $h^{\rm min}$\;
-	
-	\While{$h \leq h^{\rm max}$}{
-		$\bfvarphi^a \leftarrow$ DeformTrajectory$(\bff^a, \bff^b, h)$\;		 	
-	
-	   	\If{\rm CollisionFree$(\bfvarphi^a)$}{
-            \Return{$\bfvarphi^a$}\;	   	
-	   	}
-		
-	    $h \leftarrow h + \Delta h$\;
-	}
-			
-	\Return{$\emptyset$}\;	
-\end{procedure}
-
-\begin{procedure}%[!t]
-	\small
-	\removelatexerror
-	\label{proc:chooseparent}
-	%\caption{ChooseParent($\cal T$, $\cal N$, $v^{\rm near}$, $v^{\rm cand}$, $\bfvarphi^{\rm cand}$)}
-	
-	\caption{ChooseParent()}
-	\KwIn{${\cal T}, {\cal N}, v^{\rm near}, v^{\rm cand}, \bfvarphi^{\rm cand}$}
-	\vspace{2pt}
-	\KwOut{$v^{\rm min}, \bfvarphi^{\rm min}$}
-    \BlankLine
-	
-	$v^{\rm min}$ $\leftarrow$ $v^{\rm near}$\;
-	$\bfvarphi^{\rm min}$ $\leftarrow$ $\bfvarphi^{\rm cand}$\;
-	$c^{\rm min}$ $\leftarrow$ $c(v^{\rm near}) + l(v^{\rm near}, v^{\rm cand})$\;
-	
-	\ForEach{$v'$ $\in$ $\cal N$}{
-    	\If{\rm R2$(\bff_{\rm sup}^{\rm cand}, \bff'_{\rm sup})$}{
-    		$\bfvarphi' \leftarrow$ SwingTrajectoryEngine$(\bff'_{\rm swg}, \bff_{\rm sup}^{\rm cand})$\;
-    		
-    		\If{\rm R3$(\bfvarphi', (\bff'_{\rm sup}, \bff_{\rm sup}^{\rm cand}))$ \rm \textbf{and} $c(v') +l(v', v^{\rm cand}) < c^{\rm min}$}{
-				$v^{\rm min}$ $\leftarrow$ $v'$\;
-				$\bfvarphi^{\rm min}$ $\leftarrow$ $\bfvarphi'$\;
-				$c^{\rm min}$ $\leftarrow$ $c(v') +l(v', v^{\rm cand})$\;
-    		}
-    	}
-	}
-	\Return{$(v^{\rm min}$, $\bfvarphi^{\rm min})$}\;	
-\end{procedure}
-
-\begin{procedure}%[!t]
-	\small
-	\removelatexerror
-	%\caption{ReWire($\cal T$, $\cal N$, $v^{\rm new}$)}
-	\label{proc:rewire}
-    \caption{ReWire()}
-	\KwIn{${\cal T}, {\cal N}, v^{\rm new}$}
-	\vspace{2pt}
-	\KwOut{none}
-    \BlankLine
-			
-	\ForEach{$v'$ $\in$ $\cal N$}{
-        \If{\rm R2$(\bff'_{\rm sup}, \bff^{\rm new}_{\rm sup})$}{
- 	 	
- 	 	    $\bfvarphi^{\rm new} \leftarrow$ SwingTrajectoryEngine$(\bff_{\rm swg}^{\rm new}, \bff'_{\rm sup})$\;
-	 	
-    	 	\If{\rm $R3(\bfvarphi^{\rm new}, (\bff'_{\rm swg}, \bff'_{\rm sup}))$ \textbf{and} $c(v^{\rm new}) + l(v^{\rm new}, v') < c(v')$}{
-                
-                UpdateVertex$({\cal T}, v', (\bff_{\rm sup}^{\rm new}, \bff'_{\rm sup}))$\;
-                
-                UpdateEdge$({\cal T}, v^{\rm new}, v', \bfvarphi^{\rm new})$\;
-                
-                ${\cal V}_{\rm child} \leftarrow$ ChildVertexes$({\cal T}, v')$\;
-                
-                \ForEach{$v''$ $\in$ ${\cal V}_{\rm child}$}{
-                    $\bfvarphi'$ $\leftarrow$ SwingTrajectoryEngine$(\bff'_{\rm swg}, \bff''_{\rm sup})$\;
-                    
-                    \eIf{$\bfvarphi' \neq \emptyset$}{
-                        UpdateEdge$({\cal T}, v', v'', \bfvarphi')$\;
-                    }
-                    {
-                        RemoveSubtree$({\cal T}, v'')$\; 	
-                    }
-    	 	    }
-                 	   
-    	 	}
- 	    }
-	}
-		
-	\Return\;	
-
-\end{procedure}
-
-\begin{algorithm}%[!t]
-	\small
-	\removelatexerror
-	\label{alg:AnytimeFootstepPlanner}
-    %\caption{SensorBasedFootstepPlanner$(({\bff}_{\rm swg}^{j+1}, {\bff}_{\rm sup}^{j+1}), {\cal G}, {\Delta T}^j, {\cal M}_z^j)$}
-	
-	\caption{SensorBasedFootstepPlanner}
-	\KwIn{$({\bff}_{\rm swg}^{j+1}, {\bff}_{\rm sup}^{j+1}), {\cal G}, {\Delta T}^j, {\cal M}_z^j$}
-	\vspace{2pt}
-	\KwOut{${\cal P}^{j+1,*}$}
-    \BlankLine
-
-    $({\cal T}^{j+1}, v^{\rm root})$ $\leftarrow$ InitializeTree$({\cal T}^j, ({\bff}_{\rm swg}^{j+1}, {\bff}_{\rm sup}^{j+1}))$\; 
-	
-    ${\cal V}_{\rm child}$ $\leftarrow$ ChildVertexes$({\cal T}^{j+1}, v^{\rm root})$\;
-	\ForEach{$v'$ $\in$ ${\cal V}_{\rm child}$}{
-        UpdateTree$({\cal T}^{j+1}, v', {\cal M}_z^j)$\;
-    } 	
-
-	ExpandTree$({\cal T}^{j+1}, {\Delta T}^j - {\Delta T}_{\rm e}, {\cal M}_z^j)$\;
-
-	${\cal P}^{j+1,*}$ $\leftarrow$ RetrieveBestPlan$({\cal T}^{j+1}, {\cal G})$\;
-    \Return{${\cal P}^{j+1,*}$}\;
-\end{algorithm}
-
-\begin{procedure}%[!t]
-	\small
-	\removelatexerror
-	%\caption{InitializeTree(${\cal T}^j$, ($\bff_{\rm swg}^{j+1}$, $\bff_{\rm sup}^{j+1}$))}
-	\label{proc:InitializeTree}
-	\caption{InitializeTree()}
-	\KwIn{${\cal T}^j, (\bff_{\rm swg}^{j+1}, \bff_{\rm sup}^{j+1}))$}
-	\vspace{2pt}
-	\KwOut{${\cal T}^{j+1}, v^{\rm root}$}
-    \BlankLine
-	
-	$v^{\rm root}$ $\leftarrow$ NearestVertex$({\cal T}^j, (\bff_{\rm swg}^{j+1}, \bff_{\rm sup}^{j+1}))$\;
-	
-	${\cal T}^{j+1}$ $\leftarrow$ ExtractSubtree$({\cal T}^j, v^{\rm root})$\;
-	
-	UpdateVertex$({\cal T}^{j+1}, v^{\rm root}, (\bff_{\rm swg}^{j+1}, \bff_{\rm sup}^{j+1}))$\;
-	
-    \Return{$({\cal T}^{j+1}, v^{\rm root})$}\;
-	
-\end{procedure}
-
-\begin{procedure}%[!t]
-	\small
-	\removelatexerror
-	\label{proc:UpdateTree}
-	
-    %\caption{UpdateTree(${\cal T}^{j+1}$, $v$, ${\cal M}_z^j$)}
-    \caption{UpdateTree()}
-	\KwIn{${\cal T}^{j+1}, v, {\cal M}_z^j$}
-	\vspace{2pt}
-	\KwOut{none}
-    \BlankLine
-	
-	$v^{\rm parent}$ $\leftarrow$ ParentVertex$({\cal T}^{j+1}, v)$\;
-    
-    $z_{f, \rm sup}$ $\leftarrow$ DetermineFootstepHeight$(\bff_{\rm sup}, {\cal M}_z^j)$\;
-    
-    UpdateVertex$({\cal T}^{j+1}, v, (\bff_{\rm sup}^{\rm parent}, (x_{f, \rm sup}, y_{f, \rm sup}, z_{f, \rm sup})))$\;
-    
-    \eIf{\rm R1$(\bff_{\rm sup})$ \rm \textbf{and} \rm R2$(\bff_{\rm sup}$, $\bff^{\rm parent}_{\rm sup})$}{
- 	 	$\bfvarphi^{\rm parent}$ $\leftarrow$ SwingTrajectoryEngine$(\bff_{\rm swg}^{\rm parent}, \bff_{\rm sup})$\;
-	 	
-	 	\eIf{\rm R3$(\bfvarphi^{\rm parent}, (\bff_{\rm swg}, \bff_{\rm sup}))$}{
-            UpdateEdge$({\cal T}^{j+1}, v^{\rm parent}, v, \bfvarphi^{\rm parent})$\;
-            
-            \If{\rm Depth$({\cal T}^{j+1}, v))$ = $\bar\kappa$}{
-                \Return\;    	
-            } 	
-            
-            ${\cal V}_{\rm child}$ $\leftarrow$ ChildVertexes$({\cal T}^{j+1}, v)$\;
-            \ForEach{$v'$ $\in$ ${\cal V}_{\rm child}$}{
-                UpdateTree$({\cal T}^{j+1}, v', {\cal M}_z^j)$\;
-            }
-             	   
-	 	} 
-	 	{
-	 	    RemoveSubtree$({\cal T}^{j+1}, v)$\; 	
-	 	}
- 	}
-	{
- 	    RemoveSubtree$({\cal T}^{j+1}, v)$\; 	
- 	}
-	 
-    \Return\;   
-	
-\end{procedure}
