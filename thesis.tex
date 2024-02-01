@@ -44,13 +44,23 @@
 
 \include{mathsym}
 
+\newenvironment{braced}
+ {\par\smallskip\hbox to\columnwidth\bgroup
+  \hss$\left\{\begin{minipage}{\columnwidth}}
+ {\end{minipage}\right.$\hss\egroup\smallskip}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newtheorem{assumption}{Assumption}
+
+\def\RealSet{{I\!\!R}}
+\def\bull{\vrule height .9ex width .8ex depth -.1ex} % square bullet
+
 \begin{document}
 
 \frontmatter
 
 \maketitle
-
-\dedication{Dedication.}
 
 \begin{acknowledgments}
 Acknowedgments.
@@ -66,6 +76,7 @@ Abstract.
 
 \input{introduction}
 \input{literaturereview}
+\input{gaitgenerationviaismpc}
 \input{humanoidmotiongenerationinaworldofstairs}
 \input{feasibilityawareplanadaptation}
 \input{nmpcforsteerablewheeledmobilerobots}
@@ -73,7 +84,6 @@ Abstract.
 
 \appendix
 
-\input{gaitgenerationviaismpc}
 \input{realtimenmpc}
 
 \backmatter
