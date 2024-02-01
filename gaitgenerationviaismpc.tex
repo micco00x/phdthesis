@@ -4,7 +4,7 @@ The gait generation module receives the planned footstep sequence ${\cal S}_f$ a
 
 On flat ground, it is common to ensure dynamic balance as a geometric criterion, by requiring that the ZMP must always be inside the convex hull of contact surfaces, i.e., the \emph{support polygon}. Traditionally, the ZMP is assumed to be located on the ground plane, which is uniquely defined when the environment is flat.
 
-In non-flat environments, there is no unique ground surface on which the ZMP can be assumed to be. However, the aforementioned criterion can be extended to these cases by allowing the ZMP to move in 3D \cite{SuImYaCa:2021}. The balance criterion is satisfied as long as the ZMP is inside a three-dimensional \emph{support region} $\mathcal{Z}$ that takes the shape of a pyramid (see Fig.~\ref{fig:WoS:balance3d}). The vertex of this pyramid is the robot CoM, and the edges are the lines connecting the CoM to the vertexes of the convex hull of the contact surfaces.
+In non-flat environments, there is no unique ground surface on which the ZMP can be assumed to be. However, the aforementioned criterion can be extended to these cases by allowing the ZMP to move in 3D \cite{SuImYaCa:2021}. The balance criterion is satisfied as long as the ZMP is inside a three-dimensional \emph{support region} $\mathcal{Z}$ that takes the shape of a pyramid (see Fig.~\ref{fig:FAPA:balance3d}). The vertex of this pyramid is the robot CoM, and the edges are the lines connecting the CoM to the vertexes of the convex hull of the contact surfaces.
 
 In MPC, dynamic balance is enforced via constraints on the ZMP position. However, the 3D support region $\mathcal{Z}$ cannot be directly employed to enforce a ZMP constraint, because this would be nonlinear, meaning that the resulting optimization problem would not be in a standard linear-quadratic formulation. The cause of this nonlinearity is given by the fact that the vertex of the pyramid $\mathcal{Z}$ is the CoM. Since both the ZMP and the CoM depend on the decision variables of the QP, this would result in product between the decision variables themselves.
 
@@ -169,22 +169,9 @@ where $t_s^l$ is the starting time of the $l$-th step and
 \end{equation*}
 
 \subsection{RAS 2023}
-As already noted, the humanoid is balanced as long as the ZMP is inside the pyramid $\cal Z$, which is a nonlinear condition due to the vertex of the pyramid being at the CoM (Fig. \ref{fig:WoS:balance3d}). To preserve linearity we consider a smaller allowed region for the ZMP, consisting in a box of fixed size with changing center and orientation. We refer to this as the {\em moving box}\footnote{Approximating the pyramidal region $\cal Z$ with a box might seem overly conservative. However, we argue that the neglected portion of the pyramid region is not crucial here, because large displacements of the ZMP in the $z$ direction would only be required to generate large vertical accelerations, which are not necessary in the considered setting (walking in a world of stairs). Clearly, less conservative approximations can still be envisaged and used for generating more dynamic motions.}, and we will prove that it conservatively approximates the support region, meaning that it is always contained inside the pyramid $\cal Z$.
+As already noted, the humanoid is balanced as long as the ZMP is inside the pyramid $\cal Z$, which is a nonlinear condition due to the vertex of the pyramid being at the CoM (Fig. \ref{fig:FAPA:balance3d}). To preserve linearity we consider a smaller allowed region for the ZMP, consisting in a box of fixed size with changing center and orientation. We refer to this as the {\em moving box}\footnote{Approximating the pyramidal region $\cal Z$ with a box might seem overly conservative. However, we argue that the neglected portion of the pyramid region is not crucial here, because large displacements of the ZMP in the $z$ direction would only be required to generate large vertical accelerations, which are not necessary in the considered setting (walking in a world of stairs). Clearly, less conservative approximations can still be envisaged and used for generating more dynamic motions.}, and we will prove that it conservatively approximates the support region, meaning that it is always contained inside the pyramid $\cal Z$.
 
-
-
-%However, we argue that the neglected portion of the pyramid region is not crucial here, because large displacements of the ZMP in the $z$ direction are only required to generate large vertical accelerations, which are not necessary in the considered setting (walking in a world of stairs).
-
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{figures/balance3d.pdf}
-    \caption{Balance condition in 3D: the ZMP must lie inside the yellow pyramid.}
-    \label{fig:WoS:balance3d}
-\end{figure}
-
-The center $\bfp_{\rm mc}$ and orientation $\theta_{\rm mc}$ of the moving box are taken to be consistent with the pose of footstep $\bff^j$ during the $j$-th single support phase. In the following double support phase they will gradually slide in order to reach the pose of the next footstep $\bff^{j+1}$, with a linear\footnote{The timing law can be arbitrarily chosen as long as it leads the moving box from one footstep to the next within the duration of the double support phase.} timing law. At each time $t$, the center of the moving box $\bfp_{\rm mc}$ is expressed as
+The center $\bfp_{\rm mc}$ of the moving box is taken to be consistent with the pose of footstep $\bff^j$ during the $j$-th single support phase. At each time $t$, the center of the moving box $\bfp_{\rm mc}$ is expressed as
 \begin{equation}\label{eq:WoS: moving constraint}
 \bfp_{\rm mc}(t) = \Bigg\{
 \begin{array}{ll}
@@ -193,34 +180,17 @@ The center $\bfp_{\rm mc}$ and orientation $\theta_{\rm mc}$ of the moving box a
 \end{array}
 \end{equation}
 where $j=0,\dots,F$ is a index over the footsteps within the control horizon, and $\alpha^j(t) = (t-t_s^j-T_{\rm ss}^j)/T_{\rm ds}^j$ denotes the time elapsed since the start of the double support phase, expressed as a fraction of the duration of the double support phase itself.
-The orientation of the moving box $\theta_{\rm mc}$ can be similarly expressed as
-\begin{equation}\label{eq:WoS: moving constraint angle}
-\theta_{\rm mc}(t) = \Bigg\{
-\begin{array}{ll}
-\theta^j & t\in [t_s^j, t_s^j + T_{\rm ss}^j) \\
-\mathrm{anglin}(\theta^j,\theta^{j+1},\alpha^j(t)) & t\in [t_s^j + T_{\rm ss}^j, t_s^{k+1})
-\end{array}
-\end{equation}
-where $j=0,\dots,F$, and $\mathrm{anglin}$ is a function\footnote{For two generic angles
-$\theta_a$ and $\theta_b$, linearly combined with a weight $\alpha$, the function $\mathrm{anglin}$ can be defined as
-\begin{equation*}\begin{split}
-\mathrm{anglin}(\theta_a, \theta_b, \alpha) = \mathrm{atan2}(&\sin((1-\alpha)\theta_a) + \sin(\alpha\theta_b), \\&\cos((1-\alpha)\theta_a) + \cos(\alpha\theta_b)).
-\end{split}\end{equation*}
-Note that this definition is meaningless when the two angles are separated by exactly $\pi$, but this can never occur as the angle between consecutive footsteps is limited by requirement R2. } that computes a linear combination of angles in such a way to correctly account for wrapping around $\pm\pi$.
 
 The ZMP position constraint is expressed as
 \begin{equation}\label{eq:WoS:ZMP_constraint}
--\tilde\bfd /2 \le \bfR_{k+i}^T(\bfp_z^{k+i} - \bfp_{\rm mc}^{k+i}) \le \tilde\bfd /2
+-\tilde\bfd /2 \le \bfp_z^{k+i} - \bfp_{\rm mc}^{k+i} \le \tilde\bfd /2
 \end{equation}
 where $\bfp_z^{k+i}$ and $\bfp_{\rm mc}^{k+i}$ respectively denote the ZMP and the center of the moving box sampled at time $t_{k+i}$, $\tilde \bfd = (\tilde d_x, \tilde d_y, d_z)^T$
-is a vector collecting the dimensions of the moving box along all three axes, and $\bfR_{k+i}$ is the rotation matrix associated with $\theta_{\rm mc}^{k+i}$.
+is a vector collecting the dimensions of the moving box along all three axes.
 
-The size of the moving box $\tilde \bfd = (\tilde d_x, \tilde d_y, d_z)^T$ is determined in such a way to always be contained inside the pyramid $\cal Z$
-
-
+The size of the moving box $\tilde \bfd = (\tilde d_x, \tilde d_y, d_z)^T$ is determined in such a way to always be contained inside the pyramid $\cal Z$. \textbf{TODO: either add Prop. 2 of RAS23 or eq. (12) of SYROCO18.}
 
 \section{IS-MPC algorithm}
-\subsection{Humanoids 2023}
 IS-MPC solves, at each time $t_k$, the following QP problem:
 \begin{braced}
 \begin{equation*}\begin{split}
@@ -237,24 +207,6 @@ IS-MPC solves, at each time $t_k$, the following QP problem:
 In the cost function, the first three terms act as regularization while the remaining attempt to bring the ZMP as close as possible to the center of the moving box, with a strength modulated by the weight $\beta$.
 
 The first sample $\dot \bfp_z^k = (\dot x_z^k, \dot y_z^k, \dot z_z^k)$ of the optimal sequence is used to integrate the prediction model and the resulting CoM position $\bfp_c^{k+1}$ is sent to the kinematic controller together with a suitable swing foot trajectory that allows to reach the target footstep position at the proper time.
-
-\subsection{RAS 2023}
-At a generic time $t_k$, IS-MPC solves the following QP problem
-
-\begin{braced}
-\[
-\min_{\dot \bfp_z^k, \dots, \dot \bfp_z^{k+C-1}} \quad \sum_{i=0}^{C-1} \left(\|\dot\bfp_z^{k+i}\|^2 + \beta\|\bfp_z^{k+i} - \bfp_{\rm mc}^{k+i}\|^2\right)
-\]
-\hspace{0.25cm} subject to:
-\begin{itemize}
-\item stability constraint (\ref{eq:WoS:stability_constraint})
-\item ZMP position constraint (\ref{eq:WoS:ZMP_constraint})
-\end{itemize}
-\end{braced}
-The cost function minimizes the decision variables (ZMP derivative) as a regularization term, and attempts to bring the ZMP close to the center of the moving box, which is typically beneficial as it produces a more robust walking pattern. $\beta$ is a weight on the second term.
-
-In typical MPC fashion, the first sample of the ZMP velocity $\dot \bfp_z^k$ is used to integrate the 3D LIP dynamics (\ref{eq:WoS:3dmodel}). The resulting CoM trajectory $\bfp_c$ is sent, together with the swing foot trajectory generated by the footstep planner and sampled at time $t_k$, to the kinematic controller.
-
 
 \section{Feasibility region}
 
