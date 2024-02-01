@@ -51,70 +51,24 @@ The gait generation scheme works over discrete time-steps of duration $\delta$, 
 \end{equation*}
 for $t\in[t_k, t_{k+1})$. This prediction model is used to forecast the evolution of the system over a receding horizon window called the \emph{control horizon}, spanning a time $T_c=C\delta$. The number of steps that are contained, either fully or partially, within this control horizon is denoted as $F$.
 
-
-\subsection{Humanoids 2023}
-
-Through the change of coordinates $\bfp_u = \bfp_c + \dot{\bfp}_c / \eta$, the dynamics of the unstable component (also {\em divergent component of motion} \cite{EnOtAl:15} or {\em capture point} \cite{PrCaDrGo:06}) can be highlighted:
-\begin{equation*}
-\dot{\bfp}_u = \eta (\bfp_u - \bfp_z) + \bfg/\eta.
-\end{equation*}
-Despite this unstable dynamics, the CoM trajectory is bounded with respect to the ZMP if the following {\em stability condition} is satisfied:
-\begin{equation}\label{eq:FAPA:stability_condition}
-{\bfp}_u^k = \eta\int_{t_k}^\infty e^{-\eta(\tau-t_k)}\bfp_z(\tau)d\tau - \frac{\bfg}{\eta},
-\end{equation}
-where the superscript in ${\bfp}_u^k$ indicates that the variable is sampled at time $t_k$.
-
-The MPC module works over discrete time-steps of duration $\delta$, over which the input $\dot \bfp_z$ is constant, i.e., $\dot \bfp_z(t) = \dot \bfp_z^k$ for $t\in[t_k, t_{k+1})$.
-The prediction model \eqref{eq:FAPA:3dLIP} is used to forecast the evolution of the system over a \emph{control horizon} $T_c=C\delta$, while we assume to know the footstep plan over a \emph{preview horizon} $T_p=P\delta$, with $P\ge C$.
-
-Relating the dynamics of the CoM to those of the ZMP is essential since the latter encodes information about the realizability of ground reaction forces, and thus provides a criterion for balance. 
-% While on flat ground this criterion consists in keeping the ZMP within the support polygon of the robot, an extension for the 3D case is required. 
-A common way to extend the basic 2D balance criterion consists in prescribing the 3D ZMP to be inside a 3D pyramid $\cal Z$ (see Fig.~\ref{fig:FAPA:balance3D}), having the base defined by the contact surfaces and the CoM vertex \cite{Sugihara2002ICRA, Cipriano2023RAS}.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.55\textwidth]{figures/balance3d.pdf}
-    \caption{3D balance: the ZMP $\bfp_z$ must be inside the pyramid $\mathcal{Z}$.}
-    \label{fig:FAPA:balance3D}
-\end{figure}
-
 \section{Stability constraint}
-\subsection{Humanoids 2023}
-The stability constraint is derived from the stability condition \eqref{eq:FAPA:stability_condition}. We focus here on the $x$ component, but the other components can be similarly derived (see~\cite{Cipriano2023RAS}).
-
-Since the MPC has a limited control horizon we split the integral at $t_{k+C}$. Before $t_{k+C}$ the stability condition can be expressed in terms of the decision variables, while after it must be conjectured. We adopt the anticipative tail $\tilde x_z$ \cite{ScDeLaOr:20} to get an approximation of the ZMP trajectory after the horizon:
-\begin{equation*}
-    \eta \int_{t_k}^{t_{k+C}} e^{-\eta(\tau-t_k)} x_z(\tau) d\tau = x_u^k - \tilde{c}_x^k,
-\end{equation*}
-where $x_u^k$ is the $x$-component of $\bfp_u^k$ and
-\begin{equation*}
-    \tilde{c}_x^k = \eta \int_{t_{k+C}}^{\infty} e^{-\eta(\tau-t_k)} \tilde{x}_z(\tau) d\tau.
-\end{equation*}
-
-The second step is to make the decision variables appear explicitly, i.e., the ZMP velocities $\dot{\bm{X}}_z$ over the control horizon, by computing the integral over a piecewise linear ZMP trajectory. The final form of the constraint can be found in \cite{ScDeLaOr:20}. For the purpose of this analysis, we will use the compact expression
-\begin{equation}\label{eq:FAPA:stability_constraint}
-    \bfs^T \dot{\bm{X}}_z = b_x^k + x_u^k,
-\end{equation}
-where $\bfs\in\mathbb{R}^C$ and $b_x^k\in\mathbb{R}$ denote respectively a vector and a scalar whose explicit expressions can be recovered from the cited reference.
-
-\subsection{RAS 2023}
-
 Model~(\ref{eq:WoS:3dmodel}) has a positive eigenvalue $\eta$, reflecting the intrinsic instability of the humanoid dynamics. Given this instability, it is not sufficient to generate a gait such that the ZMP is inside the support region, because the associated CoM trajectory might be divergent, making the motion unrealizable by the humanoid.
 The role of the stability constraint is to enforce a condition on the unstable component of the dynamics in order to guarantee that the CoM trajectory does not diverge with respect to the ZMP.
 
-The unstable component of system (\ref{eq:WoS:3dmodel}) is highlighted by the coordinate $\bfp_u = \bfp_c + \dot \bfp_c/\eta$,
-also referred to as Divergent Component of Motion (DCM) or Capture Point (CP), that evolves according to the dynamics
+The unstable component of system (\ref{eq:WoS:3dmodel}) is highlighted by the coordinate
+\begin{equation*}
+    \bfp_u = \bfp_c + \dot \bfp_c/\eta,
+\end{equation*}
+also referred to as \textit{divergent component of motion} \cite{EnOtAl:15} or \textit{capture point} \cite{PrCaDrGo:06}, that evolves according to the dynamics
 \begin{equation}
-\dot\bfp_u = \eta(\bfp_u - \bfp_z) - \frac{\bfg}{\eta}.
+\dot\bfp_u = \eta(\bfp_u - \bfp_z) + \frac{\bfg}{\eta}.
 \end{equation}
 Despite the instability, the evolution of the system is bounded if the following \emph{stability condition} is satisfied
 \begin{equation}
 \label{eq:WoS:stabilitycondition}
-\bfp_u^k = \eta\int_{t_k}^{\infty}e^{-\eta(\tau - t_k)}\bfp_z(\tau) d\tau + \frac{\bfg}{\eta^2},
+\bfp_u^k = \eta\int_{t_k}^{\infty}e^{-\eta(\tau - t_k)}\bfp_z(\tau) d\tau - \frac{\bfg}{\eta^2},
 \end{equation}
-as stated by the following proposition.
-
-\medskip
+where the superscript in ${\bfp}_u^k$ indicates that the variable is sampled at time $t_k$.
 
 Condition~(\ref{eq:WoS:stabilitycondition}) is non-causal as it requires knowledge of the future ZMP trajectory $\bfp_z$ up to infinity. In order to derive a causal implementation, we split the integral at $t_{k+C}$. Of the two separate integrals that result, the first, over $[t_k, t_{k+C})$, can be expressed in terms of the MPC decision variables. A value for the second integral, over $[t_{k+C}, \infty)$, can be obtained by conjecturing a ZMP trajectory using information coming from the footstep plan.
 This conjectured trajectory is called \emph{anticipative tail} and is denoted with $\tilde \bfx_z$. 
@@ -122,20 +76,38 @@ In \cite{ScDeLaOr:20}, the anticipative tail was used to prove recursive feasibi
 
 The stability constraint is then written as
 \begin{equation}\label{eq:WoS:stability_constraint}
-\eta\int_{t_k}^{t_{k+C}}e^{-\eta(\tau - t_k)}\bfp_z d\tau = \bfp_u^k - \tilde \bfc^k - \frac{\bfg}{\eta^2}.
+\eta\int_{t_k}^{t_{k+C}}e^{-\eta(\tau - t_k)}\bfp_z d\tau = \bfp_u^k - \tilde \bfc^k + \frac{\bfg}{\eta^2}.
 \end{equation}
 where $\tilde \bfc^k$ is given by
 \begin{equation}%\label{eq:WoS:stability_constraint}
 \tilde\bfc^k = \eta\int_{t_{k+C}}^{\infty}e^{-\eta(\tau - t_k)}\tilde\bfp_z d\tau.
 \end{equation}
 
-Note that in \cite{ScDeLaOr:20} we considered the footstep plan to be available over a receding window called the \emph{preview horizon}. Here there is no need to make such an assumption, as the footstep plan is provided in its entirety, and once the goal is reached the robot comes to a complete stop.
+Note that \cite{ScDeLaOr:20} considers the footstep plan to be available over a receding window called the \emph{preview horizon}. Here there is no need to make such an assumption, as the footstep plan is provided in its entirety, and once the goal is reached the robot comes to a complete stop.
 
 Enforcing constraint (\ref{eq:WoS:stability_constraint}) allows to bound the displacement between CoM and ZMP. In fact, the value of the bound is almost identical in most practical situation, especially in view of the fact that the preview horizon is unlimited because the plan is completely known.
+
+\textbf{From Humanoids 2023 stability constraint:}
+[...] The second step is to make the decision variables appear explicitly, i.e., the ZMP velocities $\dot{\bm{X}}_z$ over the control horizon, by computing the integral over a piecewise linear ZMP trajectory. The final form of the constraint can be found in \cite{ScDeLaOr:20}. For the purpose of this analysis, we will use the compact expression
+\begin{equation}\label{eq:FAPA:stability_constraint}
+    \bfs^T \dot{\bm{X}}_z = b_x^k + x_u^k,
+\end{equation}
+where $\bfs\in\mathbb{R}^C$ and $b_x^k\in\mathbb{R}$ denote respectively a vector and a scalar whose explicit expressions can be recovered from the cited reference.
 
 
 \section{ZMP constraint}
 \subsection{Humanoids 2023}
+\textbf{From Humanoids 2023 Stability constraint:} Relating the dynamics of the CoM to those of the ZMP is essential since the latter encodes information about the realizability of ground reaction forces, and thus provides a criterion for balance. 
+% While on flat ground this criterion consists in keeping the ZMP within the support polygon of the robot, an extension for the 3D case is required. 
+A common way to extend the basic 2D balance criterion consists in prescribing the 3D ZMP to be inside a 3D pyramid $\cal Z$ (see Fig.~\ref{fig:FAPA:balance3D}), having the base defined by the contact surfaces and the CoM vertex \cite{Sugihara2002ICRA, Cipriano2023RAS}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.55\textwidth]{figures/balance3d.pdf}
+    \caption{3D balance: the ZMP $\bfp_z$ must be inside the polyhedral cone $\mathcal{Z}$.}
+    \label{fig:FAPA:balance3D}
+\end{figure}
+
 The IS-MPC block receives the adapted subplan ${\cal P}^l$ and uses it to construct ZMP constraints. As described in the previous section, the criterion for balance is satisfied if the ZMP belongs to the pyramid $\cal Z$. However, enforcing this condition directly would lead to a nonlinear constraint in the MPC because the vertex of the pyramid is the CoM of the robot. Thus, we adopt a conservative approximation called the {\em moving constraint}.
 
 The moving constraint requires for the ZMP to be at all times within a convex polyhedron of fixed shape, in our case a box of dimensions $d_x$, $d_y$ and $d_z$ centered in $\bfp_{\rm mc}=(x_{\rm mc}, y_{\rm mc}, z_{\rm mc})$, which we call the {\em moving box}. Along the prediction, the moving box can translate but not rotate, and its center moves in such a way that it is always fully contained within the 3D pyramid $\mathcal{Z}$ (see Fig. 5 in \cite{ZaScLaOr:18}). The vector $\bm{X}_{\rm mc}^{k+1} = (x_{\rm mc}^{k+1}, \dots, x_{\rm mc}^{k+C})^T$ collects the $x$ coordinate of the center of the moving box in the control horizon.
@@ -262,15 +234,12 @@ IS-MPC solves, at each time $t_k$, the following QP problem:
 \end{itemize}
 \end{braced}
 
-\medskip
 In the cost function, the first three terms act as regularization while the remaining attempt to bring the ZMP as close as possible to the center of the moving box, with a strength modulated by the weight $\beta$.
 
 The first sample $\dot \bfp_z^k = (\dot x_z^k, \dot y_z^k, \dot z_z^k)$ of the optimal sequence is used to integrate the prediction model and the resulting CoM position $\bfp_c^{k+1}$ is sent to the kinematic controller together with a suitable swing foot trajectory that allows to reach the target footstep position at the proper time.
 
 \subsection{RAS 2023}
 At a generic time $t_k$, IS-MPC solves the following QP problem
-
-\smallskip
 
 \begin{braced}
 \[
@@ -282,7 +251,6 @@ At a generic time $t_k$, IS-MPC solves the following QP problem
 \item ZMP position constraint (\ref{eq:WoS:ZMP_constraint})
 \end{itemize}
 \end{braced}
-\smallskip
 The cost function minimizes the decision variables (ZMP derivative) as a regularization term, and attempts to bring the ZMP close to the center of the moving box, which is typically beneficial as it produces a more robust walking pattern. $\beta$ is a weight on the second term.
 
 In typical MPC fashion, the first sample of the ZMP velocity $\dot \bfp_z^k$ is used to integrate the 3D LIP dynamics (\ref{eq:WoS:3dmodel}). The resulting CoM trajectory $\bfp_c$ is sent, together with the swing foot trajectory generated by the footstep planner and sampled at time $t_k$, to the kinematic controller.
@@ -292,7 +260,6 @@ In typical MPC fashion, the first sample of the ZMP velocity $\dot \bfp_z^k$ is 
 
 The {\em feasibility region} is the region of the state space in which the IS-MPC optimization problem is feasible.
 
-\medskip
 \begin{proposition}
 \label{prop:feasibility}
 IS-MPC is feasible at time $t_k$ if
