@@ -42,7 +42,12 @@ To achieve more flexibility in the on-line capabilities, \cite{Karkowski_HUM2016
 
 
 \section{Push recovery for humanoids}
-Todo.
+\textbf{From Humanoids 2023:}
+
+Humanoid robot locomotion is a complex task that involves multiple concurrent activities. It is usually tackled by breaking it down into several subproblems and solving each of them more or less independently. The first component is in general a footstep planner, which determines a sequence of footstep, e.g., leading the robot to some desired location. This sequence of footsteps must be kinematically realizable at least in terms of step lengths. The humanoid dynamics are usually accounted for in a second stage, typically based on Model Predictive Control (MPC), using a simplified robot model which is used to generate Center of Mass (CoM) trajectories. MPC, in its basic form, allows to perform real-time footstep position adaptation \cite{HePeWi:10} and obtain reactive stepping so to  reject pushes and impacts. However, in order to be able to formulate the optimization problem as a Quadratic Program (QP), constraints should be kept linear. For this reason, most schemes only adapt footstep positions, leaving out footstep orientation and step timing.
+
+Several efforts to improve this basic paradigm have been made. To include automatic step timing adaptation, one could make the MPC nonlinear \cite{Maximo2020,Bohorquez2017,Caron2017,Aurelien2014}, denying real-time implementation or requiring significant compromise in the control rate. A linear formulation is obtainable by considering only the duration of the first footstep \cite{Smaldone2021FeasibilityDrivenSTA,Khadiv2020}. As for footstep orientation, this is also often ignored or planned independently of the dynamics \cite{HePeWi:10}. To couple rotation decision with the dynamics, some schemes employ non-convex optimization through nonlinear \cite{Naveau2017,Bohorquez2018} or Mixed-Integer Programming (MIP) \cite{Maximo2020}. MIP can also be used to alternatively select between multiple convex regions in which to place the footsteps, which would otherwise constitute a non-convex constraint \cite{Aceituno2018,DeTe:14}.
+
 
 \section{Motion control for steerable wheeled mobile robots}
 Todo.

@@ -4,21 +4,15 @@
 %Most available schemes used for humanoid walking rely on the separation into a planning phase, typically off-line, and a Model Predictive Controller (MPC). Moreover, in order for the MPC to work in real time, simplifying assumptions are made both on the template model and on the constraints so that the underlying optimization problem is a Quadratic Programming (QP). The planner is unaware of the underlying humanoid dynamics and of any disturbance acting on the robot. We present an on-line Feasibility-Aware Plan Adaptation (FAPA) module which can locally adapt footsteps (positions, timings and orientation) in such a way that it guarantees feasibility of the subsequent Intrinsically Stable MPC (IS-MPC) stage. We present two versions of the proposed scheme: one with a fixed regions assignment for placing the footstep and another one where the regions are selected automatically through mixed-integer programming. Simulation results show the effectiveness of the FAPA scheme.
 %\end{abstract}
 
-Humanoid robot locomotion is a complex task that involves multiple concurrent activities. It is usually tackled by breaking it down into several subproblems and solving each of them more or less independently. The first component is in general a footstep planner, which determines a sequence of footstep, e.g., leading the robot to some desired location. This sequence of footsteps must be kinematically realizable at least in terms of step lengths. The humanoid dynamics are usually accounted for in a second stage, typically based on Model Predictive Control (MPC), using a simplified robot model which is used to generate Center of Mass (CoM) trajectories. MPC, in its basic form, allows to perform real-time footstep position adaptation \cite{HePeWi:10} and obtain reactive stepping so to  reject pushes and impacts. However, in order to be able to formulate the optimization problem as a Quadratic Program (QP), constraints should be kept linear. For this reason, most schemes only adapt footstep positions, leaving out footstep orientation and step timing.
-
 \begin{figure}
     \centering
     \includegraphics[trim={0.5cm 1.5cm 2cm 0.1cm},clip,width=0.9\columnwidth]{figures/strobo-staircase-with-pushes.png}
     %\caption{Stroboscopic view of Simulation 4: V-FAPA in the {\em stairs} scenario. Red arrows indicate impulsive pushes.}
     \caption{An example simulation using the proposed architecture: the robot is walking along a staircase while being subject to multiple pushes. The adaptation module modifies position, orientation and timing of the footsteps real-time to guarantee a successful execution.}
     \label{fig:FAPA:two-patches-mixed-integer-snapshots}
-    \vskip -0.5 truecm
 \end{figure}
 
-
 % Regarding the footstep plan as unchangeable is often too restrictive because it relinquishes the capabilities of reactive stepping. These capabilities, if properly harnessed, make humanoids remarkably robust to disturbances. For these reasons, Model Predictive Controllers (MPC) has become so popular: even when using a simplified model, it is possible to perform real-timefootstep position adaptation \cite{HePeWi:10} and gain significant ability to reject pushes and impacts. 
-
-Several efforts to improve this basic paradigm have been made. To include automatic step timing adaptation, one could make the MPC nonlinear \cite{Maximo2020,Bohorquez2017,Caron2017,Aurelien2014}, denying real-time implementation or requiring significant compromise in the control rate. A linear formulation is obtainable by considering only the duration of the first footstep \cite{Smaldone2021FeasibilityDrivenSTA,Khadiv2020}. As for footstep orientation, this is also often ignored or planned independently of the dynamics \cite{HePeWi:10}. To couple rotation decision with the dynamics, some schemes employ non-convex optimization through nonlinear \cite{Naveau2017,Bohorquez2018} or Mixed-Integer Programming (MIP) \cite{Maximo2020}. MIP can also be used to alternatively select between multiple convex regions in which to place the footsteps, which would otherwise constitute a non-convex constraint \cite{Aceituno2018,DeTe:14}.
 
 % The available schemes however have the net separation between the planner and the MPC problem so that the plan given to the MPC could lead to an unfeasible optimization problem.
 
@@ -38,14 +32,13 @@ In this chapter, we add an online adaptation module that can locally adapt foots
 \centering\includegraphics[width=\textwidth]{figures/BlockScheme-NLP-STA.pdf}
 \caption{A block scheme of the proposed architecture. The candidate footstep subplan $\mathcal{\hat{P}}$ is adapted by the FAPA module, guaranteeing the feasibility of IS-MPC. The IS-MPC module receives the adapted footstep subplan $\mathcal{P}$, and generates a desired trajectory of the CoM $\bm{p^*}_c$, which is used by the kinematic controller, together with the desired trajectory of the swing foot $\bm{p^*}_{\rm swg}$, to generate the desired joint velocities $\dot{\bm{q^*}}$.}
 \label{fig:FAPA:block_scheme}
-\vskip -0.6 truecm
 \end{figure}
 
 We obtain the generality given by nonlinear constraints without sacrificing much performance as the number of variables in the planner is much lower than that of the variables of the MPC, making it very fast and capable of working in real time. Furthermore, we explore the inclusion of integer variables, further increasing the range of situations that can be covered.
 
 Modules for online footstep adaptation using nonlinear optimization have been proposed \cite{Ding2019IROS}, but not in conjunction with MPC. Our approach is not only designed to work along with the MPC module, but it specifically aimed at enhancing its capabilities.
 
-The remainder of the chapter is organized as follows. Sect.~\ref{sec:FAPA:ProblemFormulation} gives a general formulation of the problem. Sect.~\ref{sec:FAPA:Preliminaries} introduces some preliminary notions. Sect.~\ref{sec:FAPA:GaitGeneration} details the MPC formulation. Sect.~\ref{sec:FAPA:FeasibilityAwarePlanAdaptation} describes both versions of the proposed FAPA: without and with integer variables. Sect.~\ref{sec:FAPA:Simulations} shows and discusses some simulations. Finally, Sect.~\ref{sec:FAPA:Conclusions} presents concluding remarks and future extensions.
+The remainder of the chapter is organized as follows. Sect.~\ref{sec:FAPA:ProblemFormulation} gives a general formulation of the problem. Sect.~\ref{sec:FAPA:Preliminaries} introduces some preliminary notions. Sect.~\ref{sec:FAPA:FeasibilityAwarePlanAdaptation} describes both versions of the proposed FAPA: without and with integer variables. Sect.~\ref{sec:FAPA:Simulations} shows and discusses some simulations. Finally, Sect.~\ref{sec:FAPA:Conclusions} presents concluding remarks and future extensions.
 
 \section{Problem formulation} 
 \label{sec:FAPA:ProblemFormulation}
@@ -160,7 +153,6 @@ The FAPA module runs in real-time and performs a local adaptation of the subplan
     \includegraphics[width=0.7\textwidth]{figures/humanoids_kinconstr.pdf}
     \caption{Admissible region of the kinematic constraint in the $x$-$y$ plane.}
     \label{fig:FAPA:kinematic-constraint}
-    \vskip -0.6 truecm
 \end{figure}
 
 %The $j$-th footstep $\bff^{j}$ is ensured to be kinematically feasible by limiting its displacement with respect to the $(j-1)$-th footstep $\bff^{j-1}$.
@@ -387,7 +379,6 @@ Since V-FAPA contains the binary variables $\bm{B}$ it is implemented as a MINLP
     \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/empty-fixed-plot-completing-task.pdf}
     \caption{F-FAPA in the {\em empty} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Green footsteps represent the original candidate plan, while the footsteps that are actually executed are shown in grey. Red footsteps represent the current adapted subplan. The two bands on the bottom show the nominal and adapted timings (green for double support and blue for single support). The same color scheme is used for the rest of the figures.}
     \label{fig:FAPA:matlab_empty}
-    \vskip -0.6 truecm
 \end{figure}
 
 \begin{figure}
@@ -398,7 +389,6 @@ Since V-FAPA contains the binary variables $\bm{B}$ it is implemented as a MINLP
     \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/two-patches-fixed-completing-task.pdf}
     \caption{F-FAPA in the {\em 2-patches} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Since changing patches is not allowed, the magnitude of the push that can be tolerated is quite small, compared to that of the other simulations.}
     \label{fig:FAPA:matlab_2pacf}
-    \vskip -0.5 truecm
 \end{figure}
 
 \begin{figure}
@@ -409,7 +399,6 @@ Since V-FAPA contains the binary variables $\bm{B}$ it is implemented as a MINLP
     \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/two-patches-mixed-integer-completing-task.pdf}
     \caption{V-FAPA in the {\em 2-patches} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Now the robot is allowed to adapt the footstep position to the other patch, and is able to tolerate a stronger push.}
     \label{fig:FAPA:matlab_2pacmi}
-    \vskip -0.7 truecm
 \end{figure}
 
 %\begin{figure}
@@ -436,17 +425,77 @@ Since V-FAPA contains the binary variables $\bm{B}$ it is implemented as a MINLP
 
 We ran four simulations in MATLAB, using CoppeliaSim to kinematically visualize the resulting motions. The system is an AMD Ryzen 9 5900X (4.8 GHz, 12 core) with 16 GB DDR4 3600 MHz running Ubuntu 22.04 LTS. IS-MPC runs at 100~Hz and is solved using \texttt{quadprog}, while FAPA runs at 10~Hz and is solved using the CasADi interface. In CasADi, we used \texttt{ipopt} for F-FAPA, and \texttt{bonmin} for V-FAPA. We also ran tests with the commercial solver \texttt{knitro}, to compare the performance (see Table~\ref{tab:benchmarks}).
 
-All the simulations use the following parameters: $\delta=0.01$~s, $T_c=2.0$~s, $T_p=4.0$~s, $\eta=3.6$~s$^{-1}$, $\beta = 100$, the size of the moving box are $d_x = d_y = d_z = 0.035$~m. $F=3$, $\bm{v}_1=(0.28, 0.13)^T $~m, $\bm{v}_2=(0.2, 0.43)^T$~m, $\bm{v}_3=(-0.12, 0.43)^T$~m, $\bm{v}_4=(-0.2, 0.13)^T$~m, $\Delta_z^m=-0.10$~m, $\Delta_z^M=0.10$~m, $\Delta_{\theta}^m=-0.4$~rad, $\Delta_{\theta}^M=0.4$~rad, $T_{\rm ds}^{\min}=0.3 $~s, $T_{\rm ds}^{\max}=0.5$~s, $T_{\rm ss}^{\min}=0.5$~s, $T_{\rm ss}^{\max}=0.7$~s, $t_{\rm change}=0.1$~s, $M=100$, $w_x=w_y=w_z=w_{\theta}=w_{\rm ds}=w_{\rm ss}=1.0$ and $w_b=0.01$. Simulation videos are available at \url{https://youtu.be/4_QYsZH1E7Y}.%The full simulations are shown in the accompanying video at \url{https://youtu.be/4_QYsZH1E7Y}.
+All the simulations use the parameters of Table \ref{tab:FAPA:hyperparameters}. Simulation videos are available at \url{https://youtu.be/4_QYsZH1E7Y}.
+
+\begin{table}
+    \centering
+    \begin{tabular}{ |c|c| } 
+        \hline
+        Symbol & Value \\
+        \hline
+        $\delta$ & 0.01 [s] \\
+        $T_c$ & 2.0 [s] \\
+        $T_p$ & 4.0 [s] \\
+        $\eta$ & 3.6 [s$^{-1}$] \\
+        $\beta$ & 100 \\
+        $d_x, d_y, d_z$ & 0.035 [m] \\
+        $F$ & 3 \\
+        $\bm{v}_1$ & $(0.28, 0.13)^T $ [m] \\
+        $\bm{v}_2$ & $(0.2, 0.43)^T$ [m] \\
+        $\bm{v}_3$ & $(-0.12, 0.43)^T$ [m] \\
+        $\bm{v}_4$ & $(-0.2, 0.13)^T$ [m] \\
+        $\Delta_z^m$ & -0.10 [m] \\
+        $\Delta_z^M$ & 0.10 [m] \\
+        $\Delta_{\theta}^m$ & -0.4 [rad] \\
+        $\Delta_{\theta}^M$ & 0.4 [rad] \\
+        $T_{\rm ds}^{\min}$ & 0.3 [s] \\
+        $T_{\rm ds}^{\max}$ & 0.5 [s] \\
+        $T_{\rm ss}^{\min}$ & 0.5 [s] \\
+        $T_{\rm ss}^{\max}$ & 0.7 [s] \\
+        $t_{\rm change}$ & 0.1 [s] \\
+        $M$ & 100 \\
+        $w_x, w_y, w_z, w_{\theta}$ & 1.0 \\
+        $w_{\rm ds}, w_{\rm ss}$ & 1.0 \\
+        $w_b$ & 0.01 \\
+        \hline
+    \end{tabular}
+    \caption{Hyperparameters of F-FAPA and V-FAPA used in all the experiments.}
+    \label{tab:FAPA:hyperparameters}
+\end{table}
 
 Simulations take place in 3 different scenarios: {\em empty}, which is completely flat with no obstacles, and is represented using a single patch; {\em 2-patches} is constituted by two patches at different heights (0 and 0.06~m); {\em stairs} has a total of 7 patches of increasing height. While walking, the robot is subject to impulsive pushes (lasting 0.01~s), transformed in equivalent acceleration imparted on the CoM.
 
 In the first simulation, the robot is walking forward in the {\em empty} scenario. At 4.5~s it receives a 15.6~m/s$^2$ push in the direction $(-2, -1, 0)$, that without FAPA would make the MPC infeasible. F-FAPA reacts by adapting footstep positions, orientations and timings concurrently, allowing the MPC to recover feasibility. Figure \ref{fig:FAPA:matlab_empty} shows nominal and adapted footsteps, trajectories and step timings.
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/empty-push-fixed-snapshots.jpeg}
+    \caption{Caption.}
+    \label{fig:FAPA:sim1:snapshots}
+\end{figure}
 
 In the second simulation (shown in Fig.~\ref{fig:FAPA:matlab_2pacf}), the scenario is {\em 2-patches}, and the robot must climb a step. Upon receiving the push, the footsteps do not change significantly, because the F-FAPA algorithm is not allowed to move the footstep to the other patch. As a result, the tolerable push is smaller, i.e., 7.8~m/s$^2$.
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/two-patches-push-fixed-snapshots.jpeg}
+    \caption{Caption.}
+    \label{fig:FAPA:sim2:snapshots}
+\end{figure}
 
 In the third simulation (shown in Fig.~\ref{fig:FAPA:matlab_2pacmi} ), the scenario is still {\em 2-patches}, but now the scheme is using V-FAPA. When the push is perceived, the first predicted footstep is moved to the lower patch, and as a result the increase of the tolerable push intensity is very significant, i.e., the same as in the {\em empty} scenario.
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/two-patches-push-mixed-integer-snapshots.jpeg}
+    \caption{Caption.}
+    \label{fig:FAPA:sim3:snapshots}
+\end{figure}
 
 In the last simulation, the robot is moving through a more complex environment constituted by a long staircase. While climbing, the robot is subject to multiple pushes, triggering several footstep adjustments. Figure \ref{fig:FAPA:two-patches-mixed-integer-snapshots} shows a stroboscopic view of the motion.
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/staircase-multiple-pushes-snapshots.jpeg}
+    \caption{Caption.}
+    \label{fig:FAPA:sim3:snapshots}
+\end{figure}
 
 \begin{table}
     \centering
@@ -460,7 +509,6 @@ In the last simulation, the robot is moving through a more complex environment c
     \end{tabular}
     \caption{Performance metrics of F-FAPA in the {\em empty} scenario and V-FAPA in the {\em 2-patches} scenario, using different solvers.}
     \label{tab:benchmarks}
-    \vskip -1.0 truecm
 \end{table}
 
 To discuss the real-time applicability of the scheme, we report performance metrics in Table~\ref{tab:benchmarks}. The solvers used are \texttt{ipopt} and \texttt{knitro} for F-FAPA, and \texttt{bonmin} and \texttt{knitro} for V-FAPA. \texttt{knitro} is faster overall, but \texttt{ipopt} still demonstrates good performance for F-FAPA, compatible with real-time requirements. For V-FAPA, \texttt{bonmin} is clearly too slow, while \texttt{knitro} has an average performance that is real-time on average, but some outliers violate the requirements. Since all results in this chapter are simulated, real-time performance is desirable but not critical. However, it is necessary for hardware implementation, which is why we will be working to guarantee real-time performance in future works.
