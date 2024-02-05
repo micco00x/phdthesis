@@ -370,59 +370,6 @@ Since V-FAPA contains the binary variables $\bm{B}$ it is implemented as a MINLP
 
 \section{Simulations}
 \label{sec:FAPA:Simulations}
-
-\begin{figure}
-    %\includegraphics[trim={0 1cm 0 0},clip,width=\textwidth]{figures/empty-fixed-plot-starting.pdf}
-    \centering
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/empty-fixed-plot-after-push.pdf}
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/empty-fixed-plot-completing-task.pdf}
-    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/empty-fixed-plot-completing-task.pdf}
-    \caption{F-FAPA in the {\em empty} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Green footsteps represent the original candidate plan, while the footsteps that are actually executed are shown in grey. Red footsteps represent the current adapted subplan. The two bands on the bottom show the nominal and adapted timings (green for double support and blue for single support). The same color scheme is used for the rest of the figures.}
-    \label{fig:FAPA:matlab_empty}
-\end{figure}
-
-\begin{figure}
-    %\includegraphics[trim={0 1cm 0 0},clip,width=\textwidth]{figures/two-patches-fixed-plot-starting.pdf}
-    \centering
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-fixed-plot-after-push.pdf}
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-fixed-completing-task.pdf}
-    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/two-patches-fixed-completing-task.pdf}
-    \caption{F-FAPA in the {\em 2-patches} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Since changing patches is not allowed, the magnitude of the push that can be tolerated is quite small, compared to that of the other simulations.}
-    \label{fig:FAPA:matlab_2pacf}
-\end{figure}
-
-\begin{figure}
-    %\includegraphics[trim={0 1cm 0 0},clip,width=\textwidth]{figures/two-patches-mixed-integer-plot-starting.pdf}
-    \centering
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-mixed-integer-after-push.pdf}
-    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-mixed-integer-completing-task.pdf}
-    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/two-patches-mixed-integer-completing-task.pdf}
-    \caption{V-FAPA in the {\em 2-patches} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Now the robot is allowed to adapt the footstep position to the other patch, and is able to tolerate a stronger push.}
-    \label{fig:FAPA:matlab_2pacmi}
-\end{figure}
-
-%\begin{figure}
-    %\centering
-    %\includegraphics[width=\textwidth]{figures/empty-fixed-strobo.png}
-    %\caption{Replanning after a push in the {\em empty} scenario, using the fixed patches version of the FAPA.}
-    %\label{fig:FAPA:empty-fixed-snapshots}
-%\end{figure}
-
-%\begin{figure}
-    %\centering
-    %\includegraphics[width=\textwidth]{figures/two-patches-fixed-strobo.png}
-    %\caption{Replanning after a push in the {\em 2-patches} scenario, using the fixed patches version of the FAPA.}
-    %\label{fig:FAPA:two-patches-fixed-snapshots}
-%\end{figure}
-
-%OLD STROBO SPOT
-%\begin{figure}
-    %\centering
-    %\includegraphics[trim={0 0cm 0 0cm},clip,width=\textwidth]{figures/strobo-staircase-with-pushes.png}
-    %\caption{Stroboscopic view of Simulation 4: V-FAPA in the {\em stairs} scenario. Red arrows indicate impulsive pushes.}
-    %\label{fig:FAPA:two-patches-mixed-integer-snapshots}
-%\end{figure}
-
 We ran four simulations in MATLAB, using CoppeliaSim to kinematically visualize the resulting motions. The system is an AMD Ryzen 9 5900X (4.8 GHz, 12 core) with 16 GB DDR4 3600 MHz running Ubuntu 22.04 LTS. IS-MPC runs at 100~Hz and is solved using \texttt{quadprog}, while FAPA runs at 10~Hz and is solved using the CasADi interface. In CasADi, we used \texttt{ipopt} for F-FAPA, and \texttt{bonmin} for V-FAPA. We also ran tests with the commercial solver \texttt{knitro}, to compare the performance (see Table~\ref{tab:benchmarks}).
 
 All the simulations use the parameters of Table \ref{tab:FAPA:hyperparameters}. Simulation videos are available at \url{https://youtu.be/4_QYsZH1E7Y}.
@@ -465,35 +412,65 @@ All the simulations use the parameters of Table \ref{tab:FAPA:hyperparameters}. 
 
 Simulations take place in 3 different scenarios: {\em empty}, which is completely flat with no obstacles, and is represented using a single patch; {\em 2-patches} is constituted by two patches at different heights (0 and 0.06~m); {\em stairs} has a total of 7 patches of increasing height. While walking, the robot is subject to impulsive pushes (lasting 0.01~s), transformed in equivalent acceleration imparted on the CoM.
 
-In the first simulation, the robot is walking forward in the {\em empty} scenario. At 4.5~s it receives a 15.6~m/s$^2$ push in the direction $(-2, -1, 0)$, that without FAPA would make the MPC infeasible. F-FAPA reacts by adapting footstep positions, orientations and timings concurrently, allowing the MPC to recover feasibility. Figure \ref{fig:FAPA:matlab_empty} shows nominal and adapted footsteps, trajectories and step timings.
+In the first simulation, the robot is walking forward in the {\em empty} scenario. At 4.5~s it receives a 15.6~m/s$^2$ push in the direction $(-2, -1, 0)$, that without FAPA would make the MPC infeasible. F-FAPA reacts by adapting footstep positions, orientations and timings concurrently, allowing the MPC to recover feasibility. Figure \ref{fig:FAPA:matlab_empty} shows nominal and adapted footsteps, trajectories and step timings. Figure \ref{fig:FAPA:sim1:snapshots} shows a sequence of snapshots of the HRP-4 humanoid robot executing the motion.
+\begin{figure}
+    %\includegraphics[trim={0 1cm 0 0},clip,width=\textwidth]{figures/empty-fixed-plot-starting.pdf}
+    \centering
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/empty-fixed-plot-after-push.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/empty-fixed-plot-completing-task.pdf}
+    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/empty-fixed-plot-completing-task.pdf}
+    \caption{F-FAPA in the {\em empty} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Green footsteps represent the original candidate plan, while the footsteps that are actually executed are shown in grey. Red footsteps represent the current adapted subplan. The two bands on the bottom show the nominal and adapted timings (green for double support and blue for single support). The same color scheme is used for the rest of the figures.}
+    \label{fig:FAPA:matlab_empty}
+\end{figure}
+
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/empty-push-fixed-snapshots.jpeg}
-    \caption{Caption.}
+    \caption{HRP-4 walking in the \textit{empty} scenario using F-FAPA. The robot walks in a straight line and it is pushed at time 4.5 s (third snapshot). The robot is able to sustain the push adapting the footsteps and the duration of single and double support (fourth snapshot), eventually reaching its desired goal (last snapshot).}
     \label{fig:FAPA:sim1:snapshots}
 \end{figure}
 
-In the second simulation (shown in Fig.~\ref{fig:FAPA:matlab_2pacf}), the scenario is {\em 2-patches}, and the robot must climb a step. Upon receiving the push, the footsteps do not change significantly, because the F-FAPA algorithm is not allowed to move the footstep to the other patch. As a result, the tolerable push is smaller, i.e., 7.8~m/s$^2$.
+In the second simulation (shown in Fig.~\ref{fig:FAPA:matlab_2pacf}), the scenario is {\em 2-patches}, and the robot must climb a step. Upon receiving the push, the footsteps do not change significantly, because the F-FAPA algorithm is not allowed to move the footstep to the other patch. As a result, the tolerable push is smaller, i.e., 7.8~m/s$^2$. Figure \ref{fig:FAPA:sim2:snapshots} shows a sequence of snapshots of the HRP-4 humanoid robot executing the motion.
+\begin{figure}
+    %\includegraphics[trim={0 1cm 0 0},clip,width=\textwidth]{figures/two-patches-fixed-plot-starting.pdf}
+    \centering
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-fixed-plot-after-push.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-fixed-completing-task.pdf}
+    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/two-patches-fixed-completing-task.pdf}
+    \caption{F-FAPA in the {\em 2-patches} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Since changing patches is not allowed, the magnitude of the push that can be tolerated is quite small, compared to that of the other simulations.}
+    \label{fig:FAPA:matlab_2pacf}
+\end{figure}
+
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/two-patches-push-fixed-snapshots.jpeg}
-    \caption{Caption.}
+    \caption{HRP-4 walking in the \textit{2-patches} scenario using F-FAPA. The robot walks in a straight line and it is pushed at time 4.5 s (third snapshot). The robot is able to sustain the push adapting the duration of single and double support (fourth snapshot), eventually reaching its desired goal (last snapshot).}
     \label{fig:FAPA:sim2:snapshots}
 \end{figure}
 
-In the third simulation (shown in Fig.~\ref{fig:FAPA:matlab_2pacmi} ), the scenario is still {\em 2-patches}, but now the scheme is using V-FAPA. When the push is perceived, the first predicted footstep is moved to the lower patch, and as a result the increase of the tolerable push intensity is very significant, i.e., the same as in the {\em empty} scenario.
+In the third simulation (shown in Fig.~\ref{fig:FAPA:matlab_2pacmi} ), the scenario is still {\em 2-patches}, but now the scheme is using V-FAPA. When the push is perceived, the first predicted footstep is moved to the lower patch, and as a result the increase of the tolerable push intensity is very significant, i.e., the same as in the {\em empty} scenario.  Figure \ref{fig:FAPA:sim3:snapshots} shows a sequence of snapshots of the HRP-4 humanoid robot executing the motion.
+\begin{figure}
+    %\includegraphics[trim={0 1cm 0 0},clip,width=\textwidth]{figures/two-patches-mixed-integer-plot-starting.pdf}
+    \centering
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-mixed-integer-after-push.pdf}
+    \includegraphics[trim={0 5.9cm 0 0.7cm},clip,width=\textwidth]{figures/two-patches-mixed-integer-completing-task.pdf}
+    \includegraphics[trim={0 2.2cm 0 8.6cm},clip,width=\textwidth]{figures/two-patches-mixed-integer-completing-task.pdf}
+    \caption{V-FAPA in the {\em 2-patches} scenario. The robot is walking in a straight line and is pushed at time $4.5$~s (slightly before the first snapshot). Now the robot is allowed to adapt the footstep position to the other patch, and is able to tolerate a stronger push.}
+    \label{fig:FAPA:matlab_2pacmi}
+\end{figure}
+
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/two-patches-push-mixed-integer-snapshots.jpeg}
-    \caption{Caption.}
+    \caption{HRP-4 walking in the \textit{2-patches} scenario using V-FAPA. The robot walks in a straight line and it is pushed at time 4.5 s (third snapshot). The robot is able to sustain the push adapting the footsteps and the duration of single and double support (fourth snapshot), eventually reaching its desired goal (last snapshot). Notice how the robot is able to sustain a stronger push by placing the foot in the first patch.}
     \label{fig:FAPA:sim3:snapshots}
 \end{figure}
 
-In the last simulation, the robot is moving through a more complex environment constituted by a long staircase. While climbing, the robot is subject to multiple pushes, triggering several footstep adjustments. Figure \ref{fig:FAPA:two-patches-mixed-integer-snapshots} shows a stroboscopic view of the motion.
+In the last simulation, the robot is moving through a more complex environment constituted by a long staircase. While climbing, the robot is subject to multiple pushes, triggering several footstep adjustments.  Figure \ref{fig:FAPA:sim1:snapshots} shows a sequence of snapshots of the HRP-4 humanoid robot executing the motion.
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/staircase-multiple-pushes-snapshots.jpeg}
-    \caption{Caption.}
+    \caption{HRP-4 walking in a scenario composed of multiple staircases using V-FAPA. The robot follows a footstep plan and it is pushed multiple times during the execution of the motion (second, fourth, sixth , eight and tenth snapshot). The robot is able to sustain different pushes adapting the footsteps and the duration of single and double support, and changing the patch when necessary. Eventually, the robot is able the reach the final patch.}
     \label{fig:FAPA:sim3:snapshots}
 \end{figure}
 
