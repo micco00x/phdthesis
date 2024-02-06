@@ -4,7 +4,7 @@ The gait generation module receives the planned footstep sequence ${\cal S}_f$ a
 
 On flat ground, it is common to ensure dynamic balance as a geometric criterion, by requiring that the ZMP must always be inside the convex hull of contact surfaces, i.e., the \emph{support polygon}. Traditionally, the ZMP is assumed to be located on the ground plane, which is uniquely defined when the environment is flat.
 
-In non-flat environments, there is no unique ground surface on which the ZMP can be assumed to be. However, the aforementioned criterion can be extended to these cases by allowing the ZMP to move in 3D \cite{SuImYaCa:2021}. The balance criterion is satisfied as long as the ZMP is inside a three-dimensional \emph{support region} $\mathcal{Z}$ that takes the shape of a pyramid (see Fig.~\ref{fig:FAPA:balance3d}). The vertex of this pyramid is the robot CoM, and the edges are the lines connecting the CoM to the vertexes of the convex hull of the contact surfaces.
+In non-flat environments, there is no unique ground surface on which the ZMP can be assumed to be. However, the aforementioned criterion can be extended to these cases by allowing the ZMP to move in 3D \cite{Sugihara2021ICRA}. The balance criterion is satisfied as long as the ZMP is inside a three-dimensional \emph{support region} $\mathcal{Z}$ that takes the shape of a pyramid (see Fig.~\ref{fig:FAPA:balance3d}). The vertex of this pyramid is the robot CoM, and the edges are the lines connecting the CoM to the vertexes of the convex hull of the contact surfaces.
 
 In MPC, dynamic balance is enforced via constraints on the ZMP position. However, the 3D support region $\mathcal{Z}$ cannot be directly employed to enforce a ZMP constraint, because this would be nonlinear, meaning that the resulting optimization problem would not be in a standard linear-quadratic formulation. The cause of this nonlinearity is given by the fact that the vertex of the pyramid $\mathcal{Z}$ is the CoM. Since both the ZMP and the CoM depend on the decision variables of the QP, this would result in product between the decision variables themselves.
 
@@ -14,7 +14,7 @@ In this section we will describe the MPC gait generation scheme that is used in 
 
 \section{Prediction model}
 
-Control of the ZMP is achieved using a dynamic model relating the position of the latter to the position and acceleration of the CoM. This dynamic model can be derived by balancing moments on the humanoid as a whole, and assuming that the rate of change of angular momentum around the CoM can be neglected, leading to the situtation shown in Fig. \ref{fig:ISMPC:LIPM-robot}, where the Center of Pressure (CoP) is located on the corresponding patch, while the ZMP can be anywhere along the line joining the CoP and the CoM \cite{CaKh:17}.
+Control of the ZMP is achieved using a dynamic model relating the position of the latter to the position and acceleration of the CoM. This dynamic model can be derived by balancing moments on the humanoid as a whole, and assuming that the rate of change of angular momentum around the CoM can be neglected, leading to the situtation shown in Fig. \ref{fig:ISMPC:LIPM-robot}, where the Center of Pressure (CoP) is located on the corresponding patch, while the ZMP can be anywhere along the line joining the CoP and the CoM \cite{Caron2017DynamicWalkingOverRoughTerrains}.
 
 With this in mind, denoting the CoM as $\bfp_c = (x_c \; y_c \; z_c)^T$ and the ZMP as $\bfp_z = (x_z \; y_z \; z_z)^T$, we get
 \begin{equation}\begin{split}
@@ -24,7 +24,7 @@ With this in mind, denoting the CoM as $\bfp_c = (x_c \; y_c \; z_c)^T$ and the 
 \end{split}\end{equation}
 where $g=-9.81$~[m/s$^2$] is the gravity acceleration, $f_z$ denotes the $z$-component of the ground reaction force, acting as an external input, and $m$ is the total mass of the robot.
 
-This model exhibits a nonlinear coupling between the vertical and the horizontal components of $\bfp_c$ and $\ddot\bfp_c$. On flat ground, this nonlinearity is usually handled by assuming a constant CoM height, which leads to the well-known LIP model~\cite{KaKaKaFuHaYoHi:03}. In order to allow for vertical movement of the CoM, a different choice is made here, which is to constrain the motion of the CoM \cite{ZaScLaOr:18} to satisfy the relation
+This model exhibits a nonlinear coupling between the vertical and the horizontal components of $\bfp_c$ and $\ddot\bfp_c$. On flat ground, this nonlinearity is usually handled by assuming a constant CoM height, which leads to the well-known LIP model~\cite{Kajita2003BipedWalkingPatternGeneration}. In order to allow for vertical movement of the CoM, a different choice is made here, which is to constrain the motion of the CoM \cite{Zamparelli2018SYROCO} to satisfy the relation
 \begin{equation*}
     \frac{\ddot z_c + g}{z_c - z_z} = \eta^2,
 \end{equation*}
@@ -59,7 +59,7 @@ The unstable component of system (\ref{eq:WoS:3dmodel}) is highlighted by the co
 \begin{equation*}
     \bfp_u = \bfp_c + \dot \bfp_c/\eta,
 \end{equation*}
-also referred to as \textit{divergent component of motion} \cite{EnOtAl:15} or \textit{capture point} \cite{PrCaDrGo:06}, that evolves according to the dynamics
+also referred to as \textit{divergent component of motion} \cite{Englsberger2015TRO} or \textit{capture point} \cite{Pratt2006CapturePoint}, that evolves according to the dynamics
 \begin{equation}
 \dot\bfp_u = \eta(\bfp_u - \bfp_z) + \frac{\bfg}{\eta}.
 \end{equation}
@@ -72,7 +72,7 @@ where the superscript in ${\bfp}_u^k$ indicates that the variable is sampled at 
 
 Condition~(\ref{eq:WoS:stabilitycondition}) is non-causal as it requires knowledge of the future ZMP trajectory $\bfp_z$ up to infinity. In order to derive a causal implementation, we split the integral at $t_{k+C}$. Of the two separate integrals that result, the first, over $[t_k, t_{k+C})$, can be expressed in terms of the MPC decision variables. A value for the second integral, over $[t_{k+C}, \infty)$, can be obtained by conjecturing a ZMP trajectory using information coming from the footstep plan.
 This conjectured trajectory is called \emph{anticipative tail} and is denoted with $\tilde \bfx_z$. 
-In \cite{ScDeLaOr:20}, the anticipative tail was used to prove recursive feasibility and stability of the MPC scheme.
+In \cite{Scianca2020TRO}, the anticipative tail was used to prove recursive feasibility and stability of the MPC scheme.
 
 The stability constraint is then written as
 \begin{equation}\label{eq:WoS:stability_constraint}
@@ -83,12 +83,12 @@ where $\tilde \bfc^k$ is given by
 \tilde\bfc^k = \eta\int_{t_{k+C}}^{\infty}e^{-\eta(\tau - t_k)}\tilde\bfp_z d\tau.
 \end{equation}
 
-Note that \cite{ScDeLaOr:20} considers the footstep plan to be available over a receding window called the \emph{preview horizon}. Here there is no need to make such an assumption, as the footstep plan is provided in its entirety, and once the goal is reached the robot comes to a complete stop.
+Note that \cite{Scianca2020TRO} considers the footstep plan to be available over a receding window called the \emph{preview horizon}. Here there is no need to make such an assumption, as the footstep plan is provided in its entirety, and once the goal is reached the robot comes to a complete stop.
 
 Enforcing constraint (\ref{eq:WoS:stability_constraint}) allows to bound the displacement between CoM and ZMP. In fact, the value of the bound is almost identical in most practical situation, especially in view of the fact that the preview horizon is unlimited because the plan is completely known.
 
 \textbf{From Humanoids 2023 stability constraint:}
-[...] The second step is to make the decision variables appear explicitly, i.e., the ZMP velocities $\dot{\bm{X}}_z$ over the control horizon, by computing the integral over a piecewise linear ZMP trajectory. The final form of the constraint can be found in \cite{ScDeLaOr:20}. For the purpose of this analysis, we will use the compact expression
+[...] The second step is to make the decision variables appear explicitly, i.e., the ZMP velocities $\dot{\bm{X}}_z$ over the control horizon, by computing the integral over a piecewise linear ZMP trajectory. The final form of the constraint can be found in \cite{Scianca2020TRO}. For the purpose of this analysis, we will use the compact expression
 \begin{equation}\label{eq:FAPA:stability_constraint}
     \bfs^T \dot{\bm{X}}_z = b_x^k + x_u^k,
 \end{equation}
@@ -110,7 +110,7 @@ A common way to extend the basic 2D balance criterion consists in prescribing th
 
 The IS-MPC block receives the adapted subplan ${\cal P}^l$ and uses it to construct ZMP constraints. As described in the previous section, the criterion for balance is satisfied if the ZMP belongs to the pyramid $\cal Z$. However, enforcing this condition directly would lead to a nonlinear constraint in the MPC because the vertex of the pyramid is the CoM of the robot. Thus, we adopt a conservative approximation called the {\em moving constraint}.
 
-The moving constraint requires for the ZMP to be at all times within a convex polyhedron of fixed shape, in our case a box of dimensions $d_x$, $d_y$ and $d_z$ centered in $\bfp_{\rm mc}=(x_{\rm mc}, y_{\rm mc}, z_{\rm mc})$, which we call the {\em moving box}. Along the prediction, the moving box can translate but not rotate, and its center moves in such a way that it is always fully contained within the 3D pyramid $\mathcal{Z}$ (see Fig. 5 in \cite{ZaScLaOr:18}). The vector $\bm{X}_{\rm mc}^{k+1} = (x_{\rm mc}^{k+1}, \dots, x_{\rm mc}^{k+C})^T$ collects the $x$ coordinate of the center of the moving box in the control horizon.
+The moving constraint requires for the ZMP to be at all times within a convex polyhedron of fixed shape, in our case a box of dimensions $d_x$, $d_y$ and $d_z$ centered in $\bfp_{\rm mc}=(x_{\rm mc}, y_{\rm mc}, z_{\rm mc})$, which we call the {\em moving box}. Along the prediction, the moving box can translate but not rotate, and its center moves in such a way that it is always fully contained within the 3D pyramid $\mathcal{Z}$ (see Fig. 5 in \cite{Zamparelli2018SYROCO}). The vector $\bm{X}_{\rm mc}^{k+1} = (x_{\rm mc}^{k+1}, \dots, x_{\rm mc}^{k+C})^T$ collects the $x$ coordinate of the center of the moving box in the control horizon.
 
 Because of its constant orientation in the prediction, at each time we can choose the orientation of the axes to align with the orientation of the moving box (taken as the orientation of the current support foot) and obtain a ZMP constraint that is decoupled along the 3 axes. Focusing on the component along $x$, we can write it as
 \begin{equation}\label{eq:FAPA:ZMP_constraints}

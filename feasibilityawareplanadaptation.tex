@@ -12,11 +12,11 @@
     \label{fig:FAPA:two-patches-mixed-integer-snapshots}
 \end{figure}
 
-% Regarding the footstep plan as unchangeable is often too restrictive because it relinquishes the capabilities of reactive stepping. These capabilities, if properly harnessed, make humanoids remarkably robust to disturbances. For these reasons, Model Predictive Controllers (MPC) has become so popular: even when using a simplified model, it is possible to perform real-timefootstep position adaptation \cite{HePeWi:10} and gain significant ability to reject pushes and impacts. 
+% Regarding the footstep plan as unchangeable is often too restrictive because it relinquishes the capabilities of reactive stepping. These capabilities, if properly harnessed, make humanoids remarkably robust to disturbances. For these reasons, Model Predictive Controllers (MPC) has become so popular: even when using a simplified model, it is possible to perform real-timefootstep position adaptation \cite{Herdt2010IROS} and gain significant ability to reject pushes and impacts. 
 
 % The available schemes however have the net separation between the planner and the MPC problem so that the plan given to the MPC could lead to an unfeasible optimization problem.
 
-%Another direction for footstep planning considers restrictions on where the robot may place its feet, which is needed for walking in uneven terrain. Some formulations constrain each footstep to a predefined convex polytope, so the optimization problem remains a QP \cite{Habib2022HandlingNonConvex}. Nevertheless, for more flexibility regarding the selection of terrain regions, one may employ mixed-integer programming (MIP) to make the assignment within the optimization \cite{Aceituno2018,DeTe:14}.
+%Another direction for footstep planning considers restrictions on where the robot may place its feet, which is needed for walking in uneven terrain. Some formulations constrain each footstep to a predefined convex polytope, so the optimization problem remains a QP \cite{Habib2022HandlingNonConvex}. Nevertheless, for more flexibility regarding the selection of terrain regions, one may employ mixed-integer programming (MIP) to make the assignment within the optimization \cite{Aceituno2018RAL,Deits2014FootstepPlanningMIQCQP}.
 
 Our architecture is based on the Intrinsically Stable MPC (IS-MPC) of Chapter \ref{ch:ISMPC}, which involves an explicit stability constraint ensuring the boundedness of the CoM trajectory with respect to the ZMP and is recursive feasibile. 
 % Furthermore, we characterized the feasibility region, i.e., the region of the state space for which the MPC admits a solution satisfying the constraint. 
@@ -236,7 +236,7 @@ This forces the $(l+j)$-th footstep to lie within the $\kappa$-th patch. Since e
     \label{eq:FAPA:sum_one}
 \end{equation}
 
-In MIP, logical implications can be implemented using binary variables through the so-called {\em big-M} technique \cite{Afonso2020}. In this case, we rewrite \eqref{eq:FAPA:implication} as
+In MIP, logical implications can be implemented using binary variables through the so-called {\em big-M} technique \cite{Afonso2020TaskAllocationTrajectoryPlanning}. In this case, we rewrite \eqref{eq:FAPA:implication} as
 \begin{equation}
 	\begin{cases}
 		\bm{A}(P^\kappa)\left( x_f^{l+j} \ y_f^{l+j} \right)^T \leq \bm{b}(P^\kappa) + (1 - b_{l+j,\kappa}) M \bm{1}_{V(P^\kappa)}, \\
