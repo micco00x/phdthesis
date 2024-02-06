@@ -38,7 +38,7 @@ Moreover, note that our framework, with respect to the taxonomy of singularities
 
 The paper is structured as follows. Section \ref{sec:kinematic-model} presents the kinematic model of the mobile base, discussing in details the presence of singularities. Section \ref{sec:proposed-framework} introduces the proposed framework, describing the finite state machine (FSM), the auxiliary motion generation scheme, and the NMPC. Section \ref{sec:simulations-and-experiments} validate the proposed framework on multiple experiments, which have been performed using a Neobotix MPO-700. Section \ref{sec:conclusions} concludes the paper, and discusses future works.
 
-\section{Kinematic Model}
+\section{Kinematic model}
 \label{sec:kinematic-model}
 In this section we will develop the kinematic model of a steerable wheeled mobile robot (SWMR), following the analysis presented in \cite{RobuffoGiordano2009ICRA}. Note that while our mobile base is equipped with azimut wheels (which, in the following, we will denote as steerable wheels), the resulting kinematic model is identical to the one described in the aforementioned paper, which takes into account caster wheels.
 
@@ -254,7 +254,7 @@ and the coordinating functions become
 \end{equation*}
 Note that $R$ can be determined from the ICR, which can be computed as the intersection point of the wheel axles. In this case, the robot can only move along the circle centered at the ICR, and radius corresponding to the distance between the position of the robot and the ICR itself. Both the center and the radius are constant, and are determined by the initial configuration of the robot.
 
-\section{Proposed Framework}
+\section{Proposed framework}
 \label{sec:proposed-framework}
 This section describes in detail the main components of our framework (shown in Fig. \ref{fig:block-scheme}), namely: the finite state machine, responsible for starting and stopping the robot while avoiding kinematic model singularities, the auxiliary trajectory generation module, based on dynamic feedback linearization, which provides trajectories to the NMPC, and the NMPC itself, which computes control inputs for the robot, while satisfying driving and steering velocity constraints on all wheels.
 
@@ -664,7 +664,6 @@ The hyperparameters used are listed in Table \ref{tab:hyperparameters}. Video cl
 
 \begin{table}
 \centering
-\caption{Hyperparameters used in all our experiments.}
 \begin{tabular}{ |c|c| } 
     \hline
     Symbol & Value \\
@@ -688,6 +687,7 @@ The hyperparameters used are listed in Table \ref{tab:hyperparameters}. Video cl
     $v_{\beta}^+$ & $2.0$ [rad/s] \\ 
     \hline
 \end{tabular}
+\caption{Hyperparameters used in all our experiments.}
 \label{tab:hyperparameters}
 \end{table}
 
