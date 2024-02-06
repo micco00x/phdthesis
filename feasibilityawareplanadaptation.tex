@@ -18,7 +18,7 @@
 
 %Another direction for footstep planning considers restrictions on where the robot may place its feet, which is needed for walking in uneven terrain. Some formulations constrain each footstep to a predefined convex polytope, so the optimization problem remains a QP \cite{Habib2022HandlingNonConvex}. Nevertheless, for more flexibility regarding the selection of terrain regions, one may employ mixed-integer programming (MIP) to make the assignment within the optimization \cite{Aceituno2018,DeTe:14}.
 
-Our architecture is based on the Intrinsically Stable MPC (IS-MPC) of~\cite{ScDeLaOr:20}, which involves an explicit stability constraint ensuring the boundedness of the CoM trajectory with respect to the ZMP and is recursive feasibile. 
+Our architecture is based on the Intrinsically Stable MPC (IS-MPC) of Chapter \ref{ch:ISMPC}, which involves an explicit stability constraint ensuring the boundedness of the CoM trajectory with respect to the ZMP and is recursive feasibile. 
 % Furthermore, we characterized the feasibility region, i.e., the region of the state space for which the MPC admits a solution satisfying the constraint. 
 The feasibility region, i.e., the state space region for which the constrained QP admits a solution, can be used to enhance the scheme capabilities by adapting the timing of the first step \cite{Smaldone2021FeasibilityDrivenSTA}, or to allow for non-convex regions \cite{Habib2022HandlingNonConvex} without burdening the optimization problem of the MPC.
 
