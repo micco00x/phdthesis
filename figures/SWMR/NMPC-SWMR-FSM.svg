@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="899.99994"
+   height="224.08353"
+   viewBox="0 0 674.99995 168.06264"
+   version="1.1"
+   id="svg18"
+   sodipodi:docname="NMPC-SWMR-FSM.svg"
+   inkscape:version="1.3 (1:1.3+202307231459+0e150ed6c4)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs18" />
+  <sodipodi:namedview
+     id="namedview18"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.91891892"
+     inkscape:cx="449.98529"
+     inkscape:cy="112.08824"
+     inkscape:window-width="1848"
+     inkscape:window-height="1016"
+     inkscape:window-x="1992"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg18" />
+  <g
+     id="graph0"
+     class="graph"
+     transform="matrix(1.1314302,0,0,1.1314302,4.525721,163.53692)">
+    <title
+       id="title1">finite_state_machine</title>
+    <polygon
+       fill="#ffffff"
+       stroke="transparent"
+       points="592.59,-144.54 592.59,4 -4,4 -4,-144.54 "
+       id="polygon1" />
+    <!-- 0 -->
+    <g
+       id="node1"
+       class="node">
+      <title
+         id="title2">n0</title>
+    </g>
+    <!-- 2 -->
+    <g
+       id="node2"
+       class="node">
+      <title
+         id="title3">NoICR</title>
+      <circle
+         fill="none"
+         stroke="#000000"
+         cx="75.940002"
+         cy="-45.919998"
+         id="ellipse3"
+         r="38.869999" />
+      <text
+         text-anchor="middle"
+         x="75.940002"
+         y="-41.720001"
+         font-family="Times, serif"
+         font-size="14px"
+         font-style="italic"
+         id="text3">NoICR</text>
+    </g>
+    <!-- 0&#45;&gt;2 -->
+    <g
+       id="edge1"
+       class="edge">
+      <title
+         id="title4">n0-&gt;NoICR</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 1.05,-45.92 c 0.87,0 12.11,0 25.57,0"
+         id="path4" />
+      <polygon
+         fill="#000000"
+         stroke="#000000"
+         points="26.7,-42.42 26.7,-49.42 36.7,-45.92 "
+         id="polygon4" />
+    </g>
+    <!-- 1 -->
+    <g
+       id="edge2"
+       class="edge">
+      <title
+         id="title5">NoICR-&gt;NoICR</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 62.07,-82.33 c 0.21,-11.47 4.83,-20.52 13.87,-20.52 6.07,0 10.14,4.08 12.23,10.24"
+         id="path5" />
+      <polygon
+         fill="#000000"
+         stroke="#000000"
+         points="84.78,-91.66 91.69,-92.76 89.8,-82.33 "
+         id="polygon5" />
+    </g>
+    <!-- 0&#45;&gt;1 -->
+    <g
+       id="node3"
+       class="node">
+      <title
+         id="title6">Ready</title>
+      <circle
+         fill="none"
+         stroke="#000000"
+         cx="186.58"
+         cy="-45.919998"
+         id="ellipse6"
+         r="35.919998" />
+      <text
+         text-anchor="middle"
+         x="186.58"
+         y="-41.720001"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="14px"
+         id="text6">Ready</text>
+    </g>
+    <!-- 3 -->
+    <g
+       id="edge3"
+       class="edge">
+      <title
+         id="title7">NoICR-&gt;Ready</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 114.94,-45.92 c 8.26,0 17.08,0 25.59,0"
+         id="path7" />
+      <polygon
+         fill="#000000"
+         stroke="#000000"
+         points="140.7,-42.42 140.7,-49.42 150.7,-45.92 "
+         id="polygon7" />
+    </g>
+    <!-- 4 -->
+    <g
+       id="edge4"
+       class="edge">
+      <title
+         id="title8">Ready-&gt;Ready</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 166.24,-75.47 c -1.8,-12.98 4.98,-24.15 20.34,-24.15 11.16,0 17.79,5.9 19.89,14.1"
+         id="path8" />
+      <polygon
+         fill="#000000"
+         stroke="#000000"
+         points="202.98,-85.3 209.97,-85.61 206.92,-75.47 "
+         id="polygon8" />
+    </g>
+    <!-- 8 -->
+    <g
+       id="node5"
+       class="node">
+      <title
+         id="title9">Moving</title>
+      <circle
+         fill="none"
+         stroke="#000000"
+         cx="419.14001"
+         cy="-80.919998"
+         id="ellipse9"
+         r="41.740002" />
+      <text
+         text-anchor="middle"
+         x="419.14001"
+         y="-76.720001"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="14px"
+         id="text9">Moving</text>
+    </g>
+    <g
+       id="node4"
+       class="node">
+      <title
+         id="title10">Starting</title>
+      <circle
+         fill="none"
+         stroke="#000000"
+         cx="299.89999"
+         cy="-80.919998"
+         id="ellipse10"
+         r="41.73" />
+      <text
+         text-anchor="middle"
+         x="299.89999"
+         y="-76.720001"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="14px"
+         id="text10">Starting</text>
+    </g>
+    <!-- 6 -->
+    <g
+       id="edge5"
+       class="edge">
+      <title
+         id="title11">Ready-&gt;Starting</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 220.98,-56.42 c 9.22,-2.9 19.42,-6.1 29.32,-9.21"
+         id="path11" />
+      <polygon
+         fill="#000000"
+         stroke="#000000"
+         points="251.56,-62.36 249.46,-69.04 260.05,-68.7 "
+         id="polygon11" />
+    </g>
+    <!-- 8&#45;&gt;6 -->
+    <!-- 5 -->
+    <!-- Moving&#45;&gt;Moving -->
+    <!-- Moving&#45;&gt;Moving -->
+    <!-- Moving&#45;&gt;Moving -->
+    <g
+       id="edge6"
+       class="edge">
+      <title
+         id="title12">Starting-&gt;Starting</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 278.92,-117 c -0.45,-12.96 6.55,-23.53 20.98,-23.53 10.49,0 17.05,5.58 19.68,13.6"
+         id="path12" />
+      <polygon
+         fill="#000000"
+         stroke="#000000"
+         points="316.11,-126.46 323.05,-127.37 320.88,-117 "
+         id="polygon12" />
+    </g>
+    <g
+       id="edge7"
+       class="edge">
+      <title
+         id="title13">Starting-&gt;Moving</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 341.58,-80.92 c 8.18,0 16.88,0 25.36,0"
+         id="path13" />
+      <polygon
+         fill="#000000"
+         stroke="#000000"
+         points="367.14,-77.42 367.14,-84.42 377.14,-80.92 "
+         id="polygon13" />
+    </g>
+    <g
+       id="edge8"
+       class="edge">
+      <title
+         id="title14">Moving-&gt;Moving</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 397.06,-116.42 c -0.72,-13.23 6.64,-24.12 22.08,-24.12 11.22,0 18.17,5.75 20.86,13.97"
+         id="path14" />
+      <polygon
+         fill="#000000"
+         stroke="#000000"
+         points="436.55,-125.93 443.5,-126.76 441.21,-116.42 "
+         id="polygon14" />
+    </g>
+    <g
+       id="node6"
+       class="node">
+      <title
+         id="title15">Stopping</title>
+      <circle
+         fill="none"
+         stroke="#000000"
+         cx="542.66998"
+         cy="-45.919998"
+         id="ellipse15"
+         r="45.830002" />
+      <text
+         text-anchor="middle"
+         x="542.66998"
+         y="-41.720001"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="14px"
+         id="text15">Stopping</text>
+    </g>
+    <!-- Moving&#45;&gt;Stopping -->
+    <g
+       id="edge9"
+       class="edge">
+      <title
+         id="title16">Moving-&gt;Stopping</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 459.26,-69.65 c 9.37,2.7 19.53,5.62 29.41,8.47"
+         id="path16" />
+      <polygon
+         fill="#000000"
+         stroke="#000000"
+         points="487.84,-57.78 489.77,-64.5 498.41,-58.37 "
+         id="polygon16" />
+    </g>
+    <!-- Sto -->
+    <!-- Stopping&#45;&gt;Stopping -->
+    <g
+       id="edge10"
+       class="edge">
+      <title
+         id="title17">Stopping-&gt;Stopping</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 519.8,-85.86 c 0,-13.32 7.62,-23.97 22.87,-23.97 11.2,0 18.29,5.74 21.27,14.07"
+         id="path17" />
+      <polygon
+         fill="#000000"
+         stroke="#000000"
+         points="560.49,-95.17 567.39,-96.3 565.55,-85.86 "
+         id="polygon17" />
+    </g>
+    <g
+       id="edge11"
+       class="edge">
+      <title
+         id="title18">Stopping-&gt;Ready</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 497.81,-35.62 c -11.95,2.36 -24.94,4.52 -37.05,5.7 -89.56,8.77 -113.04,10 -202.47,0 -8.91,-0.99 -18.33,-2.67 -27.29,-4.58"
+         id="path18" />
+      <polygon
+         fill="#000000"
+         stroke="#000000"
+         points="231.65,-37.94 230.11,-31.11 221.13,-36.72 "
+         id="polygon18" />
+    </g>
+  </g>
+</svg>
