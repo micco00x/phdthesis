@@ -2,6 +2,7 @@
 Intro. Robot walks by exchanging forces with the environment. Dynamic balance, contacts. Simplified models and contact equilibrium.
 
 \section{Lagrangian dynamics}
+\label{sec:lagrangian-dynamics}
 Define configuration of the robot:
 \begin{equation*}
     \ddot{\bm{q}} =
@@ -146,9 +147,41 @@ and constrain the vertical motion of the CoM so that
 with $\eta$ an arbitrary constant \cite{Zamparelli2018SYROCO}. In this way,
 the relationship \eqref{eq:relationship-com-zmp-angular-momentum} becomes
 \begin{equation}
+    \label{eq:LIPM}
     \ddot{\bm{p}}_C = \eta^2 (\bm{p}_C - \bm{p}_Z) + \bm{g},
 \end{equation}
 which corresponds to the 3D LIPM (Linear Inverted Pendulum Mode).
 
 \section{Contact equilibrium}
 Todo (describe pyramid in SYROCO18, which is a particular case of the 3D LIPM).
+
+We are interested in defining the condition of equilibrium of a humanoid robot.
+Let us focus on the special case of 3D LIPM dynamics with all contact forces
+directed towards the CoM (which is a particular case of the 3D LIPM).
+In this particular case, the contact forces can be rewritten as
+\begin{equation}
+    \label{eq:contact-force-towards-com}
+    \bm{f}_k = \frac{\bm{p}_C - \bm{p}_k}{\| \bm{p}_C - \bm{p}_k \|_2} f_k,
+\end{equation}
+with $f_k$ the norm of $\bm{f}_k$. By plugging eq.
+\eqref{eq:contact-force-towards-com} into eq.
+\eqref{eq:centroidal-dynamics}, we obtain
+\begin{equation}
+    m \ddot{\bm{p}}_C = m \bm{g} + \sum_{k=1}^K \frac{\bm{p}_C - \bm{p}_k}{\| \bm{p}_C - \bm{p}_k \|_2} f_k.
+\end{equation}
+Moreover, since we are assuming to be in 3D LIPM, we can use \eqref{eq:LIPM} to
+obtain (after rearranging the terms), the following:
+\begin{equation*}
+    \bm{p}_Z = \bm{p}_C - \sum_{k=1}^K \frac{\bm{p}_C - \bm{p}_k}{\| \bm{p}_C - \bm{p}_k \|_2} \frac{f_k}{m \eta^2}.
+\end{equation*}
+
+Because of the assumption of sufficient joint torque actuation made in Sec.
+\ref{sec:lagrangian-dynamics}, in principle, we could modulate $f_k$ to move
+the ZMP in an area which is defined by the following set:
+\begin{equation}
+    \mathcal{S}_Z = \left\{ \bm{p}_Z \mid \bm{p}_Z = \bm{p}_C + \sum_{k=1}^K \gamma_k (\bm{p}_k - \bm{p}_C), \; \gamma_k > 0  \right\}.
+\end{equation}
+
+The set $\mathcal{S}_Z$, which is a polyhedral cone with apex $\bm{p}_C$,
+is known in literature as the support region, and  contains all feasible
+positions of the ZMP.
