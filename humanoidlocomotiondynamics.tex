@@ -1,20 +1,154 @@
 \chapter{Dynamics of humanoid locomotion}
-Intro.
+Intro. Robot walks by exchanging forces with the environment. Dynamic balance, contacts. Simplified models and contact equilibrium.
 
 \section{Lagrangian dynamics}
-Todo.
+Define configuration of the robot:
+\begin{equation*}
+    \ddot{\bm{q}} =
+    \begin{bmatrix}
+        \bm{q}_b \\ \bm{q}_j
+    \end{bmatrix} \in \mathrm{SE}(3) \times \mathrm{SO}(2)^{n_j}
+\end{equation*}
+
+Equations of motion
+\begin{equation}
+    \begin{bmatrix}
+        \bm{M}_u \\ \bm{M}_a
+    \end{bmatrix} \ddot{\bm{q}} +
+    \begin{bmatrix}
+        \bm{c}_u(\bm{q}, \dot{\bm{q}}) \\
+        \bm{c}_a(\bm{q}, \dot{\bm{q}}) \\
+    \end{bmatrix} =
+    \begin{bmatrix}
+        \bm{0} \\ \bm{\tau}
+    \end{bmatrix} +
+    \sum_{k=1}^{K}
+    \begin{bmatrix}
+        \bm{J}_{k, u}^T \\ \bm{J}_{k, a}^T
+    \end{bmatrix}
+    \bm{f}_k
+    \label{eq:equation-of-motion-humanoids}
+\end{equation}
+
+Contact forces inside the friction cone to avoid slipping
+
+A contact force $\bm{f}_k$ is \textit{feasible} if it lies in the friction cone $\mathcal{C}_k$ directed by the contact normal $\bm{n}_k$:
+\begin{equation*}
+    \| \bm{f}_k - (\bm{f}_k \cdot \bm{n}_k) \bm{n}_k \|_2 \le \mu_k (\bm{f}_k \cdot \bm{n}_k)
+\end{equation*}
+with $\mu_k$ static friction coefficient.
+
+In the following we will assume that there always exists joint torques
+$\bm{\tau}$ that realize the actuated part of eq.
+\eqref{eq:equation-of-motion-humanoids}.
 
 \section{Centroidal dynamics}
-Todo.
+The above hypothesis allows as to focus on the unactuated part of the equation
+\eqref{eq:equation-of-motion-humanoids}, and define the
+\textit{centroidal dynamics} \cite{Orin2013CentroidalDynamics} of the humanoid
+\begin{equation}
+    \label{eq:centroidal-dynamics}
+    \begin{bmatrix}
+        m \ddot{\bm{p}}_C \\ \dot{\bm{L}}_C
+    \end{bmatrix} =
+    \begin{bmatrix}
+        m \bm{g} \\ \bm{0}
+    \end{bmatrix} +
+    \sum_{k=1}^k
+    \begin{bmatrix}
+        \bm{f}_k \\ (\bm{p}_C - \bm{p}_k) \times \bm{f}_k
+    \end{bmatrix}
+\end{equation}
+where $m$ is the total mass of the robot, $\bm{p}_C$ is the position of its
+center of mass (CoM),
+$\bm{g} = (0, 0, -g)^T$ is the gravity vector, $\bm{f}_k$ is the contact force
+applied at point with coordinates $\bm{p}_k$ over a contact surface with normal
+$\bm{n}_k$, $K$ is the total number of contacts, and $\bm{L}_c$ is the angular
+momentum of the robot taken at the CoM.
+
+Let us define the \textit{gravito-inertial wrench} taken at point $O$ as
+\begin{equation}
+    \label{eq:gravito-intertial-wrench}
+    \bm{w}_O^{\rm gi}
+    =
+    \begin{bmatrix}
+        \bm{f}^{\rm gi}\\
+        \bm{\tau}_O^{\rm gi}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        m \bm{g} - m \bm{\ddot{p}}_C \\
+        (\bm{p}_C - \bm{p}_O) \times (m \bm{g} - m \bm{\ddot{p}}_C) - \bm{\dot{L}}_C
+    \end{bmatrix}
+\end{equation}
 
 \section{Zero-tilting moment point}
-Todo.
+\label{sec:zero-tilting-moment-point}
+Consider the gravito-inertial wrench defined in \ref{eq:gravito-intertial-wrench}. Zero-tilting moment points (ZMPs) are points $Z$ where the moment of the contact wrench aligns with the normal $\bm{n}$ of the contact surface \cite{SardainBessonnet2004}, i.e.,
+\begin{equation}
+    \label{eq:zmp-non-tilting-condition}
+    \bm{\tau}_Z^{\rm gi} \times \bm{n} = \bm{0}
+\end{equation}
+which, using Varignon formula\footnote{A screw $\bm{w}_O =
+(\bm{f},\bm{\tau}_O)$ represents the generalized force acting on a rigid body
+\cite{Featherstone2007RigidBodyDynamicsAlgorithms},
+and it is composed by a linear force $\bm{f}$ passing through $O$, together with the
+total moment $\bm{\tau}_O$ about $O$. That total moment around any other point
+$A$ can be computed using Varignon formula as $\bm{\tau}_A=\bm{\tau}_O+\bm{f}\times(\bm{p}_A-\bm{p}_O)$.}, can be rewritten as
+\begin{equation}
+    \left(\bm{\tau}_O^{\rm gi} + (\bm{p}_O - \bm{p}_Z) \times \bm{f}^{\rm gi}\right) \times \bm{n} = \bm{0}
+\end{equation}
+which, developing the triple cross product\footnote{The triple cross product
+between three vectors $\bm{a}, \bm{b}, \bm{c} \in \mathrm{R}^n$ is defined as
+the cross product of the vector $\bm{a}$ with the cross product of the other
+two: $\bm{a}\times(\bm{b}\times\bm{c})=(\bm{a}\cdot\bm{c})\bm{b}-
+(\bm{a}\cdot\bm{b})\bm{c}$. Note that, since the cross product is anticommutative,
+the following holds:
+($\bm{a}\times\bm{b})\times\bm{c}=-(\bm{c}\cdot\bm{b})\bm{a}+
+(\bm{c}\cdot\bm{a})\bm{b}$.}, becomes
+\begin{equation}
+    \bm{\tau}_O^{\rm gi} \times \bm{n} - (\bm{n} \cdot \bm{f}^{\rm gi}) (\bm{p}_O - \bm{p}_Z) - \left(\bm{n} \cdot (\bm{p}_O - \bm{p}_Z)\right) \bm{f}^{\rm gi} = \bm{0}
+\end{equation}
 
-\section{Linear pendulum modes}
-Todo.
+Assuming that point $Z$ lies on a plane with normal $\bm{n}$ intersecting the point $O$, i.e. $Z \in \Pi(O, n)$, the term $\bm{n} \cdot (\bm{p}_O - \bm{p}_Z) = 0$, and the above equation can be easily rewritten as
+\begin{equation}
+    \bm{p}_Z = \bm{p}_O + \frac{\bm{n} \times \bm{\tau}_O^{\rm gi}}{\bm{n} \cdot \bm{f}^{\rm gi}}
+\end{equation}
+finally defining the ZMP $Z$. Notice that, more in general, there exists an infinity of ZMPs which lie on the non-central axis defined by \eqref{eq:zmp-non-tilting-condition}. For more details, please refer to \cite{SardainBessonnet2004}.
 
-\subsection{3D LIPM}
-Todo.
+\subsection{Relationship between CoM, ZMP and angular momentum}
+Consider the non-tilting condition of Eq. \eqref{eq:zmp-non-tilting-condition}. Using Varignon formula $\bm{\tau}_Z^{\rm gi} = \bm{\tau}_C^{\rm gi} + \bm{f}^{\rm gi} \times (\bm{p}_Z - \bm{p}_C)$, we have that
+\begin{equation}
+    \left(\bm{\tau}_C^{\rm gi} + \bm{f}^{\rm gi} \times (\bm{p}_Z - \bm{p}_C)\right) \times \bm{n} = \bm{0}
+\end{equation}
+which, computing the triple product, becomes
+\begin{equation}
+    \bm{\tau}_C^{\rm gi} \times \bm{n} - \left(\bm{n} \cdot (\bm{p}_Z - \bm{p}_C)\right) \bm{g}^{\rm gi} + (\bm{n} \cdot \bm{f}^{\rm gi}) (\bm{p}_Z - \bm{p}_C) = \bm{0}
+\end{equation}
+
+Applying the definition of \textit{gravito-inertial wrench} of Eq. \eqref{eq:gravito-intertial-wrench} and rearranging the terms, it is simple to prove \cite{Caron2017TRO} the following relationship between the CoM acceleration, the ZMP position and the angular momentum:
+\begin{equation}
+    \label{eq:relationship-com-zmp-angular-momentum}
+    \ddot{\bm{p}}_C = \bm{g} + \frac{\bm{n} \cdot (\bm{\ddot{p}}_C - \bm{g})}{\bm{n} \cdot (\bm{p}_C - \bm{p}_Z)} (\bm{p}_C - \bm{p}_Z) + \frac{\bm{n} \times \bm{\dot{L}}_C}{m \left(\bm{n} \cdot (\bm{p}_C - \bm{p}_Z)\right)}
+\end{equation}
+\section{3D LIPM}
+The centroidal dynamics \eqref{eq:centroidal-dynamics} is, in general,
+nonlinear, due to variations of angular momentum and height of the CoM. In this
+section, we derive the dynamics of the 3D Linear Inverted Pendulum
+\cite{Kajita2016IntroductiontoHumanoidRobotics}. To do so, we assume that the
+rate of change of angular momentum is negligible (i.e., $\dot{\bm{L}}_C = 0$),
+and constrain the vertical motion of the CoM so that
+\begin{equation}
+    \frac{\ddot{z}_C + g}{z_C - z_Z} =
+    \frac{\bm{n} \cdot (\ddot{\bm{p}}_C - \bm{g})}{\bm{n} \cdot (\bm{p}_C - \bm{p}_Z)} =
+    \eta^2,
+\end{equation}
+with $\eta$ an arbitrary constant \cite{Zamparelli2018SYROCO}. In this way,
+the relationship \eqref{eq:relationship-com-zmp-angular-momentum} becomes
+\begin{equation}
+    \ddot{\bm{p}}_C = \eta^2 (\bm{p}_C - \bm{p}_Z) + \bm{g},
+\end{equation}
+which corresponds to the 3D LIPM (Linear Inverted Pendulum Mode).
 
 \section{Contact equilibrium}
 Todo (describe pyramid in SYROCO18, which is a particular case of the 3D LIPM).
