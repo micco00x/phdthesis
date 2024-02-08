@@ -266,7 +266,11 @@ for all edges in $\cal T$. The corresponding vertex cost will be denoted by $c_1
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{figures/FootstepPlanner.pdf}
-\caption{The four steps of a generic iteration of the footstep planner. From left to right: selecting a vertex for expansion, generating a candidate vertex, choosing a parent, rewiring.}
+\caption{The four steps of a generic iteration of the footstep planner.
+First, a sampled point is used to select a vertex for expansion.
+Then, the selected vertex is used to generate a candidate vertex to be inserted in the tree.
+In the third step, a parent for the candidate vertex is chosen.
+Finally, a rewiring procedure is called to update the tree, guaranteeing that the cost of the nodes is optimal.}
 \label{fig:WoS:FootstepPlanner}
 \end{figure}   
     

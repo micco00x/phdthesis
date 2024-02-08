@@ -152,6 +152,11 @@ the relationship \eqref{eq:relationship-com-zmp-angular-momentum} becomes
 \end{equation}
 which corresponds to the 3D LIPM (Linear Inverted Pendulum Mode).
 
+\textbf{TODO: by constraining $p_C$ and $p_Z$ to lie on two different parallel
+planes we obtain the 2D LIPM. Typically, $z_Z$ is constrained to lie on the
+ground and $z_C$ is constraint to lie on a plane displaced by $h$.
+We have $\eta^2=g/h$.}
+
 \section{Contact equilibrium}
 Todo (describe pyramid in SYROCO18, which is a particular case of the 3D LIPM).
 
@@ -176,12 +181,11 @@ obtain (after rearranging the terms), the following:
 \end{equation*}
 
 Because of the assumption of sufficient joint torque actuation made in Sec.
-\ref{sec:lagrangian-dynamics}, in principle, we could modulate $f_k$ to move
-the ZMP in an area which is defined by the following set:
+\ref{sec:lagrangian-dynamics}, in principle, we could modulate $f_k$ to position
+the ZMP within the area defined by the following set:
 \begin{equation}
-    \mathcal{S}_Z = \left\{ \bm{p}_Z \mid \bm{p}_Z = \bm{p}_C + \sum_{k=1}^K \gamma_k (\bm{p}_k - \bm{p}_C), \; \gamma_k > 0  \right\}.
+    \mathcal{S}_Z = \left\{ \bm{p}_Z \,\middle\vert\, \bm{p}_Z = \bm{p}_C + \sum_{k=1}^K \gamma_k (\bm{p}_k - \bm{p}_C), \; \gamma_k > 0  \right\},
 \end{equation}
-
-The set $\mathcal{S}_Z$, which is a polyhedral cone with apex $\bm{p}_C$,
+which is a polyhedral cone with apex $\bm{p}_C$,
 is known in literature as the support region, and  contains all feasible
 positions of the ZMP.
