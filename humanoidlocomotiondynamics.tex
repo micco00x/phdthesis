@@ -55,14 +55,14 @@ The above hypothesis allows as to focus on the unactuated part of the equation
     \begin{bmatrix}
         m \bm{g} \\ \bm{0}
     \end{bmatrix} +
-    \sum_{k=1}^k
+    \sum_{k=1}^K
     \begin{bmatrix}
         \bm{f}_k \\ (\bm{p}_C - \bm{p}_k) \times \bm{f}_k
     \end{bmatrix}
 \end{equation}
 where $m$ is the total mass of the robot, $\bm{p}_C$ is the position of its
 center of mass (CoM),
-$\bm{g} = (0, 0, -g)^T$ is the gravity vector, $\bm{f}_k$ is the contact force
+$\bm{g} = (0 \; 0 \; -g)^T$ is the gravity vector, $\bm{f}_k$ is the contact force
 applied at point with coordinates $\bm{p}_k$ over a contact surface with normal
 $\bm{n}_k$, $K$ is the total number of contacts, and $\bm{L}_c$ is the angular
 momentum of the robot taken at the CoM.
@@ -81,6 +81,29 @@ Let us define the \textit{gravito-inertial wrench} taken at point $O$ as
         m \bm{g} - m \bm{\ddot{p}}_C \\
         (\bm{p}_C - \bm{p}_O) \times (m \bm{g} - m \bm{\ddot{p}}_C) - \bm{\dot{L}}_C
     \end{bmatrix}
+\end{equation}
+
+Similarly, the \textit{contact wrench} $\bm{w}_O$ can be defined as
+\begin{equation}
+    \label{eq:contact-wrench}
+    \bm{w}_O^{\rm c}
+    =
+    \begin{bmatrix}
+        \bm{f}^{\rm c} \\
+        \bm{\tau}_O^{\rm c}
+    \end{bmatrix}
+    =
+    \sum_{k=1}^K
+    \begin{bmatrix}
+        \bm{f}_k\\
+        (\bm{p}_k - \bm{p}_O) \times \bm{f}_k
+    \end{bmatrix}
+\end{equation}
+
+Note that the centroidal dynamics \eqref{eq:centroidal-dynamics} can be
+rewritten as a sum of the two above wrenches
+\begin{equation}
+    \bm{w}_O^{\rm gi} + \bm{w}_O^c = 0
 \end{equation}
 
 \section{Zero-tilting moment point}
@@ -132,30 +155,78 @@ Applying the definition of \textit{gravito-inertial wrench} of Eq. \eqref{eq:gra
     \label{eq:relationship-com-zmp-angular-momentum}
     \ddot{\bm{p}}_C = \bm{g} + \frac{\bm{n} \cdot (\bm{\ddot{p}}_C - \bm{g})}{\bm{n} \cdot (\bm{p}_C - \bm{p}_Z)} (\bm{p}_C - \bm{p}_Z) + \frac{\bm{n} \times \bm{\dot{L}}_C}{m \left(\bm{n} \cdot (\bm{p}_C - \bm{p}_Z)\right)}
 \end{equation}
-\section{3D LIPM}
-The centroidal dynamics \eqref{eq:centroidal-dynamics} is, in general,
-nonlinear, due to variations of angular momentum and height of the CoM. In this
-section, we derive the dynamics of the 3D Linear Inverted Pendulum
-\cite{Kajita2016IntroductiontoHumanoidRobotics}. To do so, we assume that the
-rate of change of angular momentum is negligible (i.e., $\dot{\bm{L}}_C = 0$),
-and constrain the vertical motion of the CoM so that
+\section{Inverted pendulum models}
+\subsection{Variable-Height Inverted Pendulum}
+Consider again the centroidal dynamics of eq. \eqref{eq:centroidal-dynamics}
+and assume that the rate of change of angular momentum is negligible (i.e.,
+$\dot{\bm{L}}_C=\bm{0}$). We define the dynamics of the \textit{Variable-Height
+Inverted Pendulum} (VH-IP) \cite{Koolen2016VHIP} as
 \begin{equation}
-    \frac{\ddot{z}_C + g}{z_C - z_Z} =
+    \label{eq:VH-IP}
+    m \ddot{\bm{p}}_C = m \bm{g} + \bm{f}^{\mathrm{c}}.
+\end{equation}
+
+Note that, because $\dot{\bm{L}}_C=\bm{0}$, the contact force
+$\bm{f}^{\mathrm{c}}$ can be parametrized \cite{Caron2020ICRA} as
+\begin{equation}
+    \label{eq:contact-force-with-LG-0}
+    \bm{f}^{\mathrm{c}} = m \lambda(t) (\bm{p}_C - \bm{p}_Z),
+\end{equation}
+with $\lambda(t)$ natural frequency of the VH-IP (where we explicitely
+denote the time dependency of lambda to highlight the nonlinearity in the
+dynamics). Note that $\lambda(t) > 0$ because
+of unilaterality of contact (i.e., it is not possible to pull on the ground).
+The dynamics of the VH-IP can be rewritten as
+\begin{equation}
+    \label{eq:VH-IP-LG-0}
+    \ddot{\bm{p}}_C = \lambda(t) (\bm{p}_C - \bm{p}_Z) + \bm{g}
+\end{equation}
+by plugging the contact force \eqref{eq:contact-force-with-LG-0} into
+eq. \eqref{eq:VH-IP}.
+
+%During locomotion, since the the $\bm{f}^{\mathrm{c}}$ are such that its
+%component along the $z$ axis is positive (i.e., $f_z^{\mathrm{c}}=
+%\bm{e}_z^T \bm{f}^{\mathrm{c}} > 0$ with $\bm{e}_z = (0 \; 0 \; 1)^T$), from eq.
+%\eqref{eq:contact-force-with-LG-0}, we have that
+%\begin{equation*}
+%    f_z^{\mathrm{c}} = m \lambda(t) (z_C - z_Z) > 0,
+%\end{equation*}
+%which implies that $z_C > z_Z$.
+
+\subsection{Linear Inverted Pendulum}
+The dynamics of the VH-IP, as already mentioned, is nonlinear due to the
+variable frequency $\lambda(t)$. In this
+section, we derive the dynamics of the \textit{Linear Inverted Pendulum} (LIP)
+\cite{Kajita2016IntroductiontoHumanoidRobotics}. To do so,
+we constrain the vertical motion of the CoM \cite{Zamparelli2018SYROCO} so that
+\begin{equation}
+    \lambda(t) = \frac{\ddot{z}_C + g}{z_C - z_Z} =
     \frac{\bm{n} \cdot (\ddot{\bm{p}}_C - \bm{g})}{\bm{n} \cdot (\bm{p}_C - \bm{p}_Z)} =
     \eta^2,
 \end{equation}
-with $\eta$ an arbitrary constant \cite{Zamparelli2018SYROCO}. In this way,
-the relationship \eqref{eq:relationship-com-zmp-angular-momentum} becomes
+with $\eta$ an arbitrary constant. In this way,
+the dynamics \eqref{eq:VH-IP-LG-0} becomes
 \begin{equation}
     \label{eq:LIPM}
     \ddot{\bm{p}}_C = \eta^2 (\bm{p}_C - \bm{p}_Z) + \bm{g},
 \end{equation}
-which corresponds to the 3D LIPM (Linear Inverted Pendulum Mode).
+which is linear. The dynamics of the LIP is obtained by choosing $\eta^2=g/h$,
+with $h=z_C-z_Z$.
 
-\textbf{TODO: by constraining $p_C$ and $p_Z$ to lie on two different parallel
-planes we obtain the 2D LIPM. Typically, $z_Z$ is constrained to lie on the
-ground and $z_C$ is constraint to lie on a plane displaced by $h$.
-We have $\eta^2=g/h$.}
+When walking on flat floor (a single contact surface with normal
+$\bm{e}_z=(0 \; 0\; 1)^T$),
+a common choice is to constrain the ZMP to lie on
+a plane which coincides with the ground (i.e., without loss of generality
+$z_Z=0$). As a consequence, the CoM is constrained to lie on a parallel plane
+displaced by $h$ from the ZMP plane (i.e., $z_C=h$), and
+the LIP dynamics further simplifies to the following dynamics:
+\begin{align*}
+    \ddot{x}_C &= \eta^2 (x_C - x_Z) \\
+    \ddot{y}_C &= \eta^2 (y_C - y_Z). \\
+\end{align*}
+Note that, in this particular case, the ZMP coincides with the center of
+pressure (CoP), which is the point of application of the contact force
+$\bm{f}^{\mathrm{c}}$ on the ground \cite{SardainBessonnet2004}.
 
 \section{Contact equilibrium}
 Todo (describe pyramid in SYROCO18, which is a particular case of the 3D LIPM).
