@@ -34,9 +34,10 @@ Equations of motion
 Contact forces inside the friction cone to avoid slipping
 
 A contact force $\bm{f}_k$ is \textit{feasible} if it lies in the friction cone $\mathcal{C}_k$ directed by the contact normal $\bm{n}_k$:
-\begin{equation*}
+\begin{equation}
+    \label{eq:feasible-contact-force}
     \| \bm{f}_k - (\bm{f}_k \cdot \bm{n}_k) \bm{n}_k \|_2 \le \mu_k (\bm{f}_k \cdot \bm{n}_k)
-\end{equation*}
+\end{equation}
 with $\mu_k$ static friction coefficient.
 
 In the following we will assume that there always exists joint torques
@@ -62,7 +63,7 @@ The above hypothesis allows as to focus on the unactuated part of the equation
 \end{equation}
 where $m$ is the total mass of the robot, $\bm{p}_C$ is the position of its
 center of mass (CoM),
-$\bm{g} = (0 \; 0 \; -g)^T$ is the gravity vector, $\bm{f}_k$ is the contact force
+$\bm{g} = (0 \; 0 \; g)^T$ is the gravity vector ($g=-9.81$~[m/s$^2$]), $\bm{f}_k$ is the contact force
 applied at a point with coordinates $\bm{p}_k$ over a contact surface with normal
 $\bm{n}_k$, $K$ is the total number of contacts, and $\bm{L}_c$ is the angular
 momentum of the robot taken at the CoM.
@@ -200,18 +201,18 @@ section, we derive the dynamics of the \textit{Linear Inverted Pendulum} (LIP)
 \cite{Kajita2016IntroductiontoHumanoidRobotics}. To do so,
 we constrain the vertical motion of the CoM \cite{Zamparelli2018SYROCO} so that
 \begin{equation}
-    \lambda(t) = \frac{\ddot{z}_C + g}{z_C - z_Z} =
+    \lambda(t) = \frac{\ddot{z}_C - g}{z_C - z_Z} =
     \frac{\bm{n} \cdot (\ddot{\bm{p}}_C - \bm{g})}{\bm{n} \cdot (\bm{p}_C - \bm{p}_Z)} =
     \eta^2,
 \end{equation}
 with $\eta$ an arbitrary constant. In this way,
-the dynamics \eqref{eq:VH-IP-LG-0} becomes
+the dynamics \eqref{eq:VH-IP-LG-0} becomes the dynamics of the LIP:
 \begin{equation}
     \label{eq:LIPM}
     \ddot{\bm{p}}_C = \eta^2 (\bm{p}_C - \bm{p}_Z) + \bm{g},
 \end{equation}
-which is linear. The dynamics of the LIP is obtained by choosing $\eta^2=g/h$,
-with $h=z_C-z_Z$.
+which is in equilibrium when the CoM and the ZMP are displaced by
+$\bm{g}/\eta^2$ \cite{Cipriano2023RAS}.
 
 When walking on flat floor (a single contact surface with normal
 $\bm{e}_z=(0 \; 0\; 1)^T$),
@@ -229,12 +230,44 @@ pressure (CoP), which is the point of application of the contact force
 $\bm{f}^{\mathrm{c}}$ on the ground \cite{SardainBessonnet2004}.
 
 \section{Contact equilibrium}
-Todo (describe pyramid in SYROCO18, which is a particular case of the 3D LIPM).
+%We are interested in defining the condition of equilibrium of a humanoid robot.
+%As already stated in eq. \eqref{eq:feasible-contact-force}, a contact force
+%$\bm{f}_k$ is feasible if it lies in the friction cone $\mathcal{C}_k$.
+%Friction cones can be linearized by friction pyramids \cite{Caron2015RSS},
+%obtaining a linear constraint on the contact forces. This constraint can be
+%described in halfspace representation as
+%\begin{equation}
+%    \label{eq:friction-pyramid-halfspace}
+%    \bm{F}_k \bm{f}_k \le \bm{0}.
+%\end{equation}
+%
+%As explained in \cite{Caron2015RSS}, friction pyramid constraints can be used
+%to compute the \textit{Contact Wrench Cone} (CWC), which can be described in
+%halfspace representation as:
+%\begin{equation*}
+%    \bm{A}_O \bm{w}_O \le \bm{0}.
+%\end{equation*}
+%
+%The CWC provides a necessary and sufficient condition for contact equilibrium of
+%motions of the humanoid. Indeed, $\bm{w}_O$ belongs to the CWC if and only if
+%there exists a set of contact forces $\{ \bm{f}_k \}$ which satisfy the
+%centroidal dynamics equation \eqref{eq:centroidal-dynamics},
+%the \textit{contact wrench} \eqref{eq:contact-wrench} and the friction pyramid
+%constraints \eqref{eq:friction-pyramid-halfspace}.
 
 We are interested in defining the condition of equilibrium of a humanoid robot.
-Let us focus on the special case of 3D LIPM dynamics with all contact forces
-directed towards the CoM (which is a particular case of the 3D LIPM).
-In this particular case, the contact forces can be rewritten as
+While there exists a general condition on contact
+equilibrium based on contact wrench cone \cite{Caron2015RSS}, in this manuscript
+we assume that the friction coefficient defined in
+\eqref{eq:feasible-contact-force} is sufficiently large to avoid slipping at the
+contact surfaces.
+
+This hypothesis allows us to focus on a simplified contact equilibrium
+condition, which is relatively easy to deal with when developing a locomotion
+scheme. In particular, consider the case of LIP dynamics of eq. \eqref{eq:LIPM}
+with all contact forces directed towards the CoM, as described in
+\cite{Sugihara2002ICRA}.
+In this case, the contact forces can be rewritten as
 \begin{equation}
     \label{eq:contact-force-towards-com}
     \bm{f}_k = \frac{\bm{p}_C - \bm{p}_k}{\| \bm{p}_C - \bm{p}_k \|_2} f_k,
@@ -245,7 +278,7 @@ with $f_k$ the norm of $\bm{f}_k$. By plugging eq.
 \begin{equation}
     m \ddot{\bm{p}}_C = m \bm{g} + \sum_{k=1}^K \frac{\bm{p}_C - \bm{p}_k}{\| \bm{p}_C - \bm{p}_k \|_2} f_k.
 \end{equation}
-Moreover, since we are assuming to be in 3D LIPM, we can use \eqref{eq:LIPM} to
+Moreover, using the dynamics of eq. \eqref{eq:LIPM}, we can obtain
 obtain (after rearranging the terms), the following:
 \begin{equation*}
     \bm{p}_Z = \bm{p}_C - \sum_{k=1}^K \frac{\bm{p}_C - \bm{p}_k}{\| \bm{p}_C - \bm{p}_k \|_2} \frac{f_k}{m \eta^2}.
@@ -257,6 +290,13 @@ the ZMP within the area defined by the following set:
 \begin{equation}
     \mathcal{S}_Z = \left\{ \bm{p}_Z \,\middle\vert\, \bm{p}_Z = \bm{p}_C + \sum_{k=1}^K \gamma_k (\bm{p}_k - \bm{p}_C), \; \gamma_k > 0  \right\},
 \end{equation}
-which is a polyhedral cone with apex $\bm{p}_C$,
-is known in literature as the support region, and  contains all feasible
-positions of the ZMP.
+which is a polyhedral cone with apex $\bm{p}_C$, and
+is known in literature as \textit{supporting region} \cite{Sugihara2021ICRA},
+as it contains all feasible positions of the ZMP.
+
+Despite the above hypothesis on contact forces seems a strong assumption, it
+has been used successfully for both walking and running tasks
+\cite{Sugihara2002ICRA,Zamparelli2018SYROCO,Sugihara2021ICRA,Smaldone2022Running}. Moreover, when in
+single support (or when all contacts are coplanar), the above condition is
+always satisfied if $\dot{\bm{L}}_C=\bm{0}$
+\cite{Caron2017DynamicWalkingOverRoughTerrains}.
