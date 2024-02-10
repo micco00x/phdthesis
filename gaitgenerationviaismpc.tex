@@ -31,14 +31,6 @@ for $t\in[t_k, t_{k+1})$. This prediction model is used to forecast the evolutio
 Model~(\ref{eq:WoS:3dmodel}) has a positive eigenvalue $\eta$, reflecting the intrinsic instability of the humanoid dynamics. Given this instability, it is not sufficient to generate a gait such that the ZMP is inside the support region, because the associated CoM trajectory might be divergent, making the motion unrealizable by the humanoid.
 The role of the stability constraint is to enforce a condition on the unstable component of the dynamics in order to guarantee that the CoM trajectory does not diverge with respect to the ZMP.
 
-The unstable component of system (\ref{eq:WoS:3dmodel}) is highlighted by the coordinate
-\begin{equation*}
-    \bfp_u = \bfp_c + \dot \bfp_c/\eta,
-\end{equation*}
-also referred to as \textit{divergent component of motion} \cite{Englsberger2015TRO} or \textit{capture point} \cite{Pratt2006CapturePoint}, that evolves according to the dynamics
-\begin{equation}
-\dot\bfp_u = \eta(\bfp_u - \bfp_z) + \frac{\bfg}{\eta}.
-\end{equation}
 Despite the instability, the evolution of the system is bounded if the following \emph{stability condition} is satisfied
 \begin{equation}
 \label{eq:WoS:stabilitycondition}

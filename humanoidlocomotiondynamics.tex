@@ -238,6 +238,83 @@ Note that, in this particular case, the ZMP coincides with the center of
 pressure (CoP), which is the point of application of the contact force
 $\bm{f}^{\mathrm{c}}$ on the ground \cite{SardainBessonnet2004}.
 
+The dynamics of eq. \eqref{eq:LIPM} is unstable \cite{Scianca2020TRO}. Indeed,
+by rewriting it in state space form as
+\begin{equation}
+    \label{eq:LIPM-state-space}
+    \begin{bmatrix}
+        \dot{\bm{p}}_C \\ \ddot{\bm{p}}_C
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \bm{0}        & \bm{I} \\
+        \eta^2 \bm{I} & \bm{0}
+    \end{bmatrix}
+    \begin{bmatrix}
+        \bm{p}_C \\ \dot{\bm{p}}_C
+    \end{bmatrix}
+    +
+    \begin{bmatrix}
+        \bm{0} \\ -\eta^2 \bm{I}
+    \end{bmatrix}
+    \bm{p}_Z 
+    +
+    \begin{bmatrix}
+        \bm{0} \\ \bm{g}
+    \end{bmatrix},
+\end{equation}
+the state matrix has eigenvalues in $\pm\eta$. The instability of the system
+can be further highlight by the following change of coordinates:
+\begin{equation}
+    \label{eq:LIP-change-of-coordinates}
+    \begin{bmatrix}
+        \bm{p}_u \\ \bm{p}_s
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \bm{I} &  \frac{1}{\eta} \bm{I} \\
+        \bm{I} & -\frac{1}{\eta} \bm{I}
+    \end{bmatrix}
+    \begin{bmatrix}
+        \bm{p}_C\\ \dot{\bm{p}}_C
+    \end{bmatrix},
+\end{equation}
+which can be used to decouple the unstable and the stable subsystem. Indeed,
+by taking the time derivative of eq. \eqref{eq:LIP-change-of-coordinates}, we
+have
+%\begin{align}
+%    \dot{\bm{p}}_u &= \eta (\bm{p}_u - \bm{p}_Z) + \frac{\bm{g}}{\eta} \\
+%    \dot{\bm{p}}_s &= \eta (\bm{p}_Z - \bm{p}_s) - \frac{\bm{g}}{\eta}
+%\end{align}
+
+\begin{equation*}
+    \begin{bmatrix}
+        \dot{\bm{p}}_u \\ \dot{\bm{p}}_s
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \eta\bm{I} &  \bm{0} \\
+        \bm{0} & -\eta\bm{I}
+    \end{bmatrix}
+    \begin{bmatrix}
+        \bm{p}_u \\ \bm{p}_s
+    \end{bmatrix}
+    +
+    \begin{bmatrix}
+        -\eta \bm{I} \\ \eta \bm{I}
+    \end{bmatrix}
+    \bm{p}_Z 
+    +
+    \begin{bmatrix}
+        \frac{\bm{g}}{\eta} \\ -\frac{\bm{g}}{\eta}
+    \end{bmatrix}
+\end{equation*}
+
+The coordinate $\bm{p}_u$ highlights the unstable component of the system
+\eqref{eq:LIPM}, and it is referred to as \textit{divergent component of motion}
+\cite{Englsberger2015TRO} or \textit{capture point}
+\cite{Pratt2006CapturePoint}.
+
 \section{Contact equilibrium}
 %We are interested in defining the condition of equilibrium of a humanoid robot.
 %As already stated in eq. \eqref{eq:feasible-contact-force}, a contact force
