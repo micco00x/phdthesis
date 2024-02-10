@@ -14,33 +14,9 @@ In this section we will describe the MPC gait generation scheme that is used in 
 
 \section{Prediction model}
 
-Control of the ZMP is achieved using a dynamic model relating the position of the latter to the position and acceleration of the CoM. This dynamic model can be derived by balancing moments on the humanoid as a whole, and assuming that the rate of change of angular momentum around the CoM can be neglected, leading to the situtation shown in Fig. \ref{fig:ISMPC:LIPM-robot}, where the Center of Pressure (CoP) is located on the corresponding patch, while the ZMP can be anywhere along the line joining the CoP and the CoM \cite{Caron2017DynamicWalkingOverRoughTerrains}.
+Control of the ZMP is achieved using a dynamic model relating the position of the latter to the position and acceleration of the CoM. This dynamic model can be derived by balancing moments on the humanoid as a whole, and assuming that the rate of change of angular momentum around the CoM can be neglected, leading to the situtation shown in Fig. \ref{fig:LIPM-robot}, where the Center of Pressure (CoP) is located on the corresponding patch, while the ZMP can be anywhere along the line joining the CoP and the CoM \cite{Caron2017DynamicWalkingOverRoughTerrains}.
 
-With this in mind, denoting the CoM as $\bfp_c = (x_c \; y_c \; z_c)^T$ and the ZMP as $\bfp_z = (x_z \; y_z \; z_z)^T$, we get
-\begin{equation}\begin{split}
-(z_c - z_z)\ddot x_c &= (x_c - x_z)(\ddot z_c + g) \\
-(z_c - z_z)\ddot y_c &= (y_c - y_z)(\ddot z_c + g) \\
-\ddot{z}_c &= \frac{f_z}{m}-g,
-\end{split}\end{equation}
-where $g=-9.81$~[m/s$^2$] is the gravity acceleration, $f_z$ denotes the $z$-component of the ground reaction force, acting as an external input, and $m$ is the total mass of the robot.
-
-This model exhibits a nonlinear coupling between the vertical and the horizontal components of $\bfp_c$ and $\ddot\bfp_c$. On flat ground, this nonlinearity is usually handled by assuming a constant CoM height, which leads to the well-known LIP model~\cite{Kajita2003BipedWalkingPatternGeneration}. In order to allow for vertical movement of the CoM, a different choice is made here, which is to constrain the motion of the CoM \cite{Zamparelli2018SYROCO} to satisfy the relation
-\begin{equation*}
-    \frac{\ddot z_c + g}{z_c - z_z} = \eta^2,
-\end{equation*}
-where $\eta$ is a constant parameter.
-The resulting dynamic model can be expressed in the form
-\begin{equation}\label{eq:WoS:3dmodel}
-\ddot \bfp_c = \eta^2(\bfp_c - \bfp_z) + \bfg,
-\end{equation}
-where $\bfg = (0 \; 0 \; {g})^T$ is the gravity acceleration vector. This model features a LIP-like dynamic behavior along all three axes. The only difference with respect to a standard LIP is given by the gravity vector $\bfg$ acting as a constant drift. This causes the system not to be in equilibrium when the CoM and ZMP coincide, but rather when they are displaced by $\bfg/\eta^2$.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.4\textwidth]{figures/LIPM_robot.pdf}
-    \caption{A humanoid walking on a world of stairs. Note the positions of the CoM, the ZMP and the CoP, which lie on the same axis because of the assumption of conservation of angular momentum.}
-    \label{fig:ISMPC:LIPM-robot}
-\end{figure}
+Denote the CoM as $\bfp_c = (x_c \; y_c \; z_c)^T$ and the ZMP as $\bfp_z = (x_z \; y_z \; z_z)^T$.
 
 The choice of restricting the available trajectories to those resulting in a constant $\eta$ allows to make the prediction model linear. If this restriction is removed, the model is referred to as Variable-Height Inverted Pendulum (VH-IP), which can be treated either as nonlinear or time-varying. This can allow for more general motions to be generated, e.g., running~\cite{Smaldone2022Running}, at the cost of a slightly more complex architecture. For the present case, where only walking is considered, the simpler model is preferred.
 

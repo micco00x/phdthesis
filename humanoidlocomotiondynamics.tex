@@ -63,7 +63,7 @@ The above hypothesis allows as to focus on the unactuated part of the equation
 \end{equation}
 where $m$ is the total mass of the robot, $\bm{p}_C$ is the position of its
 center of mass (CoM),
-$\bm{g} = (0 \; 0 \; g)^T$ is the gravity vector ($g=-9.81$~[m/s$^2$]), $\bm{f}_k$ is the contact force
+$\bm{g} = (0 \; 0 \; {-g})^T$ is the gravity vector ($g=9.81$~[m/s$^2$]), $\bm{f}_k$ is the contact force
 applied at a point with coordinates $\bm{p}_k$ over a contact surface with normal
 $\bm{n}_k$, $K$ is the total number of contacts, and $\bm{L}_c$ is the angular
 momentum of the robot taken at the CoM.
@@ -201,7 +201,7 @@ section, we derive the dynamics of the \textit{Linear Inverted Pendulum} (LIP)
 \cite{Kajita2016IntroductiontoHumanoidRobotics}. To do so,
 we constrain the vertical motion of the CoM \cite{Zamparelli2018SYROCO} so that
 \begin{equation}
-    \lambda(t) = \frac{\ddot{z}_C - g}{z_C - z_Z} =
+    \lambda(t) = \frac{\ddot{z}_C + g}{z_C - z_Z} =
     \frac{\bm{n} \cdot (\ddot{\bm{p}}_C - \bm{g})}{\bm{n} \cdot (\bm{p}_C - \bm{p}_Z)} =
     \eta^2,
 \end{equation}
@@ -212,7 +212,16 @@ the dynamics \eqref{eq:VH-IP-LG-0} becomes the dynamics of the LIP:
     \ddot{\bm{p}}_C = \eta^2 (\bm{p}_C - \bm{p}_Z) + \bm{g},
 \end{equation}
 which is in equilibrium when the CoM and the ZMP are displaced by
-$\bm{g}/\eta^2$ \cite{Cipriano2023RAS}.
+$\bm{g}/\eta^2$ \cite{Cipriano2023RAS}, and the gravity vector $\bm{g}$
+acts as a constant drift. Figure \ref{fig:LIPM-robot} shows the humanoid walking
+under the above dynamics.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{figures/LIPM_robot.pdf}
+    \caption{A humanoid walking under LIP dynamics. Note the positions of the CoM, the ZMP and the CoP, which lie on the same axis because of the assumption of conservation of angular momentum.}
+    \label{fig:LIPM-robot}
+\end{figure}
 
 When walking on flat floor (a single contact surface with normal
 $\bm{e}_z=(0 \; 0\; 1)^T$),
