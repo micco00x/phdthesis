@@ -230,10 +230,13 @@ a plane which coincides with the ground (i.e., without loss of generality
 $z_Z=0$). As a consequence, the CoM is constrained to lie on a parallel plane
 displaced by $h$ from the ZMP plane (i.e., $z_C=h$), and
 the LIP dynamics further simplifies to the following dynamics:
-\begin{align*}
-    \ddot{x}_C &= \eta^2 (x_C - x_Z) \\
-    \ddot{y}_C &= \eta^2 (y_C - y_Z).
-\end{align*}
+\begin{align}
+    \label{eq:LIPM-xy}
+    \begin{split}
+        \ddot{x}_C &= \eta^2 (x_C - x_Z) \\
+        \ddot{y}_C &= \eta^2 (y_C - y_Z).
+    \end{split}
+\end{align}
 Note that, in this particular case, the ZMP coincides with the center of
 pressure (CoP), which is the point of application of the contact force
 $\bm{f}^{\mathrm{c}}$ on the ground \cite{SardainBessonnet2004}.
@@ -378,7 +381,10 @@ the ZMP within the area defined by the following set:
 \end{equation}
 which is a polyhedral cone with apex $\bm{p}_C$ (Fig. \ref{fig:balance3D}), and
 is known in literature as \textit{supporting region} \cite{Sugihara2021ICRA},
-as it contains all feasible positions of the ZMP.
+as it contains all feasible positions of the ZMP. Note that under dynamics
+\eqref{eq:LIPM-xy}, the supporting region becomes the \textit{support
+polygon}, which is defined as the convex hull of all contact points
+\cite{SardainBessonnet2004}.
 
 \begin{figure}
     \centering
