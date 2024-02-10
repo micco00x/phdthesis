@@ -374,11 +374,18 @@ Because of the assumption of sufficient joint torque actuation made in Sec.
 \ref{sec:lagrangian-dynamics}, in principle, we could modulate $f_k$ to position
 the ZMP within the area defined by the following set:
 \begin{equation}
-    \mathcal{S}_Z = \left\{ \bm{p}_Z \,\middle\vert\, \bm{p}_Z = \bm{p}_C + \sum_{k=1}^K \gamma_k (\bm{p}_k - \bm{p}_C), \; \gamma_k > 0  \right\},
+    \mathcal{Z} = \left\{ \bm{p}_Z \,\middle\vert\, \bm{p}_Z = \bm{p}_C + \sum_{k=1}^K \gamma_k (\bm{p}_k - \bm{p}_C), \; \gamma_k > 0  \right\},
 \end{equation}
-which is a polyhedral cone with apex $\bm{p}_C$, and
+which is a polyhedral cone with apex $\bm{p}_C$ (Fig. \ref{fig:balance3D}), and
 is known in literature as \textit{supporting region} \cite{Sugihara2021ICRA},
 as it contains all feasible positions of the ZMP.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/balance3d.pdf}
+    \caption{3D balance: the ZMP $\bm{p}_Z$ must be inside the polyhedral cone $\mathcal{Z}$.}
+    \label{fig:balance3D}
+\end{figure}
 
 Despite the above hypothesis on contact forces seems a strong assumption, it
 has been used successfully for both walking and running tasks
