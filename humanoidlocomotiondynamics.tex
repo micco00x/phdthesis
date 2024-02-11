@@ -3,15 +3,39 @@ Intro. Robot walks by exchanging forces with the environment. Dynamic balance, c
 
 \section{Lagrangian dynamics}
 \label{sec:lagrangian-dynamics}
-Define configuration of the robot:
+Consider a humanoid robot as an open kinematic chain composed of $n+1$ rigid bodies
+(\textit{links}), connected by $n$ \textit{joints}. We define the \textit{joint
+configuration} of the robot\footnote{Note that, while this definition of
+joint configuration considers
+humanoids composed only by revolute joints, the presented analysis is valid also for
+robots composed by prismatic joints, or a combination of both.} as $\bm{q}_j \in \left(\mathrm{SO}(2)\right)^n$, and assume they
+are actuated by a torque $\bm{\tau} \in \mathbb{R}^n$. The root of the tree defining the
+kinematic chain represents the \textit{floating base} link, as it is not fixed to the
+world frame. The \textit{floating base configuration} is parametrized by
+$\bm{q}_b \in \mathrm{SE}(3)$, and it is composed by the position
+$\bm{p}_b \in \mathbb{R}^3$ and the orientation $\bm{\theta}_b \in \mathrm{SO}(3)$
+of the floating base itself. We define the configuration of the robot as
 \begin{equation*}
     \ddot{\bm{q}} =
     \begin{bmatrix}
         \bm{q}_b \\ \bm{q}_j
-    \end{bmatrix} \in \mathrm{SE}(3) \times \mathrm{SO}(2)^{n_j}
+    \end{bmatrix} \in \mathrm{SE}(3) \times \left(\mathrm{SO}(2)\right)^{n}.
 \end{equation*}
+As already mentioned before, humanoid robots move by interacting with the 
+environment through the exchange of contact forces. Let $\bm{f}_k \in \mathbb{R}^3$
+be the unilateral contact force exchanged with a contact surface
+with normal $\bm{n}_k$ at the $k$-th 
+contact point $\bm{p}_{f,k}\in\mathbb{R}^3$. Unilaterality of contact is formally
+defined by
+\begin{equation*}
+    \bm{n}_k^T \bm{f}_k > 0,
+\end{equation*}
+and it describes the impossibility of pulling on the ground. Moreover, we
+assume constant contact phase, hence not considering impact dynamics, which
+would make the model hybrid.
 
-Equations of motion
+The equation of motion of the humanoid \cite{Sugihara2020DynamicsofHumanoidRobots}
+is characterized by the following Lagrangian dynamics:
 \begin{equation}
     \begin{bmatrix}
         \bm{M}_u \\ \bm{M}_a
@@ -27,13 +51,22 @@ Equations of motion
     \begin{bmatrix}
         \bm{J}_{k, u}^T \\ \bm{J}_{k, a}^T
     \end{bmatrix}
-    \bm{f}_k
+    \bm{f}_k,
     \label{eq:equation-of-motion-humanoids}
 \end{equation}
+where $\bm{M}$ is the inertia matrix, $\bm{b}$ encodes Coriolis, centrifugal
+and gravitational terms, and $\bm{J}_k$ is the contact Jacobian relative to
+the $k$-th contact point $\bm{p}_{f,k}$. Note that the structure of the
+above dynamics highlights the \textit{underactuated} ($u$ subscript) and
+the \textit{actuated} ($a$ subscript)
+dynamics of the system, which respectively describe the evolution of the
+floating base and the joints.
 
-Contact forces inside the friction cone to avoid slipping
-
-A contact force $\bm{f}_k$ is \textit{feasible} if it lies in the friction cone $\mathcal{C}_k$ directed by the contact normal $\bm{n}_k$:
+Note that, in order for the dynamics \eqref{eq:equation-of-motion-humanoids} to
+be consistent, the contact mode must be fixed \cite{Balkcom2002Computingwrenchcones},
+i.e., they must not roll or slide. A contact force $\bm{f}_k$ is
+\textit{feasible} if it lies in the friction cone $\mathcal{C}_k$ directed by
+the contact normal $\bm{n}_k$:
 \begin{equation}
     \label{eq:feasible-contact-force}
     \| \bm{f}_k - (\bm{f}_k \cdot \bm{n}_k) \bm{n}_k \|_2 \le \mu_k (\bm{f}_k \cdot \bm{n}_k)
@@ -62,7 +95,13 @@ The above hypothesis allows as to focus on the unactuated part of the equation
     \end{bmatrix},
 \end{equation}
 where $m$ is the total mass of the robot, $\bm{p}_C$ is the position of its
-center of mass (CoM),
+center of mass (CoM), defined as
+\begin{equation*}
+    \bm{p}_C =
+    \frac{\sum_{i=1}^{n+1} m_i \bm{p}_{l_i}}{\sum_{i=1}^{n+1} m_i} =
+    \frac{\sum_{i=1}^{n+1} m_i \bm{p}_{l_i}}{m},
+\end{equation*}
+with $\bm{p}_{l_i}$ and $m_i$ are respectively the position and the mass of the $i$-th link, 
 $\bm{g} = (0 \; 0 \; {-g})^T$ is the gravity vector ($g=9.81$~[m/s$^2$]), $\bm{f}_k$ is the contact force
 applied at a point with coordinates $\bm{p}_k$ over a contact surface with normal
 $\bm{n}_k$, $K$ is the total number of contacts, and $\bm{L}_c$ is the angular
@@ -84,7 +123,7 @@ Let us define the \textit{gravito-inertial wrench} taken at point $O$ as
     \end{bmatrix}.
 \end{equation}
 
-Similarly, the \textit{contact wrench} $\bm{w}_O$ can be defined as
+Similarly, the \textit{contact wrench} $\bm{w}_O^{\rm c}$ can be defined as
 \begin{equation}
     \label{eq:contact-wrench}
     \bm{w}_O^{\rm c}
@@ -176,7 +215,7 @@ $\bm{f}^{\mathrm{c}}$ can be parametrized \cite{Caron2020ICRA} as
 with $\lambda(t)$ natural frequency of the VH-IP (where we explicitely
 denote the time dependency of lambda to highlight the nonlinearity in the
 dynamics). Note that $\lambda(t) > 0$ because
-of unilaterality of contact (i.e., it is not possible to pull on the ground).
+of unilaterality of contact.
 The dynamics of the VH-IP can be rewritten as
 \begin{equation}
     \label{eq:VH-IP-LG-0}
