@@ -1,5 +1,10 @@
 \chapter{Feasibility-aware plan adaptation in humanoid gait generation}
 
+\textbf{From Humanoids 2023 Feasibility region section:} In the following
+section, we will describe how to use the feasibility region to formulate a
+constraint for the FAPA module, and thus ensure that the output of FAPA can be
+used by IS-MPC to construct a feasible QP.
+
 %\begin{abstract} 
 %Most available schemes used for humanoid walking rely on the separation into a planning phase, typically off-line, and a Model Predictive Controller (MPC). Moreover, in order for the MPC to work in real time, simplifying assumptions are made both on the template model and on the constraints so that the underlying optimization problem is a Quadratic Programming (QP). The planner is unaware of the underlying humanoid dynamics and of any disturbance acting on the robot. We present an on-line Feasibility-Aware Plan Adaptation (FAPA) module which can locally adapt footsteps (positions, timings and orientation) in such a way that it guarantees feasibility of the subsequent Intrinsically Stable MPC (IS-MPC) stage. We present two versions of the proposed scheme: one with a fixed regions assignment for placing the footstep and another one where the regions are selected automatically through mixed-integer programming. Simulation results show the effectiveness of the FAPA scheme.
 %\end{abstract}
