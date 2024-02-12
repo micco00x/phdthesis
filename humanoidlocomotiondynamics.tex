@@ -1,5 +1,43 @@
 \chapter{Dynamics of humanoid locomotion}
-Intro. Robot walks by exchanging forces with the environment. Dynamic balance, contacts. Simplified models and contact equilibrium.
+Humanoid locomotion is based on exchanging contact forces with the environment,
+which, thanks to friction, allows the robot to move. In order for the humanoid to
+successfully complete locomotion tasks, such as walking or running, the motion
+of the robot must be dynamically balanced, i.e., the robot must not fall.
+
+To formally define the condition for dynamic balance, it is important
+to understand the dynamics of humanoid locomotion. The motion of humanoid robots
+is characterized by a sequence of foot contact phases. For example, a walking
+gait is composed by \textit{double support} and \textit{single support} phases. During
+double support, both feet are in contact with the ground. During single support,
+only one foot is in contact with the ground, while the other one (the \textit{swing foot})
+moves towards the subsequent footstep location. Each single and double support
+phase has a duration, which determines how quickly the robot walks. Moreover,
+the swing foot motion is described by a swing foot trajectory, which must be
+collision free. Single and double support durations are chosen accordingly to 
+the desired behavior and the phyisical limitations of the robot.
+
+The problem of generation of a walking gait therefore depends on the
+computation of contact forces that keeps the robot balanced during its motion.
+In particular, contact forces must be such that they lie within the friction cone
+relative to their contact surface, in order for the rigid body in contact not to slip. 
+In literature, this condition is often simplified by assuming sufficient (or
+infinite) friction, and it allows to focus only on unilaterality of contact.
+This makes it possible to define a condition on the zero-tilting moment point
+(ZMP), which must lie within a \textit{support region} during locomotion. This
+support region is called \textit{support polygon} when walking on flat ground,
+and it is defined as the convex hull of all contact points.
+
+In this chapter, we will define a condition of dynamic balance that can be
+used for walking over terrains composed of stairs. To do so, we will first introduce the 
+\textit{Lagrangian dynamics} of the humanoids, which fully describes the evolution
+of the system through exchange of forces with the environment. We will then 
+consider the \textit{centroidal dynamics} of the system, which is the 
+dynamics of the humanoid project at the center of mass (CoM). The centroidal
+dynamics allows us to introduce template models such as the Variable-Height
+Inverted Pendulum (VH-IP) and Linear Inverted Pendulum (LIP), which can be used to generate
+a walking gait in real-time. In particular, in this manuscript the LIP model
+will play a fundamental role, as it will be used to design a control framework
+for humanoid walking on stairs.
 
 \section{Lagrangian dynamics}
 \label{sec:lagrangian-dynamics}
@@ -16,7 +54,7 @@ $\bm{q}_b \in \mathrm{SE}(3)$, and it is composed by the position
 $\bm{p}_b \in \mathbb{R}^3$ and the orientation $\bm{\theta}_b \in \mathrm{SO}(3)$
 of the floating base itself. We define the configuration of the robot as
 \begin{equation*}
-    \ddot{\bm{q}} =
+    \bm{q} =
     \begin{bmatrix}
         \bm{q}_b \\ \bm{q}_j
     \end{bmatrix} \in \mathrm{SE}(3) \times \left(\mathrm{SO}(2)\right)^{n}.
@@ -25,7 +63,7 @@ As already mentioned before, humanoid robots move by interacting with the
 environment through the exchange of contact forces. Let $\bm{f}_k \in \mathbb{R}^3$
 be the unilateral contact force exchanged with a contact surface
 with normal $\bm{n}_k$ at the $k$-th 
-contact point $\bm{p}_{f,k}\in\mathbb{R}^3$. Unilaterality of contact is formally
+contact point $\bm{p}_k\in\mathbb{R}^3$. Unilaterality of $k$-th contact is formally
 defined by
 \begin{equation*}
     \bm{n}_k^T \bm{f}_k > 0,
@@ -56,7 +94,7 @@ is characterized by the following Lagrangian dynamics:
 \end{equation}
 where $\bm{M}$ is the inertia matrix, $\bm{b}$ encodes Coriolis, centrifugal
 and gravitational terms, and $\bm{J}_k$ is the contact Jacobian relative to
-the $k$-th contact point $\bm{p}_{f,k}$. Note that the structure of the
+the $k$-th contact point $\bm{p}_k$. Note that the structure of the
 above dynamics highlights the \textit{underactuated} ($u$ subscript) and
 the \textit{actuated} ($a$ subscript)
 dynamics of the system, which respectively describe the evolution of the
@@ -64,7 +102,7 @@ floating base and the joints.
 
 Note that, in order for the dynamics \eqref{eq:equation-of-motion-humanoids} to
 be consistent, the contact mode must be fixed \cite{Balkcom2002Computingwrenchcones},
-i.e., they must not roll or slide. A contact force $\bm{f}_k$ is
+(which implies that bodies in contact must not roll or slide). A contact force $\bm{f}_k$ is
 \textit{feasible} if it lies in the friction cone $\mathcal{C}_k$ directed by
 the contact normal $\bm{n}_k$:
 \begin{equation}
@@ -122,7 +160,6 @@ Let us define the \textit{gravito-inertial wrench} taken at point $O$ as
         (\bm{p}_C - \bm{p}_O) \times (m \bm{g} - m \bm{\ddot{p}}_C) - \bm{\dot{L}}_C
     \end{bmatrix}.
 \end{equation}
-
 Similarly, the \textit{contact wrench} $\bm{w}_O^{\rm c}$ can be defined as
 \begin{equation}
     \label{eq:contact-wrench}
@@ -251,7 +288,7 @@ the dynamics \eqref{eq:VH-IP-LG-0} becomes the dynamics of the LIP:
     \ddot{\bm{p}}_C = \eta^2 (\bm{p}_C - \bm{p}_Z) + \bm{g},
 \end{equation}
 which is in equilibrium when the CoM and the ZMP are displaced by
-$\bm{g}/\eta^2$ \cite{Cipriano2023RAS}, and the gravity vector $\bm{g}$
+$\bm{g}/\eta^2$ \cite{Cipriano2023RAS}. Here, the gravity vector $\bm{g}$
 acts as a constant drift. Figure \ref{fig:LIPM-robot} shows the humanoid walking
 under the above dynamics.
 
@@ -305,7 +342,8 @@ by rewriting it in state space form as
         \bm{0} \\ \bm{g}
     \end{bmatrix},
 \end{equation}
-the state matrix has eigenvalues in $\pm\eta$. The instability of the system
+it is possible to see that the state matrix has eigenvalues in $\pm\eta$.
+The instability of the system
 can be further highlight by the following change of coordinates:
 \begin{equation}
     \label{eq:LIP-change-of-coordinates}
@@ -400,7 +438,7 @@ In this case, the contact forces can be rewritten as
     \label{eq:contact-force-towards-com}
     \bm{f}_k = \frac{\bm{p}_C - \bm{p}_k}{\| \bm{p}_C - \bm{p}_k \|_2} f_k,
 \end{equation}
-with $f_k$ the norm of $\bm{f}_k$. By plugging eq.
+with $f_k>0$ the norm of $\bm{f}_k$. By plugging eq.
 \eqref{eq:contact-force-towards-com} into eq.
 \eqref{eq:centroidal-dynamics}, we obtain
 \begin{equation}
@@ -419,9 +457,9 @@ the ZMP within the area defined by the following set:
     \mathcal{Z} = \left\{ \bm{p}_Z \,\middle\vert\, \bm{p}_Z = \bm{p}_C + \sum_{k=1}^K \gamma_k (\bm{p}_k - \bm{p}_C), \; \gamma_k > 0  \right\},
 \end{equation}
 which is a polyhedral cone with apex $\bm{p}_C$ (Fig. \ref{fig:balance3D}), and
-is known in literature as \textit{supporting region} \cite{Sugihara2021ICRA},
+is known in literature as \textit{support region} \cite{Sugihara2021ICRA},
 as it contains all feasible positions of the ZMP. Note that under dynamics
-\eqref{eq:LIPM-xy}, the supporting region becomes the \textit{support
+\eqref{eq:LIPM-xy}, the support region becomes the \textit{support
 polygon}, which is defined as the convex hull of all contact points
 \cite{SardainBessonnet2004}.
 
