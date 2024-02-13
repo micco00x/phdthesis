@@ -9,10 +9,12 @@ presented analysis to develop a gait generation scheme for humanoid locomotion
 in a \textit{world of stairs}, an uneven terrain where all contact surfaces 
 are piecewise horizontal.
 
-The approach adopted in this manuscript is based on IS-MPC \cite{Scianca2020TRO},
+The approach adopted in this manuscript is based on
+Intrinsically-Stable MPC (IS-MPC) \cite{Scianca2020TRO},
 a model predictive control scheme which, given as input a \textit{footstep plan}
 (which defines the desired motion of the robot at high-level specifying desired
-footstep positions, orientations, single and double support durations), generates
+footstep positions, orientations, single and double support durations, and swing
+foot trajectories), generates
 a stable center of mass (CoM) trajectory, which can be tracked by a whole-body
 controller. In IS-MPC, where the model is the one of the LIP, stability is
 guaranteed via a stability constraint, which
@@ -25,24 +27,118 @@ linear, IS-MPC can be formulated as a Quadratic Programming (QP) program, and
 solved efficiently at each control iteration.
 
 This chapter presents IS-MPC in its entirety, describing the prediction model (a LIP with a 
-dynamic extension on the ZMP), the stability and the balance constraint, and the
+dynamic extension on the ZMP), the \textit{stability constraint} and the \textit{ZMP constraint}, and the
 definition of the QP problem. In the end, the condition of feasibility of IS-MPC
 optimization problem is discussed.
 
 \section{Prediction model}
-
-Control of the ZMP is achieved using a dynamic model relating the position of the latter to the position and acceleration of the CoM. This dynamic model can be derived by balancing moments on the humanoid as a whole, and assuming that the rate of change of angular momentum around the CoM can be neglected, leading to the situtation shown in Fig. \ref{fig:LIPM-robot}, where the Center of Pressure (CoP) is located on the corresponding patch, while the ZMP can be anywhere along the line joining the CoP and the CoM \cite{Caron2017DynamicWalkingOverRoughTerrains}.
-
-Denote the CoM as $\bfp_c = (x_c \; y_c \; z_c)^T$ and the ZMP as $\bfp_z = (x_z \; y_z \; z_z)^T$.
-
-The choice of restricting the available trajectories to those resulting in a constant $\eta$ allows to make the prediction model linear. If this restriction is removed, the model is referred to as Variable-Height Inverted Pendulum (VH-IP), which can be treated either as nonlinear or time-varying. This can allow for more general motions to be generated, e.g., running~\cite{Smaldone2022Running}, at the cost of a slightly more complex architecture. For the present case, where only walking is considered, the simpler model is preferred.
-
-In order to obtain smoother trajectories, model (\ref{eq:WoS:3dmodel}) is dynamically extended to have the derivative of the ZMP $\dot \bfp_z$ as the input.
-The gait generation scheme works over discrete time-steps of duration $\delta$, over which the input $\dot \bfp_z$ is assumed to be constant, i.e.,
+As already mentioned in Sec. \ref{sec:DynamicsHumanoidLocomotion:LinearInvertedPendulum},
+control of the ZMP can be achieved by using the LIP model, which relates the 
+position of the ZMP and the acceleration of the CoM. In order to obtain smoother
+trajectories, we dynamically extend the LIP model \eqref{eq:LIPM}, obtaining a
+model with derivative of the ZMP $\dot{\bm{p}}_z$ as control input. Denoting
+the CoM as $\bm{p}_c = (x_c \; y_c \; z_c)^T$ and the ZMP as $\bm{p}_z = (x_z \; y_z \; z_z)^T$, the 
+model can hence be rewritten as
 \begin{equation*}
-    \dot \bfp_z(t) = \dot \bfp_z^k,
+    \begin{bmatrix}
+        \dot{x}_c \\ \ddot{x}_c \\ \dot{x}_z 
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        0 & 1 & 0 \\ 
+        \eta^2 & 0 & -\eta^2 \\
+        0 & 0 & 0
+    \end{bmatrix}
+    \begin{bmatrix}
+        x_c \\ \dot{x}_c \\ x_z 
+    \end{bmatrix}
+    +
+    \begin{bmatrix}
+        0 \\ 0 \\ 1
+    \end{bmatrix}
+    \dot{x}_z
 \end{equation*}
-for $t\in[t_k, t_{k+1})$. This prediction model is used to forecast the evolution of the system over a receding horizon window called the \emph{control horizon}, spanning a time $T_c=C\delta$. The number of steps that are contained, either fully or partially, within this control horizon is denoted as $F$.
+for the $x$ component (and analogously for the $y$ component), and
+\begin{equation*}
+    \begin{bmatrix}
+        \dot{z}_c \\ \ddot{z}_c \\ \dot{z}_z 
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        0 & 1 & 0 \\ 
+        \eta^2 & 0 & -\eta^2 \\
+        0 & 0 & 0
+    \end{bmatrix}
+    \begin{bmatrix}
+        z_c \\ \dot{z}_c \\ z_z 
+    \end{bmatrix}
+    +
+    \begin{bmatrix}
+        0 \\ 0 \\ 1
+    \end{bmatrix}
+    \dot{z}_z
+    +
+    \begin{bmatrix}
+        0 \\ -g \\ 0
+    \end{bmatrix}
+\end{equation*}
+for the $z$ component.
+
+The IS-MPC gait generation scheme works over discrete time-steps of duration
+$\delta$, over which the input $\dot{\bm{p}}_z$ is assumed to be constant, i.e.
+\begin{equation*}
+    \dot{\bm{p}}_z(t) = \dot{\bm{p}}_z^k,\quad t \in [t_k, t_{k+1})-
+\end{equation*}
+This assumption makes the ZMP piecewise linear over the IS-MPC sampling intervals,
+i.e.,
+\begin{equation*}
+    x_z(t) = x_z^i + x_z^i (t - t_i), \quad t \in [t_k, t_{k+1}),
+\end{equation*}
+for the $x$ component (an analogous relation can be written for the $y$ and $z$
+components).
+
+The prediction model is used to forecast the
+evolution of the system over a receding horizon window called the
+\textit{control horizon}, spanning a time $T_c=C\delta$.
+The number of footsteps that are contained
+within this control horizon is denoted as $F$. In this manuscript, we consider
+that the available footstep plan fully covers the receding horizon window. To
+do so, we assume that the robot comes to a complete stop once the
+last element (representing the goal) is reached.
+When this hypothesis is not satisfied, it is possible to consider a 
+receding window called the \textit{preview horizon} \cite{Scianca2020TRO}.
+
+Consider the following vectors collecting the ZMP positions:
+\begin{align*}
+    \bm{X}_z^k &= (x_z^k \ x_z^{k+1} \ \dots \ x_z^{k+C-1})^T \\
+    \bm{Y}_z^k &= (y_z^k \ y_z^{k+1} \ \dots \ y_z^{k+C-1})^T \\
+    \bm{Z}_z^k &= (z_z^k \ z_z^{k+1} \ \dots \ z_z^{k+C-1})^T.
+\end{align*}
+As explained in \cite{Scianca2016ISMPC}, by defining
+\begin{equation*}
+    \bm{P} =
+    \begin{pmatrix}
+        \delta & 0 & \cdots & 0 \\
+        \delta & \delta & \cdots & 0 \\
+        \vdots & \vdots & \ddots & \vdots \\
+        \delta & \delta & \cdots & \delta
+    \end{pmatrix},
+    \qquad
+    \bm{p} =
+    \begin{pmatrix}
+        1 \\ 1 \\ \vdots \\ 1
+    \end{pmatrix},
+\end{equation*}
+it is possible to express ZMP positions as
+\begin{align*}
+    \bm{X}_z^{k+1} &= \bm{p} x_z^k + \bm{P} \dot{\bm{X}}_z^k \\
+    \bm{Y}_z^{k+1} &= \bm{p} y_z^k + \bm{P} \dot{\bm{Y}}_z^k \\
+    \bm{Z}_z^{k+1} &= \bm{p} z_z^k + \bm{P} \dot{\bm{Z}}_z^k.
+\end{align*}
+This definition will be used to express the stability constraint and the
+ZMP constraint in the following sections. Moreover, the vectors $\dot{\bm{X}}_z^k,
+\dot{\bm{Y}}_z^k, \dot{\bm{Z}}_z^k$ will be the optimization variables in the 
+IS-MPC optimization problem, which, as mentioned before, is a QP problem.
 
 \section{Stability constraint}
 Model~(\ref{eq:WoS:3dmodel}) has a positive eigenvalue $\eta$, reflecting the intrinsic instability of the humanoid dynamics. Given this instability, it is not sufficient to generate a gait such that the ZMP is inside the support region, because the associated CoM trajectory might be divergent, making the motion unrealizable by the humanoid.
