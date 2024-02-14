@@ -31,6 +31,17 @@ dynamic extension on the ZMP), the \textit{stability constraint} and the \textit
 definition of the QP problem. In the end, the condition of feasibility of IS-MPC
 optimization problem is discussed.
 
+\section{Preliminaries}
+TODO: basic behavior of IS-MPC with block scheme.
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/BlockSchemeISMPC.pdf}
+    \caption{Block scheme of IS-MPC.}
+\end{figure}
+
+\subsection{Footstep plan}
+Definition of input of IS-MPC.
+
 \section{Prediction model}
 As already mentioned in Sec. \ref{sec:DynamicsHumanoidLocomotion:LinearInvertedPendulum},
 control of the ZMP can be achieved by using the LIP model, which relates the 
@@ -450,7 +461,8 @@ $\bm{X}_z^k = \alpha \bm{X}_z^{{\rm m}, k+1} + (1-\alpha)\bm{X}_z^{{\rm M}, k+1}
 and therefore the ZMP constraint (\ref{eq:ZMP-constraints}) is satisfied.
 \hfill\bull
 
-Note that, because $\bm{P}$ is a lower-triangular matrix, its inverse is simply
+Note that, because $\bm{P}$ is a lower-triangular matrix filled with $\delta$,
+its inverse is simply
 \begin{equation*}
     \bm{P}^{-1}
     =
