@@ -198,7 +198,7 @@ the integral over the piecewise linear ZMP trajectory \eqref{eq:piecewise-linear
 The final form of the constraint can be found in \cite{Scianca2020TRO}.
 For the purpose of this analysis, we will use the compact expression
 \begin{equation*}
-    \label{eq:FAPA:stability-constraint}
+    \label{eq:stability-constraint-matrix}
     \begin{bmatrix}
         \bm{s}^T & \bm{0}^T & \bm{0}^T \\
         \bm{0}^T & \bm{s}^T & \bm{0}^T \\
@@ -231,59 +231,114 @@ Note that, from \ref{eq:LIP-change-of-coordinates}, we have that
 \end{equation}
 
 \section{ZMP constraint}
-\subsection{Humanoids 2023}
-\textbf{From Humanoids 2023 Stability constraint:} Relating the dynamics of the CoM to those of the ZMP is essential since the latter encodes information about the realizability of ground reaction forces, and thus provides a criterion for balance. 
-% While on flat ground this criterion consists in keeping the ZMP within the support polygon of the robot, an extension for the 3D case is required. 
-A common way to extend the basic 2D balance criterion consists in prescribing the 3D ZMP to be inside a 3D pyramid $\cal Z$ (see Fig.~\ref{fig:FAPA:balance3D}), having the base defined by the contact surfaces and the CoM vertex \cite{Sugihara2002ICRA, Cipriano2023RAS}.
+As explained in Chapter \ref{ch:humanoid-locomotion-dynamics},
+relating the dynamics of the CoM to those of the ZMP is essential since the
+latter encodes information about the realizability of ground reaction forces,
+and thus provides a criterion for balance. A common criterion for balance
+in 3D environments such as \textit{world of stairs}
+is to prescribe the ZMP to be inside a polyhedral cone
+(Sec. \ref{sec:contact-equilibrium}). However, enforcing this condition
+directly would lead to a nonlinear constraint
+in the MPC because the vertex of the pyramid is the CoM of the robot
+\cite{Caron2017DynamicWalkingOverRoughTerrains}.
+Thus, we adopt a conservative approximation called the \textit{moving constraint}
+\cite{Aboudonia2017Humanoids}.
 
-The IS-MPC block receives the adapted subplan ${\cal P}^l$ and uses it to construct ZMP constraints. As described in the previous section, the criterion for balance is satisfied if the ZMP belongs to the pyramid $\cal Z$. However, enforcing this condition directly would lead to a nonlinear constraint in the MPC because the vertex of the pyramid is the CoM of the robot. Thus, we adopt a conservative approximation called the {\em moving constraint}.
+The IS-MPC block constructs ZMP constraints from the footstep plan
+$\mathcal{P}^l$. The moving constraint requires for the ZMP to be at all
+times within a convex
+polyhedron of fixed shape, in our case a box of dimensions $d_x$, $d_y$ and
+$d_z$ centered in $\bfp_{\rm mc}=(x_{\rm mc}, y_{\rm mc}, z_{\rm mc})^T$,
+which we call the \textit{moving box}. Note that approximating the polyhedral cone
+$\cal Z$ with a box might seem overly conservative. However, we argue that the
+neglected portion of the pyramid region is not crucial here, because large
+displacements of the ZMP in the $z$ direction would only be required to generate
+large vertical accelerations, which are not necessary in the considered setting
+(walking in a world of stairs). Clearly, less conservative approximations can
+still be envisaged and used for generating more dynamic motions.
 
-The moving constraint requires for the ZMP to be at all times within a convex polyhedron of fixed shape, in our case a box of dimensions $d_x$, $d_y$ and $d_z$ centered in $\bfp_{\rm mc}=(x_{\rm mc}, y_{\rm mc}, z_{\rm mc})$, which we call the {\em moving box}. Along the prediction, the moving box can translate but not rotate, and its center moves in such a way that it is always fully contained within the 3D pyramid $\mathcal{Z}$ (see Fig. 5 in \cite{Zamparelli2018SYROCO}). The vector $\bm{X}_{\rm mc}^{k+1} = (x_{\rm mc}^{k+1}, \dots, x_{\rm mc}^{k+C})^T$ collects the $x$ coordinate of the center of the moving box in the control horizon.
+Along the prediction, the moving box can translate but not rotate, and its
+center moves in such a way that it is always
+fully contained within the 3D pyramid $\mathcal{Z}$
+(Fig \ref{fig:SYROCO18-double-support3D}).
+The vectors
+\begin{align*}
+    \bm{X}_{\rm mc}^{k+1} &= (x_{\rm mc}^{k+1} \ x_{\rm mc}^{k+2} \ \dots \ x_{\rm mc}^{k+C})^T \\
+    \bm{Y}_{\rm mc}^{k+1} &= (y_{\rm mc}^{k+1} \ y_{\rm mc}^{k+2} \ \dots \ y_{\rm mc}^{k+C})^T \\
+    \bm{Z}_{\rm mc}^{k+1} &= (z_{\rm mc}^{k+1} \ z_{\rm mc}^{k+2} \ \dots \ z_{\rm mc}^{k+C})^T
+\end{align*}
+collect the coordinates of the center of the moving box in the control horizon.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{figures/SYROCO18-double-support3D.pdf}
+    \caption{During double support, the box constraint slides from the
+        previous to the next support foot \cite{Zamparelli2018SYROCO}.}
+    \label{fig:SYROCO18-double-support3D}
+\end{figure}
 
-Because of its constant orientation in the prediction, at each time we can choose the orientation of the axes to align with the orientation of the moving box (taken as the orientation of the current support foot) and obtain a ZMP constraint that is decoupled along the 3 axes. Focusing on the component along $x$, we can write it as
-\begin{equation}\label{eq:FAPA:ZMP_constraints}
-    \bm{X}_z^{\rm m,k+1} \le \bm{X}_z^{k+1} \le \bm{X}_z^{M,k+1},
-\end{equation}
-where $\bm{X}_z^{k+1} = (x_z^{k+1}, \dots, x_z^{k+C})^T$ is a vector of predicted ZMP positions, and $\bm{X}_z^{\rm m,k+1}$ and $\bm{X}_z^{\rm M,k+1}$ are the ZMP bounds along the prediction.
-By defining
-\begin{equation*}
-    \bm{Z} =
-    \begin{bmatrix}
-        \delta & 0 & \cdots & 0 \\
-        \delta & \delta & \cdots & 0 \\
-        \vdots & \vdots & \ddots & \vdots \\
-        \delta & \delta & \cdots & \delta
-    \end{bmatrix},
-    \qquad
-    \bm{z} =
-    \begin{bmatrix}
-        1 \\ 1 \\ \vdots \\ 1
-    \end{bmatrix},
-\end{equation*}
-$\bm{X}_z^{k+1}$ can be expressed as
+Because of its constant orientation in the prediction, at each time we can
+choose the orientation of the axes to align with the orientation of the moving
+box (taken as the orientation of the current support foot) and obtain a ZMP
+constraint that is decoupled along the 3 axes. We can write it as
+\begin{align}
+    \label{eq:ZMP-constraints}
+    \begin{split}
+        \bm{X}_z^{\rm m,k+1} \le \bm{X}_z^{k+1} \le \bm{X}_z^{M,k+1} \\
+        \bm{Y}_z^{\rm m,k+1} \le \bm{Y}_z^{k+1} \le \bm{Y}_z^{M,k+1} \\
+        \bm{Z}_z^{\rm m,k+1} \le \bm{Z}_z^{k+1} \le \bm{Z}_z^{M,k+1},
+    \end{split}
+\end{align}
+where $\bm{X}_z^{\rm m,k+1}, \bm{X}_z^{\rm M,k+1}, \bm{Y}_z^{\rm m,k+1},
+\bm{Y}_z^{\rm M,k+1}, \bm{Z}_z^{\rm m,k+1}, \bm{Z}_z^{\rm M,k+1}$
+are the ZMP bounds along the prediction, which can be expressed as
 \begin{equation}
-    \label{eq:FAPA:zmp-model-matrix-form}
-    \bm{X}_z^{k+1} = \bm{Z} \dot{\bm{X}}_z^{k} + \bm{z} x_z^k,
-\end{equation}
-where $\dot{\bm{X}}_z^{k} = (\dot x_z^{k}, \dots, \dot x_z^{k+C-1})^T$ is the vector of ZMP velocities, i.e., the decision variables. The ZMP bounds along the prediction can be expressed as
-\begin{equation}
-    \bm{X}_z^{\rm m,k+1} = \bm{X}_{\rm mc}^{k+1} - \bfz \frac{d_x}{2}, \quad 
-    \bm{X}_z^{\rm M,k+1} = \bm{X}_{\rm mc}^{k+1} + \bfz \frac{d_x}{2}.
+    \begin{aligned}
+        \bm{X}_z^{\rm m,k+1} &= \bm{X}_{\rm mc}^{k+1} - \bfz \frac{d_x}{2} &
+        \bm{X}_z^{\rm M,k+1} &= \bm{X}_{\rm mc}^{k+1} + \bfz \frac{d_x}{2} \\
+        \bm{Y}_z^{\rm m,k+1} &= \bm{Y}_{\rm mc}^{k+1} - \bfz \frac{d_y}{2} &
+        \bm{Y}_z^{\rm M,k+1} &= \bm{Y}_{\rm mc}^{k+1} + \bfz \frac{d_y}{2} \\
+        \bm{Z}_z^{\rm m,k+1} &= \bm{Z}_{\rm mc}^{k+1} - \bfz \frac{d_z}{2} &
+        \bm{Z}_z^{\rm M,k+1} &= \bm{Z}_{\rm mc}^{k+1} + \bfz \frac{d_z}{2}.
+    \end{aligned}
 \label{eq:FAPA:zmp_constraint_displacement}
 \end{equation}
-The center of the moving box $\bfp_{\rm mc}$ must be expressed in terms of the subplan $\mathcal{P}^l$. First we define the {\em piecewise-linear sigmoid} function 
+The size of the moving box $(d_x, d_y, d_z)^T$ is
+determined in such a way to always be contained inside the pyramid $\cal Z$
+\cite{Zamparelli2018SYROCO, Cipriano2023RAS}.
+The center of the moving box $\bfp_{\rm mc}$ must be expressed in terms of
+the subplan $\mathcal{P}^l$. First we define the {\em piecewise-linear sigmoid}
+function 
 \begin{equation*}
 \sigma (t,t_i,t_f)=\frac{1}{t_f-t_i} \left(\rho(t-t_i)-\rho(t-t_f)\right),
 %\label{eq:FAPA:sigma}
 \end{equation*}
-where $\rho(t)=t\delta_{-1}(t)$ is the unit ramp. $\sigma (t,t_i,t_f)$ is 0 before $t_i$,  1 after $t_f$, and it transitions linearly in the interval $[t_i,t_f]$. This function is useful to represent the transition between consecutive footsteps.
+where $\rho(t)=t\delta_{-1}(t)$ is the unit ramp.
+$\sigma (t,t_i,t_f)$ is 0 before $t_i$,  1 after $t_f$, and it transitions
+linearly in the interval $[t_i,t_f]$. This function is useful to represent
+the transition between consecutive footsteps.
 
-$\bm{X}_{\rm mc}^{k+1}$ can be written as
+The vectors $\bm{X}_{\rm mc}^{k+1}, \bm{Y}_{\rm mc}^{k+1}, \bm{Z}_{\rm mc}^{k+1}$
+collecting the positions of the moving constraint along the horizon
+can be written as
 \begin{equation}
-\label{eq:FAPA:mapping}
-\bm{X}_{\rm mc}^{k+1} = \bm{M} \bm{X}_f^l + \bm{m}x_f^l,
+    \begin{aligned}
+        \bm{X}_{\rm mc}^{k+1} = \bm{M} \bm{X}_f^l + \bm{m}x_f^l \\
+        \bm{Y}_{\rm mc}^{k+1} = \bm{M} \bm{Y}_f^l + \bm{m}y_f^l \\
+        \bm{Z}_{\rm mc}^{k+1} = \bm{M} \bm{Z}_f^l + \bm{m}z_f^l
+    \end{aligned}
+    \label{eq:FAPA:mapping}
 \end{equation}
-where $\bm{X}_{f}^{l} = (x_{f}^{l}, \dots, x_{f}^{l+F})^T$ collects the footstep positions. $\bm{M}\in\mathbb{R}^{C\times F}$ is a mapping matrix whose elements $M_{ij}$ are defined as
+where
+\begin{equation*}
+    \begin{aligned}
+        \bm{X}_{f}^{l} &= (x_{f}^{l} \ x_{f}^{l+1} \ \dots \ x_{f}^{l+F})^T \\
+        \bm{Y}_{f}^{l} &= (y_{f}^{l} \ y_{f}^{l+1} \ \dots \ y_{f}^{l+F})^T \\
+        \bm{Z}_{f}^{l} &= (z_{f}^{l} \ z_{f}^{l+1} \ \dots \ z_{f}^{l+F})^T
+    \end{aligned}
+\end{equation*}
+collect the footstep positions.
+$\bm{M}\in\mathbb{R}^{C\times F}$ is a mapping matrix whose elements
+$M_{ij}$ are defined as
 \begin{equation}\begin{split}
 M_{ij} &= \sigma(t_{k+i}, t_s^{l+j},t_s^{l+j}+T_{\rm ds}^{l+j})\\ &- \sigma(t_{k+i}, t_s^{l+j-1},t_s^{l+j-1}+T_{\rm ds}^{l+j-1}),
 \end{split}\end{equation}
@@ -295,28 +350,6 @@ where $t_s^l$ is the starting time of the $l$-th step and
 \begin{equation*}
     t^j_s = t^l_s + \sum^{l+j-1}_{\lambda=l} \left(T_{\rm ds}^\lambda + T_{\rm ss}^\lambda\right).
 \end{equation*}
-
-\subsection{RAS 2023}
-As already noted, the humanoid is balanced as long as the ZMP is inside the pyramid $\cal Z$, which is a nonlinear condition due to the vertex of the pyramid being at the CoM (Fig. \ref{fig:FAPA:balance3d}). To preserve linearity we consider a smaller allowed region for the ZMP, consisting in a box of fixed size with changing center and orientation. We refer to this as the {\em moving box}\footnote{Approximating the pyramidal region $\cal Z$ with a box might seem overly conservative. However, we argue that the neglected portion of the pyramid region is not crucial here, because large displacements of the ZMP in the $z$ direction would only be required to generate large vertical accelerations, which are not necessary in the considered setting (walking in a world of stairs). Clearly, less conservative approximations can still be envisaged and used for generating more dynamic motions.}, and we will prove that it conservatively approximates the support region, meaning that it is always contained inside the pyramid $\cal Z$.
-
-The center $\bfp_{\rm mc}$ of the moving box is taken to be consistent with the pose of footstep $\bff^j$ during the $j$-th single support phase. At each time $t$, the center of the moving box $\bfp_{\rm mc}$ is expressed as
-\begin{equation}\label{eq:WoS: moving constraint}
-\bfp_{\rm mc}(t) = \Bigg\{
-\begin{array}{ll}
-\bfp^j & t\in [t_s^j, t_s^j + T_{\rm ss}^j) \\
-(1-\alpha^j(t))\bfp^j + \alpha^j(t)\bfp^{j+1} & t\in [t_s^j + T_{\rm ss}^j, t_s^{k+1})
-\end{array}
-\end{equation}
-where $j=0,\dots,F$ is a index over the footsteps within the control horizon, and $\alpha^j(t) = (t-t_s^j-T_{\rm ss}^j)/T_{\rm ds}^j$ denotes the time elapsed since the start of the double support phase, expressed as a fraction of the duration of the double support phase itself.
-
-The ZMP position constraint is expressed as
-\begin{equation}\label{eq:WoS:ZMP_constraint}
--\tilde\bfd /2 \le \bfp_z^{k+i} - \bfp_{\rm mc}^{k+i} \le \tilde\bfd /2
-\end{equation}
-where $\bfp_z^{k+i}$ and $\bfp_{\rm mc}^{k+i}$ respectively denote the ZMP and the center of the moving box sampled at time $t_{k+i}$, $\tilde \bfd = (\tilde d_x, \tilde d_y, d_z)^T$
-is a vector collecting the dimensions of the moving box along all three axes.
-
-The size of the moving box $\tilde \bfd = (\tilde d_x, \tilde d_y, d_z)^T$ is determined in such a way to always be contained inside the pyramid $\cal Z$. \textbf{TODO: either add Prop. 2 of RAS23 or eq. (12) of SYROCO18.}
 
 \section{IS-MPC algorithm}
 IS-MPC solves, at each time $t_k$, the following QP problem:
@@ -330,14 +363,20 @@ IS-MPC solves, at each time $t_k$, the following QP problem:
 \end{equation}
 \hspace{0.25cm} subject to:
 \begin{itemize}
-\item ZMP constraints (\ref{eq:FAPA:ZMP_constraints})
-\item stability constraints (\ref{eq:FAPA:stability_constraint})
+    \item stability constraints (\ref{eq:stability-constraint-matrix})
+    \item ZMP constraints (\ref{eq:ZMP-constraints})
 \end{itemize}
 \end{braced}
 
-In the cost function, the first three terms act as regularization while the remaining attempt to bring the ZMP as close as possible to the center of the moving box, with a strength modulated by the weight $\beta$.
+In the cost function, the first three terms act as regularization while the
+remaining attempt to bring the ZMP as close as possible to the center of the
+moving box, with a strength modulated by the weight $\beta$.
 
-The first sample $\dot \bfp_z^k = (\dot x_z^k, \dot y_z^k, \dot z_z^k)$ of the optimal sequence is used to integrate the prediction model and the resulting CoM position $\bfp_c^{k+1}$ is sent to the kinematic controller together with a suitable swing foot trajectory that allows to reach the target footstep position at the proper time.
+The first sample $\dot \bfp_z^k = (\dot x_z^k, \dot y_z^k, \dot z_z^k)$ of the
+optimal sequence is used to integrate the prediction model and the resulting
+CoM position $\bfp_c^{k+1}$ is sent to the kinematic controller together with
+a suitable swing foot trajectory that allows to reach the target footstep
+position at the proper time.
 
 \section{Feasibility region}
 
@@ -357,12 +396,15 @@ IS-MPC is feasible at time $t_k$ if
 \end{align}
 \end{proposition}
 {\em Proof}.
-We focus the proof on the inequalities for the $x$ component, as the logic, for the other components is identical. The bounds of the feasibility region along $x$ are given by
+We focus the proof on the inequalities for the $x$ component, as the logic, for
+the other components is identical. The bounds of the feasibility region along
+$x$ are given by
 \begin{align*}
 x_u^{k,b1} &= \bm{s}^T \bm{Z}^{-1} (\bm{X}_z^{{\rm m}, k+1} - \bm{z} x_z^k) - b_x^k, \\
 x_u^{k,b2} &= \bm{s}^T \bm{Z}^{-1} (\bm{X}_z^{{\rm M}, k+1} - \bm{z} x_z^k) - b_x^k.
 \end{align*}
-Then, if $x_u^k$ is inside the feasibility region, it is possible to express it as a convex combination of the two bounds, i.e.,
+Then, if $x_u^k$ is inside the feasibility region, it is possible to express
+it as a convex combination of the two bounds, i.e.,
 \begin{equation}\label{eq:FAPA:xu_convex}
 x_u^k = \alpha x_u^{k,b1} + (1-\alpha)x_u^{k,b2}, \alpha \in [0, 1].
 \end{equation}
@@ -371,7 +413,9 @@ Consider the following ZMP velocity trajectory:
 \begin{equation}\label{eq:FAPA:candidate_trajectory}
 \dot{\bm{X}}_z^k = \alpha \bm{Z}^{-1}(\bm{X}_z^{{\rm m}, k+1} - \bm{z} x_z^k) + (1-\alpha)\bm{Z}^{-1}(\bm{X}_z^{{\rm M}, k+1} - \bm{z} x_z^k).
 \end{equation}
-We will show that this particular trajectory satisfies both the stability constraint and the ZMP constraints. As for the stability constraint, multiply both sides of (\ref{eq:FAPA:candidate_trajectory}) by $\bm{s}^T$
+We will show that this particular trajectory satisfies both the stability
+constraint and the ZMP constraints. As for the stability constraint, multiply
+both sides of (\ref{eq:FAPA:candidate_trajectory}) by $\bm{s}^T$
 % \begin{equation}
 % \bm{s}^T\bm{\dot X}_z^k = \bm{s}^T(\alpha \bm{Z}^{-1}(\bm{X}_z^{{\rm m}, k+1} - \bm{z} x_z^k) + (1-\alpha)\bm{Z}^{-1}(\bm{X}_z^{{\rm M}, k+1} - \bm{z} x_z^k)),
 % \end{equation}
@@ -379,12 +423,16 @@ and plug in the definitions of $x_u^{k,b1}$ and $x_u^{k,b2}$ to obtain
 \begin{equation*}
 \bm{s}^T\dot{\bm X}_z^k = (\alpha (x_u^{k,b1} + b^k_x)) + (1-\alpha)(x_u^{k,b2} + b^k_x)).
 \end{equation*}
-Using (\ref{eq:FAPA:xu_convex}), this is equivalent to the stability constraint (\ref{eq:FAPA:stability_constraint}).
+Using (\ref{eq:FAPA:xu_convex}), this is equivalent to the stability
+constraint (\ref{eq:stability-constraint-matrix}).
 
-To prove satisfaction of the ZMP constraint. Left-multiplying \eqref{eq:FAPA:zmp-model-matrix-form} by $\bm{Z}$, the chosen ZMP velocity trajectory can be rewritten as
+To prove satisfaction of the ZMP constraint. Left-multiplying
+\eqref{eq:FAPA:zmp-model-matrix-form} by $\bm{Z}$, the chosen ZMP velocity
+trajectory can be rewritten as
 \begin{equation*}
 \bm{X}_z^k - \bm{z} x_z^k = \alpha (\bm{X}_z^{{\rm m}, k+1} - \bm{z} x_z^k) + (1-\alpha)(\bm{X}_z^{{\rm M}, k+1} - \bm{z} x_z^k),
 \end{equation*}
 which simplifies to
 $\bm{X}_z^k = \alpha \bm{X}_z^{{\rm m}, k+1} + (1-\alpha)\bm{X}_z^{{\rm M}, k+1}$,
-and therefore the ZMP constraint (\ref{eq:FAPA:ZMP_constraints}) is satisfied. \hfill\bull
+and therefore the ZMP constraint (\ref{eq:ZMP-constraints}) is satisfied.
+\hfill\bull
