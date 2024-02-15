@@ -32,22 +32,50 @@ definition of the QP problem. In the end, the condition of feasibility of IS-MPC
 optimization problem is discussed.
 
 \section{Overview}
-TODO: basic behavior of IS-MPC with block scheme Fig. \ref{fig:blockschemeISMPC}.
+In this section, we describe the use of IS-MPC within a simple locomotion
+framework (Fig. \ref{fig:blockschemeISMPC}). Before going into the details of the
+scheme, we define the \textit{footstep plan}
+$\mathcal{P} = (\mathcal{S}_f, \mathcal{S}_{\varphi})$ as the sequence of footsteps
+$\mathcal{S}_f$ and swing foot trajectories $\mathcal{S}_{\varphi}$ that bring the
+robot from its initial configuration to a desired goal. In particular, we define
+\begin{align*}
+    \mathcal{S}_f &= \left\{ \bm{f}^1, \dots, \bm{f}^n \right\} \\
+    \mathcal{S}_{\varphi} &= \left\{ \bm{\varphi}^1, \dots, \bm{\varphi}^{n-2} \right\},
+\end{align*}
+with
+\begin{equation*}
+    \bm{f}^j = \left( x_f^j, y_f^j, z_f^j, \theta_f^j, T_{\mathrm{ss}}^j, T_{\mathrm{ds}}^j \right)
+\end{equation*}
+collecting the position $(x_f^j, y_f^j, z_f^j)$ and the orientation $\theta_f^j$
+of the $j$-th footstep\footnote{To represent the footstep orientation we only
+use the yaw angle, as roll and pitch are always zero thanks to the
+piecewise-horizontal ground assumption in the \textit{world of stairs}.},
+the duration $T_{\mathrm{ss}}^j$ of
+the $j$-th single support phase, and the duration $T_{\mathrm{ds}}^j$ of the
+$j$-th double support phase. The swing foot trajectory $\bm{\varphi}^j$ represents the 
+$j$-th step, i.e., the trajectory leading the foot from $\bm{f}^j$ to $\bm{f}^{j+2}$.
+Note that $(x_f^1, y_f^1, z_f^1, \theta_f^1)$
+and $(x_f^2, y_f^2, z_f^2, \theta_f^2)$
+respectively represent the initial swing foot and support foot pose.
 
-\textbf{From IS-MPC algorithm:} The first sample $\dot \bfp_z^k = (\dot x_z^k, \dot y_z^k, \dot z_z^k)$ of the
-optimal sequence is used to integrate the prediction model and the resulting
-CoM position $\bfp_c^{k+1}$ is sent to the kinematic controller together with
-a suitable swing foot trajectory that allows to reach the target footstep
-position at the proper time.
+Assuming a footstep plan $\mathcal{P}$ is available (it may be manually defined
+or computed by a footstep planner \cite{Cipriano2023RAS}), at each timestep $t_k$,
+the IS-MPC computes a reference position $\bm{p}_c^r$ of the CoM, which, together
+with the reference swing foot pose $\bm{\varphi}^r$, is sent to the kinematic
+controller which generates joint commands that are sent to the robot.
+In this manuscript, we assume the robot is controlled in velocity, and that the
+kinematic controller is QP-based (such as \cite{Escande2014IJRR}).
+The robot is then localized (using sensors mounted on the robot, such as an
+RGD-D camera as shown in the block scheme), the estimated CoM position
+$\hat{\bm{p}}_c$ is fed back to to IS-MPC, and the estimated swing foot
+pose is fed back to the kinematic controller.
 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/BlockSchemeISMPC.pdf}
-    \caption{Block scheme of IS-MPC.}
+    \caption{Block scheme showing the use of IS-MPC within a locomotion framework.}
     \label{fig:blockschemeISMPC}
 \end{figure}
-
-Definition of input of IS-MPC (i.e. footstep plan).
 
 \section{Prediction model}
 As already mentioned in Sec. \ref{sec:DynamicsHumanoidLocomotion:LinearInvertedPendulum},
@@ -107,7 +135,7 @@ for the $z$ component.
 The IS-MPC gait generation scheme works over discrete time-steps of duration
 $\delta$, over which the input $\dot{\bm{p}}_z$ is assumed to be constant, i.e.
 \begin{equation*}
-    \dot{\bm{p}}_z(t) = \dot{\bm{p}}_z^k,\quad t \in [t_k, t_{k+1})-
+    \dot{\bm{p}}_z(t) = \dot{\bm{p}}_z^k,\quad t \in [t_k, t_{k+1}).
 \end{equation*}
 This assumption makes the ZMP piecewise linear over the IS-MPC sampling intervals,
 i.e.,
