@@ -129,7 +129,10 @@ and encoded in the following way:
     \item after reduction, non-convex regions are subdivided into
         non-overlapping convex polytopic {\em patches}.
 \end{itemize}
-A patch $P$ is identified by the inequality $\bfA(P) \bfp \le \bfb(P)$,
+A patch $P$ is identified by the inequality
+\begin{equation*}
+\bfA(P) \bfp \le \bfb(P),
+\end{equation*}
 where $\bm{A}(P) \in \mathbb{R}^{V(P) \times 2}$ and
 $\bm{b}(P) \in \mathbb{R}^{V(P)} $ define a polytope (with $V(P)$ vertices)
 and $\bfp = (x, y)^T$ is a generic 2D point. 
