@@ -186,25 +186,15 @@ to replan on-line (see \cite{Cipriano2023RAS}).
 
 \section{Feasibility-Aware Plan Adaptation}
 \label{sec:FAPA:FeasibilityAwarePlanAdaptation}
-
-\textbf{From Humanoids 2023 Feasibility region section:} In the following
-section, we will describe how to use the feasibility region to formulate a
+In this following
+section, we describe how to use the feasibility region to formulate a
 constraint for the FAPA module, and thus ensure that the output of FAPA can be
 used by IS-MPC to construct a feasible QP.
-
 The FAPA module runs in real-time and performs a local adaptation of the
 subplan $\mathcal{\hat P}^l$, including their timing. We now describe the
 constraints and the optimization problems that define the adaptation procedure.
 
 \subsection{Kinematic constraint}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/humanoids_kinconstr.pdf}
-    \caption{Admissible region of the kinematic constraint in the $x$-$y$ plane.}
-    \label{fig:FAPA:kinematic-constraint}
-\end{figure}
-
 The $j$-th footstep $\bff^{j}$ is ensured to be kinematically feasible by
 limiting its displacement with respect to the previous footstep $\bff^{j-1}$.
 In practice we constrain the geometric components of $\bff^{j}$ to be within
@@ -237,6 +227,13 @@ $\Delta_z^m$, $\Delta z^{\rm M}$, $\Delta \theta^{\rm m}$, and
 $\Delta \theta^{\rm M}$ define limits for the foot reachability over vertical
 displacement and relative orientation.
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/humanoids_kinconstr.pdf}
+    \caption{Admissible region of the kinematic constraint in the $x$-$y$ plane.}
+    \label{fig:FAPA:kinematic-constraint}
+\end{figure}
+
 \subsection{Timing constraint}
 Single and double support duration are subject to minimum and maximum duration
 constraints
@@ -251,7 +248,7 @@ where the bounds $T_{\rm ds}^{\min}$, $T_{\rm ds}^{\max}$, $T_{\rm ss}^{\min}$, 
 We describe alternative versions of this constraint, as we will later compare
 the module using either of them, both in terms of the quality of the resulting
 plan and of the computational load.
-The first version of the constraint simply restrict the $(l+j)$-th footstep
+The first version of the constraint simply restricts the $(l+j)$-th footstep
 to lie within its associated patch $\Pi(\bff^{l+j})$, which is the one
 originally chosen by the high-level planner. This constraint can be written as
 \begin{equation}
@@ -315,7 +312,6 @@ that allows a footstep $\bff^j$ to be assigned only to the patches adjacent to
 $\Pi(\hat \bff^j)$.
 
 \subsection{Current footstep constraints}
-
 The first footstep in the subplan $\bff^l$ corresponds to the footstep
 currently in contact with the ground, which means that some of its components
 cannot be changed. In particular, its geometric components should be
@@ -360,13 +356,17 @@ depend on the motion of the moving box, and thus on the footsteps positions
 and timings. To derive a constraint, we simply make this dependency explicit
 by plugging \eqref{eq:FAPA:zmp_constraint_displacement} and
 \eqref{eq:FAPA:mapping} inside \eqref{eq:FAPA:mpc-feasibility-constraint}.
-Focusing on the right inequality of the $x$ component, this results in
+This results in
 \begin{equation}
     \label{eq:FAPA:gait_feasibility_constraint}
-    x_u^k + b_x^k \le \bm{s}^T \bm{Z}^{-1} \left(\bfM\bfX_f^l + \bfm x_f^l + \bm{z} \left(\frac{d_x}{2} - x_z^k\right)\right).
+    \begin{aligned}
+        x_u^k + b_x^k &\le \bm{s}^T \bm{P}^{-1} \left(\bfM\bfX_f^l + \bfm x_f^l + \bm{p} \left(\frac{d_x}{2} - x_z^k\right)\right) \\
+        y_u^k + b_y^k &\le \bm{s}^T \bm{P}^{-1} \left(\bfM\bfY_f^l + \bfm y_f^l + \bm{p} \left(\frac{d_y}{2} - y_z^k\right)\right) \\
+        z_u^k + b_z^k &\le \bm{s}^T \bm{P}^{-1} \left(\bfM\bfZ_f^l + \bfm z_f^l + \bm{p} \left(\frac{d_z}{2} - z_z^k\right)\right).
+    \end{aligned}
 \end{equation}
-The $y$ and $z$ components, as well as the left inequalities result in
-analogous expressions, which we omit for space concerns.
+with $x_u^k, y_u^k, z_u^k, b_x^k, b_y^k, b_z^k, \bm{s}, \bm{p}, \bm{P}, \bm{m}, \bm{M}, d_x, d_y, d_z, x_z^k, y_z^k$ and $z_z^k$
+already defined in Chapter \ref{ch:ISMPC}.
 
 \subsection{Feasibility-driven plan adaptation algorithm}
 We present two different versions of the FAPA algorithm. The first one is not
@@ -376,7 +376,6 @@ is instead allowed to choose different patches, and goes under the name of
 Variables patches FAPA (V-FAPA).
 
 The decision variable over the planning horizon are collected as
-% per recuperare spazio anche se c'è overfull ....
 \begin{align*}
     \bfX_f^l & =  (x_f^l,\dots,x_f^{l+F}), \quad 
     \,\, \bfY_f^l  =  (y_f^l,\dots,y_f^{l+F}), \\
@@ -392,8 +391,10 @@ The decision variable over the planning horizon are collected as
 while the corresponding candidate values are identified by the vectors
 $\hat \bfX_f^l$, $\hat \bfY_f^l$, $\hat \bfZ_f^l$, $\hat {\bm{\Theta}}_f^l$, $\hat \bfT^l_{\rm ds}$, $\hat \bfT^l_{\rm ss}$, $\hat \bfB^l$, similarly defined.
 
+\begin{sloppypar}
 F-FAPA solves the following problem, with decision variables
-$\bfU^l = (\bm{X}_f^l, \bm{Y}_f^l, \bm{Z}_f^l, \bm{\Theta}_f^l, \bm{T}_{\rm ds}^l, \bm{T}_{\rm ss}^l)$:
+${\bfU^l = (\bm{X}_f^l, \bm{Y}_f^l, \bm{Z}_f^l, \bm{\Theta}_f^l, \bm{T}_{\rm ds}^l, \bm{T}_{\rm ss}^l)}$:
+\end{sloppypar}
 \begin{braced}
     \begin{equation*}
         \begin{split}
