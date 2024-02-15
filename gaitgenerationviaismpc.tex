@@ -31,16 +31,23 @@ dynamic extension on the ZMP), the \textit{stability constraint} and the \textit
 definition of the QP problem. In the end, the condition of feasibility of IS-MPC
 optimization problem is discussed.
 
-\section{Preliminaries}
-TODO: basic behavior of IS-MPC with block scheme.
+\section{Overview}
+TODO: basic behavior of IS-MPC with block scheme Fig. \ref{fig:blockschemeISMPC}.
+
+\textbf{From IS-MPC algorithm:} The first sample $\dot \bfp_z^k = (\dot x_z^k, \dot y_z^k, \dot z_z^k)$ of the
+optimal sequence is used to integrate the prediction model and the resulting
+CoM position $\bfp_c^{k+1}$ is sent to the kinematic controller together with
+a suitable swing foot trajectory that allows to reach the target footstep
+position at the proper time.
+
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/BlockSchemeISMPC.pdf}
     \caption{Block scheme of IS-MPC.}
+    \label{fig:blockschemeISMPC}
 \end{figure}
 
-\subsection{Footstep plan}
-Definition of input of IS-MPC.
+Definition of input of IS-MPC (i.e. footstep plan).
 
 \section{Prediction model}
 As already mentioned in Sec. \ref{sec:DynamicsHumanoidLocomotion:LinearInvertedPendulum},
@@ -50,7 +57,7 @@ trajectories, we dynamically extend the LIP model \eqref{eq:LIPM}, obtaining a
 model with derivative of the ZMP $\dot{\bm{p}}_z$ as control input. Denoting
 the CoM as $\bm{p}_c = (x_c \; y_c \; z_c)^T$ and the ZMP as $\bm{p}_z = (x_z \; y_z \; z_z)^T$, the 
 model can hence be rewritten as
-\begin{equation*}
+\begin{equation}
     \label{eq:LIPM-x-dynamic-extension}
     \begin{bmatrix}
         \dot{x}_c \\ \ddot{x}_c \\ \dot{x}_z 
@@ -69,9 +76,10 @@ model can hence be rewritten as
         0 \\ 0 \\ 1
     \end{bmatrix}
     \dot{x}_z
-\end{equation*}
+\end{equation}
 for the $x$ component (and analogously for the $y$ component), and
-\begin{equation*}
+\begin{equation}
+    \label{eq:LIPM-x-dynamic-extension}
     \begin{bmatrix}
         \dot{z}_c \\ \ddot{z}_c \\ \dot{z}_z 
     \end{bmatrix}
@@ -93,7 +101,7 @@ for the $x$ component (and analogously for the $y$ component), and
     \begin{bmatrix}
         0 \\ -g \\ 0
     \end{bmatrix}
-\end{equation*}
+\end{equation}
 for the $z$ component.
 
 The IS-MPC gait generation scheme works over discrete time-steps of duration
@@ -392,15 +400,27 @@ IS-MPC solves, at each time $t_k$, the following QP problem:
 \end{itemize}
 \end{braced}
 
+The algorithm takes as input the footstep plan $\mathcal{P}$, which is used
+to construct, at each timestep $t_k$ the stability and the ZMP constraints,
+as explained in the previous sections.
 In the cost function, the first three terms act as regularization while the
 remaining attempt to bring the ZMP as close as possible to the center of the
 moving box, with a strength modulated by the weight $\beta$.
 
-The first sample $\dot \bfp_z^k = (\dot x_z^k, \dot y_z^k, \dot z_z^k)$ of the
-optimal sequence is used to integrate the prediction model and the resulting
-CoM position $\bfp_c^{k+1}$ is sent to the kinematic controller together with
-a suitable swing foot trajectory that allows to reach the target footstep
-position at the proper time.
+The IS-MPC iteration performs, at each timestep $t_k$, the following steps:
+\begin{enumerate}
+    \item Solve the QP \eqref{eq:ISMPC-algorithm} to obtain 
+        $\dot{\bm{X}}_\text{z}^k, \dot{\bm{Y}}_\text{z}^k, \dot{\bm{Z}}_\text{z}^k$.
+    \item From the solutions, extract the first sample $(\dot x_z^k, \dot y_z^k, \dot z_z^k)$.
+    \item Integrate \eqref{eq:LIPM-x-dynamic-extension} from
+        $(x_c^k, \dot{x}_c^k, x_z^k)$ considering $\dot{x}_z=\dot{x}_z^k$, obtaining
+        $(x_c^{k+1}, \dot{x}_c^{k+1}, x_z^{k+1})$.
+        Compute $(y_c^{k+1}, \dot{y}_c^{k+1}, y_z^{k+1})$ and 
+        $(z_c^{k+1}, \dot{z}_c^{k+1}, z_z^{k+1})$ similarly (using
+        \eqref{eq:LIPM-x-dynamic-extension} for the $z$ component).
+    \item Send the CoM position $\bm{p}_c^{k+1}=(x_c^{k+1}, y_c^{k+1}, z_c^{k+1})^T$
+        to the kinematic controller.
+\end{enumerate}
 
 \section{Feasibility region}
 
