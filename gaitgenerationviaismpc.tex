@@ -62,7 +62,7 @@ Assuming a footstep plan $\mathcal{P}$ is available (it may be manually defined
 or computed by a footstep planner \cite{Cipriano2023RAS}), at each timestep $t_k$,
 the IS-MPC computes a reference position $\bm{p}_c^r$ of the CoM, which, together
 with the reference swing foot pose $\bm{\varphi}^r$, is sent to the kinematic
-controller which generates joint commands that are sent to the robot.
+controller which generates joint commands $\dot{\bm{q}}^r$ that are sent to the robot.
 In this manuscript, we assume the robot is controlled in velocity, and that the
 kinematic controller is QP-based (such as \cite{Escande2014IJRR}).
 The robot is then localized (using sensors mounted on the robot, such as an
@@ -78,7 +78,7 @@ pose is fed back to the kinematic controller.
 \end{figure}
 
 \section{Prediction model}
-As already mentioned in Sec. \ref{sec:DynamicsHumanoidLocomotion:LinearInvertedPendulum},
+As already mentioned in Sect. \ref{sec:DynamicsHumanoidLocomotion:LinearInvertedPendulum},
 control of the ZMP can be achieved by using the LIP model, which relates the 
 position of the ZMP and the acceleration of the CoM. In order to obtain smoother
 trajectories, we dynamically extend the LIP model \eqref{eq:LIPM}, obtaining a
@@ -192,7 +192,7 @@ IS-MPC optimization problem, which, as mentioned before, is a QP problem.
 
 \section{Stability constraint}
 Model \eqref{eq:LIPM}, and consequently the dynamically extended model
-\eqref{eq:LIPM-x-dynamic-extension}, as already mentioned in Sec.
+\eqref{eq:LIPM-x-dynamic-extension}, as already mentioned in Sect.
 \ref{sec:DynamicsHumanoidLocomotion:LinearInvertedPendulum}, has a positive
 eigenvalue $\eta$, reflecting the intrinsic instability of the humanoid dynamics.
 Given this instability, it is not sufficient to generate a gait such that
@@ -297,7 +297,7 @@ latter encodes information about the realizability of ground reaction forces,
 and thus provides a criterion for balance. A common criterion for balance
 in 3D environments such as \textit{world of stairs}
 is to prescribe the ZMP to be inside a polyhedral cone
-(Sec. \ref{sec:contact-equilibrium}). However, enforcing this condition
+(Sect. \ref{sec:contact-equilibrium}). However, enforcing this condition
 directly would lead to a nonlinear constraint
 in the MPC because the vertex of the pyramid is the CoM of the robot
 \cite{Caron2017DynamicWalkingOverRoughTerrains}.
