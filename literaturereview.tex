@@ -50,4 +50,34 @@ Several efforts to improve this basic paradigm have been made. To include automa
 
 
 \section{Motion control for steerable wheeled mobile robots}
-Todo.
+\textbf{From SWMR paper:}
+Mobile robots equipped with multiple steerable wheels (Fig. \ref{fig:mpo-700})
+have greater maneuverability than other wheeled mobile robots, since they are
+omnidirectional \cite{RobuffoGiordano2009ICRA}. Besides, they can transport
+higher payloads than omnidirectional robots equipped with mecanum wheels or
+with omni wheels. Nevertheless, modeling and controlling these robots is not
+trivial due to the presence of kinematic singularities \cite{Sorour2017RAL},
+which need to be handled with particular care, in order to avoid negatively
+affecting their functionalities.
+
+While many different approaches for modeling and control of steerable wheeled
+mobile robots (SWMRs) exist in literature, none of them fully exploits their
+potentialities. The main property of this kind of robots, indeed, is that their
+instanteneous center of rotation (ICR) can be located anywhere on the plane
+\cite{Campion1996TR}. This naturally leads to a parametrization based on
+two-dimensional cartesian \cite{Sorour2016ICRA} or polar coordinates
+\cite{Connette2008CDC}, which, however, leads to singularities that can make
+it difficult to develop a control scheme. Sorour et al. \cite{Sorour2017RAL}
+developed an ICR-based controller which handles singularities of the steering
+axes. The work is further improved in \cite{Sorour2019RAS}, where the
+singularity of the ICR at infinity is taken into account through a
+complementary route strategy. While these approaches consider all singularities
+of their parametrization, the velocity and acceleration bounds are only
+considered at the level of the ICR, often resulting in undesired motions with
+high velocity and high acceleration of the steerable wheels.
+A singularity-free representation is presented in \cite{Ferland2010IROS}
+and \cite{Clavien2018EstimationoftheICR}, and used in
+of~\cite{Clavien2018ICRMotionControl}, where a free-of-singularity motion
+controller is developed. Here, time scaling is performed to satisfy velocity
+and acceleration constraints on the wheels, resulting however in
+non-optimal motion execution.

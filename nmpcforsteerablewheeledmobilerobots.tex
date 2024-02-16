@@ -1,17 +1,36 @@
 \chapter{Nonlinear model predictive control for steerable wheeled mobile robots}
 
-%\begin{abstract}
-%    Steerable wheeled mobile robots (SWMRs) are known to be flexibile and robust thanks to their omnidirectionality and the presence of conventional wheels. Nevertheless, modeling and control of this kind of platform is complex, due to the presence of singularities in their representation or in the control scheme. This paper proposes a framework for trajectory tracking of SWMRs using a Nonlinear Model Predictive Control (NMPC) based on the real-time iteration scheme, which generates feasible motions for the robot by taking into account all kinematic singularities of the mobile base, together with bounds on driving and steering velocities on the wheels. Our NMPC works alongside a finite state machine and an auxiliary trajectory generation module based on dynamic feedback linearization, which makes our framework capable of tracking any trajectory, without ever encountering any singularity. Our approach is validated on a Neobotix MPO-700 on trajectories of increasing difficulty.
-%\end{abstract}
+\textbf{SWMR paper Abstract:}
+Steerable wheeled mobile robots (SWMRs) are known to be flexibile and robust
+thanks to their omnidirectionality and the presence of conventional wheels.
+Nevertheless, modeling and control of this kind of platform is complex, due
+to the presence of singularities in their representation or in the control
+scheme. This paper proposes a framework for trajectory tracking of SWMRs using
+a Nonlinear Model Predictive Control (NMPC) based on the real-time iteration
+scheme, which generates feasible motions for the robot by taking into account
+all kinematic singularities of the mobile base, together with bounds on driving
+and steering velocities on the wheels. Our NMPC works alongside a finite state
+machine and an auxiliary trajectory generation module based on dynamic feedback
+linearization, which makes our framework capable of tracking any trajectory,
+without ever encountering any singularity. Our approach is validated on a
+Neobotix MPO-700 on trajectories of increasing difficulty.
 
-\section{Introduction}
-Mobile robots equipped with multiple steerable wheels (Fig. \ref{fig:mpo-700}) have greater maneuverability than other wheeled mobile robots, since they are omnidirectional \cite{RobuffoGiordano2009ICRA}. Besides, they can transport higher payloads than omnidirectional robots equipped with mecanum wheels or with omni wheels. Nevertheless, modeling and controlling these robots is not trivial due to the presence of kinematic singularities \cite{Sorour2017RAL}, which need to be handled with particular care, in order to avoid negatively affecting their functionalities.
-
-While many different approaches for modeling and control of steerable wheeled mobile robots (SWMRs) exist in literature, none of them fully exploits their potentialities. The main property of this kind of robots, indeed, is that their instanteneous center of rotation (ICR) can be located anywhere on the plane \cite{Campion1996TR}. This naturally leads to a parametrization based on two-dimensional cartesian \cite{Sorour2016ICRA} or polar coordinates \cite{Connette2008CDC}, which, however, leads to singularities that can make it difficult to develop a control scheme. Sorour et al. \cite{Sorour2017RAL} developed an ICR-based controller which handles singularities of the steering axes. The work is further improved in \cite{Sorour2019RAS}, where the singularity of the ICR at infinity is taken into account through a complementary route strategy. While these approaches consider all singularities of their parametrization, the velocity and acceleration bounds are only considered at the level of the ICR, often resulting in undesired motions with high velocity and high acceleration of the steerable wheels. A singularity-free representation is presented in \cite{Ferland2010IROS} and \cite{Clavien2018EstimationoftheICR}, and used in of~\cite{Clavien2018ICRMotionControl}, where a free-of-singularity motion controller is developed. Here, time scaling is performed to satisfy velocity and acceleration constraints on the wheels, resulting however in non-optimal motion execution.
-
-In this paper, we consider the problem of trajectory tracking for steerable wheeled mobile robots (SWMRs), equipped with an arbitrary number of wheels. The robot is required to follow a user-defined reference pose trajectory in an environment free of obstacles, without violating the driving and steering velocity constraints of each wheel. Note that, in order to successfully perform this task, it is of utmost importance to take into account the kinematic singularities of the platform \cite{Sorour2019RAS}. In order to solve this problem, we propose a Nonlinear MPC \cite{Rawlings2017MPCBook}, which computes control inputs for a SWMR while tracking a reference pose trajectory, satisfying driving and steering velocity constraints on all wheels, and handling all kinematic singularities mentioned above. While there exists a large number of works using MPC on differential drive robots \cite{Tarantos2023Springer}, autonomous vehicles such as cars \cite{Zanon2014Springer} and tractor trailers \cite{Beglini2022TMECH}, and wheeled-legged robots \cite{Bjelonic2021IROS}, the application of MPC to SWMRs has yet to be explored.
-
-%In particular, we present a control scheme for the mobile base of the BAZAR robot \cite{Cherubini2019ACR}, namely the Neobotix MPO-700, which makes use of Nonlinear MPC to safely drive the robot along a reference trajectory, while satisfying all constraints and avoiding singularities. 
+\textbf{SWMR paper Introduction:}
+In this paper, we consider the problem of trajectory tracking for steerable
+wheeled mobile robots (SWMRs), equipped with an arbitrary number of wheels.
+The robot is required to follow a user-defined reference pose trajectory in
+an environment free of obstacles, without violating the driving and steering
+velocity constraints of each wheel. Note that, in order to successfully perform
+this task, it is of utmost importance to take into account the kinematic
+singularities of the platform \cite{Sorour2019RAS}. In order to solve this
+problem, we propose a Nonlinear MPC \cite{Rawlings2017MPCBook}, which computes
+control inputs for a SWMR while tracking a reference pose trajectory,
+satisfying driving and steering velocity constraints on all wheels, and handling
+all kinematic singularities mentioned above. While there exists a large number
+of works using MPC on differential drive robots \cite{Tarantos2023Springer},
+autonomous vehicles such as cars \cite{Zanon2014Springer} and tractor trailers
+\cite{Beglini2022TMECH}, and wheeled-legged robots \cite{Bjelonic2021IROS},
+the application of MPC to SWMRs has yet to be explored.
 
 \begin{figure}
     \centering
@@ -20,23 +39,42 @@ In this paper, we consider the problem of trajectory tracking for steerable whee
     \label{fig:mpo-700}
 \end{figure}
 
-Our Nonlinear MPC (NMPC) is supported by a finite state machine, which is responsible for starting and stopping the motion of the robot while guaranteeing that the robot never encounters any kinematic singularity, and an auxiliary trajectory generation scheme based on dynamic feedback linearization \cite{Oriolo2002WMRControlDFL}, which generates reference configurations and reference control inputs for the NMPC itself, given a user-defined reference pose trajectory. The NMPC is formulated as a Nonlinear Programming (NLP) problem, and it is solved using the real-time iteration \cite{Gros2020Fromlineartononlinear} scheme.
+Our Nonlinear MPC (NMPC) is supported by a finite state machine, which is
+responsible for starting and stopping the motion of the robot while
+guaranteeing that the robot never encounters any kinematic singularity, and
+an auxiliary trajectory generation scheme based on dynamic feedback
+linearization \cite{Oriolo2002WMRControlDFL}, which generates reference
+configurations and reference control inputs for the NMPC itself, given a
+user-defined reference pose trajectory. The NMPC is formulated as a Nonlinear
+Programming (NLP) problem, and it is solved using the real-time iteration
+\cite{Gros2020Fromlineartononlinear} scheme.
 
-The contributions of our paper, with respect to the reviewed literature, are the following:
+The contributions of our paper, with respect to the reviewed literature, are
+the following:
 \begin{itemize}
-    \item we propose a framework for trajectory tracking of SWMR, which generates motions that satisfy driving and steering velocity bounds on all wheels;
-    \item we present a NMPC which is intrinsically free-of-singularities because of the constraints (which guarantees that singularities can never be encountered);
-    \item our NMPC is, to the best of our knowledge, the first model predictive control scheme to be applied to a SWMR.
+    \item we propose a framework for trajectory tracking of SWMR, which
+        generates motions that satisfy driving and steering velocity bounds
+        on all wheels;
+    \item we present a NMPC which is intrinsically free-of-singularities
+        because of the constraints (which guarantees that singularities can
+        never be encountered);
+    \item our NMPC is, to the best of our knowledge, the first model predictive
+        control scheme to be applied to a SWMR.
 \end{itemize}
 
-Moreover, note that our framework, with respect to the taxonomy of singularities presented in \cite{Sorour2017RAL}:
+Moreover, note that our framework, with respect to the taxonomy of singularities
+presented in \cite{Sorour2017RAL}:
 \begin{itemize}
-    \item cannot encounter the singularity of the ICR being on one of the steerable axis because of the NMPC constraints;
-    \item cannot encounter singularities due to the mobile base having zero velocity because of the finite state machine (which, as described throughout the paper, makes use of a free-of-singularities kinematic model);
-    \item it does not present a singularity when the ICR is at infinity, because of the use of a different parametrization \cite{RobuffoGiordano2009ICRA}.
+    \item cannot encounter the singularity of the ICR being on one of the
+        steerable axis because of the NMPC constraints;
+    \item cannot encounter singularities due to the mobile base having zero
+        velocity because of the finite state machine (which, as described
+        throughout the paper, makes use of a free-of-singularities kinematic
+        model);
+    \item it does not present a singularity when the ICR is at infinity,
+        because of the use of a different parametrization
+        \cite{RobuffoGiordano2009ICRA}.
 \end{itemize}  
-
-The paper is structured as follows. Section \ref{sec:kinematic-model} presents the kinematic model of the mobile base, discussing in details the presence of singularities. Section \ref{sec:proposed-framework} introduces the proposed framework, describing the finite state machine (FSM), the auxiliary motion generation scheme, and the NMPC. Section \ref{sec:simulations-and-experiments} validate the proposed framework on multiple experiments, which have been performed using a Neobotix MPO-700. Section \ref{sec:conclusions} concludes the paper, and discusses future works.
 
 \section{Kinematic model}
 \label{sec:kinematic-model}
