@@ -4,17 +4,100 @@ Intro.
 \section{Optimal control problem and MPC formulation}
 Todo.
 
-\section{Sequential quadratic programming}
-Todo.
+Consider
+\begin{equation*}
+    \dot{\bm{q}}(t) = \bm{f}(\bm{q}(t), \bm{u}(t))
+\end{equation*}
+with $\bm{q}(t_0)=\bm{q}_0$.
+
+$\bm{q}\in\mathbb{R}^n, \bm{u}\in\mathbb{R}^m$. Constraints:
+\begin{gather*}
+    \bm{q}^- \le \bm{q}(t) \le \bm{q}^+ \\
+    \bm{u}^- \le \bm{u}(t) \le \bm{u}^+
+\end{gather*}
+
+Path constraints:
+\begin{equation*}
+    \bm{h}(\bm{q}(t), \bm{u}(t)) \le \bm{0}
+\end{equation*}
+
+OCP:
+\begin{equation}
+    \label{eq:OCP}
+    \begin{aligned}
+        \min_{\bm{u}(\cdot)} \;\;
+            & \; \Phi(\bm{q}(t_k + T)) + \int_{t_k}^{t_k + T} \mathcal{L}(\bm{q}, \bm{u}) dt \\
+            \text{s.t. } & \dot{\bm{q}}(t) = \bm{f}(\bm{q}(t), \bm{u}(t)) \\
+                         & \bm{q}^- \le \bm{q}(t) \le \bm{q}^+ \\
+                         & \bm{u}^- \le \bm{u}(t) \le \bm{u}^+ \\
+                         & \bm{h}(\bm{q}(t), \bm{u}(t)) \le \bm{0} \\
+                         & \bm{q}(t_k) = \hat{\bm{q}}_k,
+    \end{aligned}
+\end{equation}
+
+\begin{algorithm}
+	\small
+	\caption{NMPC algorithm}
+	\label{alg:NMPC}
+	%\KwIn{inputs}
+    $k \leftarrow 0$\;
+    \While{\textit{true}}{
+        $t_k \leftarrow k\delta$\;
+        $\hat{\bm{q}}_k \leftarrow$ receive the estimated state of the system at time $t_k$\;
+        $\bm{u}_k^*(t) \leftarrow$ solve the OCP \eqref{eq:OCP} over $t \in [t_k, t_k + T]$\;
+        $\bm{u}_k^{\mathrm{NMPC}} \leftarrow$ extract from $\bm{u}_k^*(t)$ the optimal control input corresponding to time interval $[t_k, t_k + \delta]$\;
+        apply $\bm{u}_k^*(t)$ to the system over the time interval $[t_k, t_k + \delta]$\;
+        $k \leftarrow k + 1$\;
+    }
+\end{algorithm}
+
+\section{Numerical methods for the OCP}
+Todo (brief overview).
 
 \subsection{Direct multiple shooting}
 Todo.
 
-\section{The real-time iteration}
+\begin{equation*}
+    \label{eq:transcribed-OCP}
+    \begin{aligned}
+        \min_{\bm{Q}_k, \bm{U}_k} \;\;
+            & \; \Phi(\bm{q}_{N|k}) + \sum_{i=0}^{N-1} \mathcal{L}(\bm{q}_{i|k}, \bm{u}_{i|k}) \\
+            \text{s.t. } & \bm{q}_{i+1|k} = \bm{F}(\bm{q}_{i|k}, \bm{u}_{i|k}), \ \forall i \in \mathbb{I}_{0}^{N-1} \\
+                         & \bm{q}^- \le \bm{q}_{i|k} \le \bm{q}^+, \ \forall i \in \mathbb{I}_{0}^{N} \\
+                         & \bm{u}^- \le \bm{u}_{i|k} \le \bm{u}^+, \ \forall i \in \mathbb{I}_{0}^{N-1} \\
+                         & \bm{h}(\bm{q}_{i|k}, \bm{u}_{i|k}) \le \bm{0}, \ \forall i \in \mathbb{I}_{0}^{N-1} \\
+                         & \bm{q}_{0|k} = \bm{q}_k,
+    \end{aligned}
+\end{equation*}
+with
+\begin{align*}
+\bm{Q}_k &= (\bm{q}_{0|k}^\top, \bm{q}_{1|k}^\top, \dots, \bm{q}_{N|k}^\top)^\top \\
+\bm{U}_k &= (\bm{u}_{0|k}^\top, \bm{u}_{1|k}^\top, \dots, \bm{u}_{N-1|k}^\top)^\top
+\end{align*}
+
+\subsection{Nonlinear optimization}
 Todo.
 
-\subsection{Preparation and feedback phases}
+\subsection{Sequential quadratic programming}
 Todo.
+
+\section{The real-time iteration}
+\begin{algorithm}
+	\small
+	\caption{RTI for NMPC at $t_k$}
+	\label{alg:RTI}
+    \underline{Preparation phase}\;
+	\KwIn{previous NMPC solution $\bm{Q}_{k-1}, \bm{U}_{k-1}$}
+    shift $\bm{Q}_{k-1}, \bm{U}_{k-1}$\;
+    evaluate sensitivities\;
+    prepare QP omitting $\hat{\bm{q}}_k$\;
+    \Return{QP}\;
+    \underline{Feedback phase}\;
+    \KwIn{$\hat{\bm{q}}_k$, QP}
+    compute what's missing in QP\;
+    full Newton step\;
+    \Return{NMPC solution $\bm{Q}_k, \bm{U}_k$}\;
+\end{algorithm}
 
 \section{Conclusions}
 Todo.
