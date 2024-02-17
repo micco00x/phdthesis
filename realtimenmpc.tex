@@ -55,9 +55,22 @@ OCP:
 Todo (brief overview).
 
 \subsection{Direct multiple shooting}
-Todo.
-
+Discretization of the OCP: divide interval into N subintervals.
 \begin{equation*}
+    t_k < t_{k+1} < \dots < t_{k+N} = t_k + N
+\end{equation*}
+Assumption of piecewise-constant control input
+\begin{equation*}
+    \bm{u}(t) = \bm{u}_{k|i}, \ \forall t \in [t_{k+i}, t_{k+i+1}]
+\end{equation*}
+
+Discretize dynamics integrating it throughout the interval
+\begin{equation*}
+    \bm{q}_{i+1|k} = \bm{F}(\bm{q}_{i|k}, \bm{u}_{i|k}), \ \forall i \in \mathbb{I}_{0}^{N-1}
+\end{equation*}
+
+Obtain the NLP
+\begin{equation}
     \label{eq:transcribed-OCP}
     \begin{aligned}
         \min_{\bm{Q}_k, \bm{U}_k} \;\;
@@ -68,7 +81,7 @@ Todo.
                          & \bm{h}(\bm{q}_{i|k}, \bm{u}_{i|k}) \le \bm{0}, \ \forall i \in \mathbb{I}_{0}^{N-1} \\
                          & \bm{q}_{0|k} = \bm{q}_k,
     \end{aligned}
-\end{equation*}
+\end{equation}
 with
 \begin{align*}
 \bm{Q}_k &= (\bm{q}_{0|k}^\top, \bm{q}_{1|k}^\top, \dots, \bm{q}_{N|k}^\top)^\top \\
@@ -76,7 +89,7 @@ with
 \end{align*}
 
 \subsection{Nonlinear optimization}
-Todo.
+Todo. How to solve the NLP \eqref{eq:transcribed-OCP}.
 
 \subsection{Sequential quadratic programming}
 Todo.
