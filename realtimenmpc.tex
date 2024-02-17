@@ -1,5 +1,40 @@
 \chapter{Nonlinear model predictive control based on real-time iteration}
-Intro.
+Model Predictive Control (MPC) is a technique used to control complex 
+constrained systems that, in the fast few years, has seen an increased
+interest in both acadamia and industry. It works by solving on-line a
+finite horizon Optimal Control Problem (OCP), which considers a prediction 
+model of the system, its constraints, the constraints on the
+control inputs, and a cost function to be minimized (which reflects the
+desired behavior of the system itself).
+At each timestep, the controller receives a new measurement of the state of 
+the system, and it uses it to solve the OCP, obtaining an optimal control action,
+which is applied to the system for a small time interval
+\cite{Mayne2014MPCAutomatica}. These steps are repeated at each new measurement 
+of the state, which acts as feedback of the MPC itself.
+
+Among the categories of MPC, Linear MPC (LMPC) is the most common one.
+Indeed, because in LMPC the prediction model and the constraints are linear,
+and the function is quadratic, the associated OCP can be efficienly solved
+via a Quadratic Programming (QP) problem \cite{Gros2020Fromlineartononlinear}. 
+Nevertheless, most of the systems that we are interested in controlling are 
+nonlinear. That is particularly true in robotics, where the systems exhibit
+both a nonlinear model, and nonlinear constraints. While, in principle, it is 
+possible to apply a LMPC to a nonlinear system by linearizing it around a 
+reference trajectory, it is often preferred to treat nonlinear dynamics and 
+constraints explicitely.
+
+Nonlinear MPC (NMPC) \cite{Diehl2009EfficientNumericalMethodsNMPC} allows to use 
+nonlinear models, constraints, and cost functions, at the price of higher 
+computational cost with respect to LMPC. While this makes it more complex to 
+deploy such kind of techniques on real platforms, recent progress in efficient
+algorithms \cite{Diehl2005RTI}, and availability of powerful processing power,
+is making the adoption of NMPC more and more common.
+
+This chapter gives a brief overview on Nonlinear MPC, focusing in particular on
+the real-time iteration scheme \cite{Gros2020Fromlineartononlinear}. The 
+algorithms presented here will be used in Chapter \ref{ch:nmpc-swmr} to develop 
+a Nonlinear MPC for the control of the motion of a steerable wheeled mobile 
+robot.
 
 \section{Optimal control problem and MPC formulation}
 Todo.
