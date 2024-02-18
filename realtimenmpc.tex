@@ -37,38 +37,55 @@ a Nonlinear MPC for the control of the motion of a steerable wheeled mobile
 robot.
 
 \section{Optimal control problem and MPC formulation}
-Todo.
+Consider a robotic system whose equations of motion are described by the 
+ordinary differential equation
+\begin{equation}
+    \label{eq:generic-prediction-model}
+    \dot{\bm{q}}(t) = \bm{f}(\bm{q}(t), \bm{u}(t)),
+\end{equation}
+with $\bm{q}\in\mathbb{R}^n$ state of the system, $\bm{u}\in\mathbb{R}^m$
+control inputs, and $\bm{q}(t_0)=\bm{q}_0$ initial state of the system itself.
+Moreover, assume that the system is subject to constraints of the 
+kind
+\begin{equation}
+    \label{eq:generic-constraints}
+    \bm{h}(\bm{q}(t), \bm{u}(t)) \le \bm{0},
+\end{equation}
+which collect linear constraints (e.g., hardware limitations due to actuators),
+and nonlinear constraints (e.g., collision avoidance constraints due to 
+complex environments) on the state and the control inputs of the system\footnote{
+We choose not to separate the notation on linear and nonlinear constraints to 
+make the description of the chapter simpler. Bear in mind, however, that 
+modern implementations take it into account in order to improve the
+performance of the software \cite{Verschueren2021acados}.
+}.
 
-Consider
-\begin{equation*}
-    \dot{\bm{q}}(t) = \bm{f}(\bm{q}(t), \bm{u}(t))
-\end{equation*}
-with $\bm{q}(t_0)=\bm{q}_0$.
-
-$\bm{q}\in\mathbb{R}^n, \bm{u}\in\mathbb{R}^m$. Constraints:
-\begin{gather*}
-    \bm{q}^- \le \bm{q}(t) \le \bm{q}^+ \\
-    \bm{u}^- \le \bm{u}(t) \le \bm{u}^+
-\end{gather*}
-
-Path constraints:
-\begin{equation*}
-    \bm{h}(\bm{q}(t), \bm{u}(t)) \le \bm{0}
-\end{equation*}
-
-OCP:
+At each time instant $t_k$, given the estimate $\hat{\bm{q}}_k$ of the system,
+the NMPC solves an OCP over a finite horizon $[t_k, t_k + T]$, taking into account the 
+prediction model \eqref{eq:generic-prediction-model} and the constraints 
+\eqref{eq:generic-constraints}. The OCP can be formulated as
 \begin{equation}
     \label{eq:OCP}
     \begin{aligned}
         \min_{\bm{u}(\cdot)} \;\;
             & \; \Phi(\bm{q}(t_k + T)) + \int_{t_k}^{t_k + T} \mathcal{L}(\bm{q}, \bm{u}) dt \\
             \text{s.t. } & \dot{\bm{q}}(t) = \bm{f}(\bm{q}(t), \bm{u}(t)) \\
-                         & \bm{q}^- \le \bm{q}(t) \le \bm{q}^+ \\
-                         & \bm{u}^- \le \bm{u}(t) \le \bm{u}^+ \\
+                         %& \bm{q}^- \le \bm{q}(t) \le \bm{q}^+ \\
+                         %& \bm{u}^- \le \bm{u}(t) \le \bm{u}^+ \\
                          & \bm{h}(\bm{q}(t), \bm{u}(t)) \le \bm{0} \\
                          & \bm{q}(t_k) = \hat{\bm{q}}_k,
     \end{aligned}
 \end{equation}
+with $\Phi(\bm{q}(t_k + T))$ terminal cost, and $\mathcal{L}(\bm{q}, \bm{u})$
+stage cost. The solution of the OCP gives an optimal control input $\bm{u}_k^*(t)$,
+which is defined over the prediction horizon $[t_k, t_k + T]$.
+
+Given $\bm{u}_k^*(t)$, the NMPC extracts the control input
+$\bm{u}_k^{\mathrm{NMPC}}$, corresponding to the subinterval $[t_k, t_k + \delta]$,
+with $\delta$ sampling time of the NMPC. The control action $\bm{u}_k^{\mathrm{NMPC}}$
+is then applied to the system over the same interval $[t_k, t_k + \delta]$.
+This steps, which describes the NMPC algorithm, summarized in Algorithm 
+\ref{alg:NMPC}, are repeated each time a new estimate of the state is available.
 
 \begin{algorithm}
 	\small
@@ -81,7 +98,7 @@ OCP:
         $\hat{\bm{q}}_k \leftarrow$ receive the estimated state of the system at time $t_k$\;
         $\bm{u}_k^*(t) \leftarrow$ solve the OCP \eqref{eq:OCP} over $t \in [t_k, t_k + T]$\;
         $\bm{u}_k^{\mathrm{NMPC}} \leftarrow$ extract from $\bm{u}_k^*(t)$ the optimal control input corresponding to time interval $[t_k, t_k + \delta]$\;
-        apply $\bm{u}_k^*(t)$ to the system over the time interval $[t_k, t_k + \delta]$\;
+        apply $\bm{u}_k^{\mathrm{NMPC}}$ to the system over the time interval $[t_k, t_k + \delta]$\;
         $k \leftarrow k + 1$\;
     }
 \end{algorithm}
@@ -111,8 +128,8 @@ Obtain the NLP
         \min_{\bm{Q}_k, \bm{U}_k} \;\;
             & \; \Phi(\bm{q}_{N|k}) + \sum_{i=0}^{N-1} \mathcal{L}(\bm{q}_{i|k}, \bm{u}_{i|k}) \\
             \text{s.t. } & \bm{q}_{i+1|k} = \bm{F}(\bm{q}_{i|k}, \bm{u}_{i|k}), \ \forall i \in \mathbb{I}_{0}^{N-1} \\
-                         & \bm{q}^- \le \bm{q}_{i|k} \le \bm{q}^+, \ \forall i \in \mathbb{I}_{0}^{N} \\
-                         & \bm{u}^- \le \bm{u}_{i|k} \le \bm{u}^+, \ \forall i \in \mathbb{I}_{0}^{N-1} \\
+                         %& \bm{q}^- \le \bm{q}_{i|k} \le \bm{q}^+, \ \forall i \in \mathbb{I}_{0}^{N} \\
+                         %& \bm{u}^- \le \bm{u}_{i|k} \le \bm{u}^+, \ \forall i \in \mathbb{I}_{0}^{N-1} \\
                          & \bm{h}(\bm{q}_{i|k}, \bm{u}_{i|k}) \le \bm{0}, \ \forall i \in \mathbb{I}_{0}^{N-1} \\
                          & \bm{q}_{0|k} = \bm{q}_k,
     \end{aligned}
