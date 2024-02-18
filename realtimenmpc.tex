@@ -146,22 +146,39 @@ In the following, we give a brief overview on multiple shooting, which will be
 used in Chapter \ref{ch:nmpc-swmr} for the transcription of the OCP associated 
 to the trajectory tracking problem of a steerable wheeled mobile robot.
 
-\subsection{Direct multiple shooting}
-Discretization of the OCP: divide interval into N subintervals.
+\subsection{Multiple shooting}
+In order to discretize the OCP \eqref{eq:OCP} using the multiple shooting method,
+the prediction horizon $[t_k, t_k + T]$ is partitioned into N subintervals
+\begin{equation}
+    \label{eq:subinterval-prediction-horizon}
+    t_k < t_{k+1} < \dots < t_{k+N} = t_k + T,
+\end{equation}
+where, typically, each subinterval has the same duration, and it is equal to 
+the sampling time of the NMPC, i.e. $t_{k+i+1}=t_{k+i}+\delta$.
+The control trajectory $\bm{u}(t)$ is discretized assuming it is piecewise
+constant over each subinterval, i.e.,
 \begin{equation*}
-    t_k < t_{k+1} < \dots < t_{k+N} = t_k + N
+    \bm{u}(t) = \bm{u}_{k|i}, \ \forall t \in [t_{k+i}, t_{k+i+1}],
 \end{equation*}
-Assumption of piecewise-constant control input
-\begin{equation*}
-    \bm{u}(t) = \bm{u}_{k|i}, \ \forall t \in [t_{k+i}, t_{k+i+1}]
-\end{equation*}
+with $\bm{u}_{k|i}\in\mathbb{R}^m$.
 
-Discretize dynamics integrating it throughout the interval
+The prediction model \eqref{eq:generic-prediction-model} is discretized over each 
+subinterval by using a numerical integration method
+\cite{Butcher2016NumericalMethodsforODE} (typically the fourth order Runge-Kutta
+method). Denoting by $\bm{F}(\cdot)$ the discrete-time dynamics of the 
+system \eqref{eq:generic-prediction-model}, the prediction model is discretized
+in the following way:
 \begin{equation*}
     \bm{q}_{i+1|k} = \bm{F}(\bm{q}_{i|k}, \bm{u}_{i|k}), \ \forall i \in \mathbb{I}_{0}^{N-1}
 \end{equation*}
+with $\mathbb{I}_a^b=\{a,\, \dots,\, b\}\subset\mathbb{N}$ subset
+of natural numbers containing all naturals from $a$ to $b$.
+The cost function of the OCP and the constraints
+\eqref{eq:generic-constraints} are evaluated at the corresponding nodes of the 
+subintervals \eqref{eq:subinterval-prediction-horizon}.
 
-Obtain the NLP
+The infinite-dimensional OCP \eqref{eq:OCP} is hence transformed into the 
+following finite-dimensional NLP:
 \begin{equation}
     \label{eq:transcribed-OCP}
     \begin{aligned}
@@ -179,6 +196,7 @@ with
 \bm{Q}_k &= (\bm{q}_{0|k}^\top, \bm{q}_{1|k}^\top, \dots, \bm{q}_{N|k}^\top)^\top \\
 \bm{U}_k &= (\bm{u}_{0|k}^\top, \bm{u}_{1|k}^\top, \dots, \bm{u}_{N-1|k}^\top)^\top
 \end{align*}
+collecting the decision variables of the NLP.
 
 \subsection{Nonlinear optimization}
 Todo. How to solve the NLP \eqref{eq:transcribed-OCP}.

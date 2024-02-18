@@ -540,7 +540,7 @@ with
 \bm{Q}_k &= (\bm{q}_{0|k}^\top, \bm{q}_{1|k}^\top, \dots, \bm{q}_{N|k}^\top)^\top \\
 \bm{U}_k &= (\bm{u}_{0|k}^\top, \bm{u}_{1|k}^\top, \dots, \bm{u}_{N-1|k}^\top)^\top
 \end{align*}
-collecting the decision variable of the NMPC at $t_k$, $T_{\mathrm{MPC}}=N\delta_{\mathrm{MPC}}$, $\delta_{\mathrm{MPC}}$ timestep of the NMPC, and the cost function evaluated using $\bm{q}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N$) and $\bm{u}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N - 1$), computed by the auxiliary trajectory generation module. Notice that, within the constraints of the NLP, we used $(\cdot)$ to denote the use of nonlinear functions.
+collecting the decision variables of the NMPC at $t_k$, $T_{\mathrm{MPC}}=N\delta_{\mathrm{MPC}}$, $\delta_{\mathrm{MPC}}$ timestep of the NMPC, and the cost function evaluated using $\bm{q}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N$) and $\bm{u}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N - 1$), computed by the auxiliary trajectory generation module. Notice that, within the constraints of the NLP, we used $(\cdot)$ to denote the use of nonlinear functions.
 
 Once the NLP is solved, the control sample $\bm{u}_{0|k}$ is extracted from $\bm{U}_k$, and it is used to compute the driving and steering velocities which realize it, that are sent to the robot.
 
