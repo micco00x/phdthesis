@@ -103,8 +103,48 @@ This steps, which describes the NMPC algorithm, summarized in Algorithm
     }
 \end{algorithm}
 
-\section{Numerical methods for the OCP}
-Todo (brief overview).
+\section{Numerical methods for the OCP solution}
+The solution of the OCP \eqref{eq:OCP} is fundamental for the NMPC algorithm.
+Indeed, the method chosen determines the performance and the behavior of the 
+NMPC itself.
+
+In literature, there exists three classes for the numerical solution of the OCP.
+
+The first one is based on \textit{dynamic programming} and
+\textit{Hamilton-Jacobi-Bellman}
+equation \cite{Bertsekas2005DynamicProgrammingandOptimalControl}, and requires the solution of a 
+partial differential equation. These methods, however, suffer from the curse of 
+dimensionality and they are suitable only to system whose state dimension
+is small.
+
+The second class are the \textit{indirect methods}, which are based on
+Pontryagin's minimum principle \cite{Liberzon2012CalculusofVariations}, and
+consist in solving a multi-point boundary value problem for an ordinary 
+differential equation.
+
+The third class are \textit{direct methods}, and consists in transcribing 
+the OCP (which is infinite-dimesional and continuous-time) into a Nonlinear
+Programming Problem (NLP). In literature, there exists three transcription 
+approaches (\textit{direct collocation}, \textit{single shooting} and 
+\textit{multiple shooting}), whose difference depends on the way in which the
+state and the conrol inputs are discretized.
+
+Direct collocation discretizes both state and
+control inputs using 
+piecewise continuous polynomials, resulting in a large and sparse NLP
+\cite{Hargraves1986Collocation}.
+Single shooting discretizes only the control inputs, resulting in a smaller NLP
+(whose decision variables are the control inputs themselves), which is however
+sensitive to nonlinearities and instabilities of the system
+\cite{Zanon2017DirectOptimalControlandMPC}. Multiple shooting discretizes 
+both the state and the control inputs, obtaining a large and sparse NLP (which 
+is smaller then the one obtained through collocation), guaranteeing continuity
+of the solution by adding appropriate constraints on the shooting nodes
+\cite{Bock1984MultipleShooting}.
+
+In the following, we give a brief overview on multiple shooting, which will be 
+used in Chapter \ref{ch:nmpc-swmr} for the transcription of the OCP associated 
+to the trajectory tracking problem of a steerable wheeled mobile robot.
 
 \subsection{Direct multiple shooting}
 Discretization of the OCP: divide interval into N subintervals.
