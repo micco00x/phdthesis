@@ -198,10 +198,13 @@ with
 \end{align*}
 collecting the decision variables of the NLP.
 
-\subsection{Nonlinear optimization}
-Todo. How to solve the NLP \eqref{eq:transcribed-OCP}.
+Most of the optimization solvers use methods such as Interior-Point method and 
+Sequential Quadratic Programming (SQP) \cite{Nocedal2006NumericalOptimization}
+to solve the NLP \eqref{eq:transcribed-OCP}. In this manuscript, we are 
+going to solve the NMPC using the real-time iteration scheme
+\cite{Gros2020Fromlineartononlinear}, which is based on SQP.
 
-\subsection{Sequential quadratic programming}
+\subsection{Sequential Quadratic Programming}
 Todo.
 
 \section{The real-time iteration}
