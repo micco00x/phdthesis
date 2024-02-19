@@ -247,9 +247,10 @@ computationally expensive, it is typically approximated.
 
 The solution $\Delta \bm{x}_{\kappa}$ of the $\kappa$-th QP gives a direcion $\Delta \bm{x}_k$, which is 
 used to compute the iterate of the subsequent SQP step:
-\begin{equation*}
+\begin{equation}
+    \label{eq:SQP-Newton-step}
     \bm{x}_{\kappa+1} = \bm{x}_{\kappa} + \alpha_k \Delta \bm{x}_{\kappa}
-\end{equation*}
+\end{equation}
 with $\alpha_k \in [0, 1]$ step size.
 
 Algorithm \ref{alg:SQP} summarizes the SQP method. Note that the most 
@@ -280,24 +281,45 @@ HPIPM \cite{Frison2020HPIPM}).
     \Return{$\bm{x}_{\kappa}$}\;
 \end{algorithm}
 
-
 \section{The real-time iteration}
+Iterating SQP algorithm to convergence requires a significant and unspecified
+amount of time, which could make the computed optimal control input outdated, negatively
+affecting the performance of the NMPC. Choosing whether solving the NLP to 
+convergence, applying a control input based on outdated information, or 
+applying an approximate solution but using most recent information available, 
+is known as \textit{real-time dilemma} \cite{Dihel2002Realtimeoptimization}.
+
+Luckily, recent advancements in optimal control methods enable NMPC to perform 
+in real-time. In this section, we give a brief overview on the real-time iteration (RTI)
+scheme. For a more detailed description, please refer to \cite{Gros2020Fromlineartononlinear}.
+
+The main idea behind RTI is to exploit the fact that NMPC solves OCPs which 
+are similar from one iteration to the other. Instead of solving SQP to convergence,
+the NLP is approximated as a QP and solved only once. Moreover, the Newton step
+\eqref{eq:SQP-Newton-step} is taken with $\alpha_k=1$, increasing the convergence
+rate. In RTI, the structure of QP \eqref{eq:QP} is exploited in order to further
+reduce the feedback time. Indeed, the terms $\bm{H}_k, \bm{h}(\bm{x}_k)$
+and the sensitivities $\nabla \bm{f}(\bm{x}_k), \nabla \bm{g}({\bm{x}_k}), \nabla \bm{h}({\bm{x}_k})$
+could be computed before the estimate $\hat{\bm{x}}_k$ is available. The real-time
+iteration scheme is, thus, composed by two phases: a \textit{preparation phase},
+where the QP \eqref{eq:QP} is prepared omitting the estimate $\hat{\bm{x}}_k$, and a 
+\textit{feedback phase}, where the QP is solved by introducing the estimate as well.
+Algorithm \ref{alg:RTI} gives an overview of the RTI scheme for NMPC.
+
 \begin{algorithm}
 	\small
-	\caption{RTI for NMPC at $t_k$}
+	\caption{RTI for NMPC}
 	\label{alg:RTI}
-    \underline{Preparation phase}\;
-	\KwIn{previous NMPC solution $\bm{Q}_{k-1}, \bm{U}_{k-1}$}
-    shift $\bm{Q}_{k-1}, \bm{U}_{k-1}$\;
-    evaluate sensitivities\;
-    prepare QP omitting $\hat{\bm{q}}_k$\;
-    \Return{QP}\;
-    \underline{Feedback phase}\;
-    \KwIn{$\hat{\bm{q}}_k$, QP}
-    compute what's missing in QP\;
-    full Newton step\;
-    \Return{NMPC solution $\bm{Q}_k, \bm{U}_k$}\;
+    \nonl \underline{Preparation phase} performed over $t \in [t_{k-1}, t_k)$\\
+	\KwIn{previous solution $\bm{x}_{k-1}$}
+    prepare a guess $\tilde{\bm{x}}_k$ from $\bm{x}_{k-1}$ \;
+    compute $\bm{H}_k, \bm{h}(\bm{x}_k)$ and sensitivities $\nabla \bm{f}(\bm{x}_k), \nabla \bm{g}({\bm{x}_k}), \nabla \bm{h}({\bm{x}_k})$\;
+    prepare QP \eqref{eq:QP} omitting $\hat{\bm{x}}_k$\;
+    \Return{} QP \eqref{eq:QP}\;
+    \BlankLine
+    \nonl \underline{Feedback phase} performed at $t_k$\\
+    \KwIn{$\hat{\bm{x}}_k$, QP \eqref{eq:QP}}
+    $\Delta \bm{x}_{k} \leftarrow$ solve QP \eqref{eq:QP} by introducing $\hat{\bm{x}}_k$\;
+    $\bm{x}_{k+1} \leftarrow \bm{x}_k + \Delta \bm{x}_k$\;
+    \Return{NMPC solution $\bm{x}_{k+1}$}\;
 \end{algorithm}
-
-\section{Conclusions}
-Todo.

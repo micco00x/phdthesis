@@ -56,6 +56,12 @@
 \def\RealSet{{I\!\!R}}
 \def\bull{\vrule height .9ex width .8ex depth -.1ex} % square bullet
 
+\makeatletter
+\newcommand{\removelatexerror}{\let\@latex@error\@gobble}
+\makeatother
+\let\oldnl\nl% Store \nl in \oldnl
+\newcommand{\nonl}{\renewcommand{\nl}{\let\nl\oldnl}}% Remove line number for one line
+
 \begin{document}
 
 \frontmatter

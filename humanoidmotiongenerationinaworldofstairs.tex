@@ -7,14 +7,6 @@
 \AtBeginEnvironment{procedure}{\let\c@algocf\c@procedure}
 \makeatother
 
-
-
-\makeatletter
-\newcommand{\removelatexerror}{\let\@latex@error\@gobble}
-\makeatother
-\let\oldnl\nl% Store \nl in \oldnl
-\newcommand{\nonl}{\renewcommand{\nl}{\let\nl\oldnl}}% Remove line number for one line
-
 \renewcommand\textfraction{0.0}
 \renewcommand\bottomfraction{1.0}
 \renewcommand\topfraction{1.0}
