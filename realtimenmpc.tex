@@ -205,7 +205,81 @@ going to solve the NMPC using the real-time iteration scheme
 \cite{Gros2020Fromlineartononlinear}, which is based on SQP.
 
 \subsection{Sequential Quadratic Programming}
-Todo.
+SQP is an iterative method for the solution of constrained nonlinear 
+optimization. At each $\kappa$-th iteration, it solves a Quadratic Programming (QP)
+problem which approximates the NLP \eqref{eq:transcribed-OCP}.
+This procedure is repeated until a convergence criterion is satisfied.
+
+Let us simplify the notation of the NLP \eqref{eq:transcribed-OCP}
+by expressing it as
+\begin{equation}
+    \label{eq:NLP}
+    \begin{aligned}
+        \min_{\bm{x}} \;\;
+            & \; \bm{f}(\bm{x}) \\
+            \text{s.t. } & \bm{g}(\bm{x}, \hat{\bm{x}}_k) = \bm{0} \\
+                         & \bm{h}(\bm{x}) \le \bm{0}
+    \end{aligned}
+\end{equation}
+with $\bm{x}$ collecting decision variables $\bm{Q}_{\kappa}$ and $\bm{U}_{\kappa}$,
+$\bm{f}(\bm{x})$ cost function,
+$\hat{\bm{x}}_k$ estimate of the state at $t_k$,
+$\bm{g}(\bm{x}, \hat{\bm{x}}_k)$ collecting equality
+constraints, and $\bm{h}(\bm{x})$ collecting inequality constraints.
+
+The NLP \eqref{eq:NLP}, at each $\kappa$-th iteration of SQP, is approximated 
+by the following~QP:
+\begin{equation}
+    \label{eq:QP}
+    \begin{aligned}
+        \min_{\Delta \bm{x}_{\kappa}} \;\;
+            & \; \frac{1}{2} \Delta \bm{x}_{\kappa}^T \bm{H}_{\kappa} \Delta \bm{x}_{\kappa} + \nabla \bm{f}(\bm{x}_{\kappa})^T \Delta \bm{x}_{\kappa}  \\
+            \text{s.t. } & \bm{g}(\bm{x}_{\kappa}, \hat{\bm{x}}_k) + \nabla \bm{g}({\bm{x}_{\kappa}})^T \Delta \bm{x}_{\kappa}   = \bm{0} \\
+                         & \bm{h}(\bm{x}_{\kappa}) + \nabla \bm{h}({\bm{x}_{\kappa}})^T \Delta \bm{x}_{\kappa} \le \bm{0}
+    \end{aligned}
+\end{equation}
+with $\nabla \bm{g}({\bm{x}_{\kappa}})$ gradient of the equality constraints,
+$\nabla \bm{h}({\bm{x}_{\kappa}})$ gradient of the inequality constraints,
+$\nabla \bm{f}(\bm{x}_{\kappa})$ and $\bm{H}_{\kappa}$ gradient and Hessian
+of the cost function. Note that $\nabla \bm{g}({\bm{x}_{\kappa}})$ does not 
+depend on $\hat{\bm{x}}_k$. Moreover, because the computation of the exact Hessian is 
+computationally expensive, it is typically approximated.
+
+The solution $\Delta \bm{x}_{\kappa}$ of the $\kappa$-th QP gives a direcion $\Delta \bm{x}_k$, which is 
+used to compute the iterate of the subsequent SQP step:
+\begin{equation*}
+    \bm{x}_{\kappa+1} = \bm{x}_{\kappa} + \alpha_k \Delta \bm{x}_{\kappa}
+\end{equation*}
+with $\alpha_k \in [0, 1]$ step size.
+
+Algorithm \ref{alg:SQP} summarizes the SQP method. Note that the most 
+computationally intensive steps are the computation of sensitivies and the 
+computation of the solution of the QP. Regarding the latter, there exists off-the-shelf
+solvers which efficiently exploit the sparsity of the problem in order to
+solve the QP more efficiently (e.g., OSQP \cite{Stellato2020OSQP}, qpSWIFT
+\cite{Pandala2019qpSWIFT}). Another approach is called 
+\textit{condensing} \cite{Bock1984MultipleShooting},
+and it consists in reducing the number of variables in the QP by eliminating 
+those corresponding to the state of the system. The resulting QP can be
+efficiently solved by using dense QP solvers (e.g., qpOASES \cite{Ferreau2014qpOASES},
+HPIPM \cite{Frison2020HPIPM}).
+
+\begin{algorithm}
+	\small
+	\caption{SQP algorithm at $t_k$}
+	\label{alg:SQP}
+	\KwIn{estimated state of the system $\hat{\bm{x}}_k$ and an initial guess $\tilde{\bm{x}}_k$}
+    $\kappa \leftarrow 0$\;
+    $\bm{x}_\kappa \leftarrow \tilde{\bm{x}}_k$\;
+    \While{\textit{convergence criterion not satisfied}}{
+        compute $\bm{H}_{\kappa}, \bm{g}(\bm{x}_{\kappa}, \hat{\bm{x}}_k), \bm{h}(\bm{x}_{\kappa})$ and sensitivities $\nabla \bm{f}(\bm{x}_{\kappa}), \nabla \bm{g}({\bm{x}_{\kappa}}), \nabla \bm{h}({\bm{x}_{\kappa}})$\;
+        $\Delta \bm{x}_{\kappa} \leftarrow $ construct and solve the QP \eqref{eq:QP}\;
+        $\bm{x}_{\kappa+1} \leftarrow \bm{x}_{\kappa} + \alpha_k \Delta \bm{x}_{\kappa}$\;
+        $\kappa \leftarrow \kappa + 1$\;
+    }
+    \Return{$\bm{x}_{\kappa}$}\;
+\end{algorithm}
+
 
 \section{The real-time iteration}
 \begin{algorithm}
