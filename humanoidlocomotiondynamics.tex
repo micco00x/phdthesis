@@ -123,20 +123,20 @@ The above hypothesis allows as to focus on the unactuated part of the equation
 \begin{equation}
     \label{eq:centroidal-dynamics}
     \begin{bmatrix}
-        m \ddot{\bm{p}}_C \\ \dot{\bm{L}}_C
+        m \ddot{\bm{p}}_c \\ \dot{\bm{L}}_c
     \end{bmatrix} =
     \begin{bmatrix}
         m \bm{g} \\ \bm{0}
     \end{bmatrix} +
     \sum_{k=1}^K
     \begin{bmatrix}
-        \bm{f}_k \\ (\bm{p}_C - \bm{p}_k) \times \bm{f}_k
+        \bm{f}_k \\ (\bm{p}_c - \bm{p}_k) \times \bm{f}_k
     \end{bmatrix},
 \end{equation}
-where $m$ is the total mass of the robot, $\bm{p}_C$ is the position of its
+where $m$ is the total mass of the robot, $\bm{p}_c$ is the position of its
 center of mass (CoM), defined as
 \begin{equation*}
-    \bm{p}_C =
+    \bm{p}_c =
     \frac{\sum_{i=1}^{n+1} m_i \bm{p}_{l_i}}{\sum_{i=1}^{n+1} m_i} =
     \frac{\sum_{i=1}^{n+1} m_i \bm{p}_{l_i}}{m},
 \end{equation*}
@@ -157,8 +157,8 @@ Let us define the \textit{gravito-inertial wrench} taken at point $O$ as
     \end{bmatrix}
     =
     \begin{bmatrix}
-        m \bm{g} - m \bm{\ddot{p}}_C \\
-        (\bm{p}_C - \bm{p}_O) \times (m \bm{g} - m \bm{\ddot{p}}_C) - \bm{\dot{L}}_C
+        m \bm{g} - m \bm{\ddot{p}}_c \\
+        (\bm{p}_c - \bm{p}_O) \times (m \bm{g} - m \bm{\ddot{p}}_c) - \bm{\dot{L}}_c
     \end{bmatrix}.
 \end{equation}
 Similarly, the \textit{contact wrench} $\bm{w}_O^{\rm c}$ can be defined as
@@ -186,10 +186,10 @@ rewritten as a sum of the two above wrenches
 
 \section{Zero-tilting moment point}
 \label{sec:zero-tilting-moment-point}
-Consider the gravito-inertial wrench defined in \ref{eq:gravito-intertial-wrench}. Zero-tilting moment points (ZMPs) are points $Z$ where the moment of the contact wrench aligns with the normal $\bm{n}$ of the contact surface \cite{SardainBessonnet2004}, i.e.,
+Consider the gravito-inertial wrench defined in \ref{eq:gravito-intertial-wrench}. Zero-tilting moment points (ZMPs) are points $z$ where the moment of the contact wrench aligns with the normal $\bm{n}$ of the contact surface \cite{SardainBessonnet2004}, i.e.,
 \begin{equation}
     \label{eq:zmp-non-tilting-condition}
-    \bm{\tau}_Z^{\rm gi} \times \bm{n} = \bm{0},
+    \bm{\tau}_z^{\rm gi} \times \bm{n} = \bm{0},
 \end{equation}
 which, using Varignon formula\footnote{A screw $\bm{w}_O =
 (\bm{f},\bm{\tau}_O)$ represents the generalized force acting on a rigid body
@@ -198,7 +198,7 @@ and it is composed by a linear force $\bm{f}$ passing through $O$, together with
 total moment $\bm{\tau}_O$ about $O$. That total moment around any other point
 $A$ can be computed using Varignon formula as $\bm{\tau}_A=\bm{\tau}_O+\bm{f}\times(\bm{p}_A-\bm{p}_O)$.}, can be rewritten as
 \begin{equation*}
-    \left(\bm{\tau}_O^{\rm gi} + (\bm{p}_O - \bm{p}_Z) \times \bm{f}^{\rm gi}\right) \times \bm{n} = \bm{0},
+    \left(\bm{\tau}_O^{\rm gi} + (\bm{p}_O - \bm{p}_z) \times \bm{f}^{\rm gi}\right) \times \bm{n} = \bm{0},
 \end{equation*}
 which, developing the triple cross product\footnote{The triple cross product
 between three vectors $\bm{a}, \bm{b}, \bm{c} \in \mathrm{R}^n$ is defined as
@@ -209,46 +209,46 @@ the following holds:
 ($\bm{a}\times\bm{b})\times\bm{c}=-(\bm{c}\cdot\bm{b})\bm{a}+
 (\bm{c}\cdot\bm{a})\bm{b}$.}, the above equation becomes
 \begin{equation}
-    \bm{\tau}_O^{\rm gi} \times \bm{n} - (\bm{n} \cdot \bm{f}^{\rm gi}) (\bm{p}_O - \bm{p}_Z) - \left(\bm{n} \cdot (\bm{p}_O - \bm{p}_Z)\right) \bm{f}^{\rm gi} = \bm{0}.
+    \bm{\tau}_O^{\rm gi} \times \bm{n} - (\bm{n} \cdot \bm{f}^{\rm gi}) (\bm{p}_O - \bm{p}_z) - \left(\bm{n} \cdot (\bm{p}_O - \bm{p}_z)\right) \bm{f}^{\rm gi} = \bm{0}.
 \end{equation}
 
-Assuming that a point $Z$ lies on a plane with normal $\bm{n}$ intersecting the point $O$, i.e. $Z \in \Pi(O, n)$, the term $\bm{n} \cdot (\bm{p}_O - \bm{p}_Z) = 0$, and the above equation can be easily rewritten as
+Assuming that a point $Z$ lies on a plane with normal $\bm{n}$ intersecting the point $O$, i.e. $z \in \Pi(O, n)$, the term $\bm{n} \cdot (\bm{p}_O - \bm{p}_z) = 0$, and the above equation can be easily rewritten as
 \begin{equation}
-    \bm{p}_Z = \bm{p}_O + \frac{\bm{n} \times \bm{\tau}_O^{\rm gi}}{\bm{n} \cdot \bm{f}^{\rm gi}},
+    \bm{p}_z = \bm{p}_O + \frac{\bm{n} \times \bm{\tau}_O^{\rm gi}}{\bm{n} \cdot \bm{f}^{\rm gi}},
 \end{equation}
-finally defining the ZMP $Z$. Note that, more in general, there exists an infinity of ZMPs which lie on the non-central axis defined by \eqref{eq:zmp-non-tilting-condition}. For more details, please refer to \cite{SardainBessonnet2004}.
+finally defining the ZMP $z$. Note that, more in general, there exists an infinity of ZMPs which lie on the non-central axis defined by \eqref{eq:zmp-non-tilting-condition}. For more details, please refer to \cite{SardainBessonnet2004}.
 
 \subsection{Relationship between CoM, ZMP and angular momentum}
-Consider the non-tilting condition of Eq. \eqref{eq:zmp-non-tilting-condition}. Using Varignon formula $\bm{\tau}_Z^{\rm gi} = \bm{\tau}_C^{\rm gi} + \bm{f}^{\rm gi} \times (\bm{p}_Z - \bm{p}_C)$, we have that
+Consider the non-tilting condition of Eq. \eqref{eq:zmp-non-tilting-condition}. Using Varignon formula $\bm{\tau}_z^{\rm gi} = \bm{\tau}_c^{\rm gi} + \bm{f}^{\rm gi} \times (\bm{p}_z - \bm{p}_c)$, we have that
 \begin{equation}
-    \left(\bm{\tau}_C^{\rm gi} + \bm{f}^{\rm gi} \times (\bm{p}_Z - \bm{p}_C)\right) \times \bm{n} = \bm{0},
+    \left(\bm{\tau}_c^{\rm gi} + \bm{f}^{\rm gi} \times (\bm{p}_z - \bm{p}_c)\right) \times \bm{n} = \bm{0},
 \end{equation}
 which, computing the triple product, becomes
 \begin{equation}
-    \bm{\tau}_C^{\rm gi} \times \bm{n} - \left(\bm{n} \cdot (\bm{p}_Z - \bm{p}_C)\right) \bm{g}^{\rm gi} + (\bm{n} \cdot \bm{f}^{\rm gi}) (\bm{p}_Z - \bm{p}_C) = \bm{0}.
+    \bm{\tau}_c^{\rm gi} \times \bm{n} - \left(\bm{n} \cdot (\bm{p}_z - \bm{p}_c)\right) \bm{g}^{\rm gi} + (\bm{n} \cdot \bm{f}^{\rm gi}) (\bm{p}_z - \bm{p}_c) = \bm{0}.
 \end{equation}
 
 Applying the definition of \textit{gravito-inertial wrench} of eq. \eqref{eq:gravito-intertial-wrench} and rearranging the terms, it is simple to prove \cite{Caron2017TRO} the following relationship between the CoM acceleration, the ZMP position and the angular momentum:
 \begin{equation}
     \label{eq:relationship-com-zmp-angular-momentum}
-    \ddot{\bm{p}}_C = \bm{g} + \frac{\bm{n} \cdot (\bm{\ddot{p}}_C - \bm{g})}{\bm{n} \cdot (\bm{p}_C - \bm{p}_Z)} (\bm{p}_C - \bm{p}_Z) + \frac{\bm{n} \times \bm{\dot{L}}_C}{m \left(\bm{n} \cdot (\bm{p}_C - \bm{p}_Z)\right)}.
+    \ddot{\bm{p}}_c = \bm{g} + \frac{\bm{n} \cdot (\bm{\ddot{p}}_c - \bm{g})}{\bm{n} \cdot (\bm{p}_c - \bm{p}_z)} (\bm{p}_c - \bm{p}_z) + \frac{\bm{n} \times \bm{\dot{L}}_c}{m \left(\bm{n} \cdot (\bm{p}_c - \bm{p}_z)\right)}.
 \end{equation}
 \section{Inverted pendulum models}
 \subsection{Variable-Height Inverted Pendulum}
 Consider again the centroidal dynamics of eq. \eqref{eq:centroidal-dynamics}
 and assume that the rate of change of angular momentum is negligible (i.e.,
-$\dot{\bm{L}}_C=\bm{0}$). We define the dynamics of the \textit{Variable-Height
+$\dot{\bm{L}}_c=\bm{0}$). We define the dynamics of the \textit{Variable-Height
 Inverted Pendulum} (VH-IP) \cite{Koolen2016VHIP} as
 \begin{equation}
     \label{eq:VH-IP}
-    m \ddot{\bm{p}}_C = m \bm{g} + \bm{f}^{\mathrm{c}}.
+    m \ddot{\bm{p}}_c = m \bm{g} + \bm{f}^{\mathrm{c}}.
 \end{equation}
 
-Note that, because $\dot{\bm{L}}_C=\bm{0}$, the contact force
+Note that, because $\dot{\bm{L}}_c=\bm{0}$, the contact force
 $\bm{f}^{\mathrm{c}}$ can be parametrized \cite{Caron2020ICRA} as
 \begin{equation}
     \label{eq:contact-force-with-LG-0}
-    \bm{f}^{\mathrm{c}} = m \lambda(t) (\bm{p}_C - \bm{p}_Z),
+    \bm{f}^{\mathrm{c}} = m \lambda(t) (\bm{p}_c - \bm{p}_z),
 \end{equation}
 with $\lambda(t)$ natural frequency of the VH-IP (where we explicitely
 denote the time dependency of lambda to highlight the nonlinearity in the
@@ -257,7 +257,7 @@ of unilaterality of contact.
 The dynamics of the VH-IP can be rewritten as
 \begin{equation}
     \label{eq:VH-IP-LG-0}
-    \ddot{\bm{p}}_C = \lambda(t) (\bm{p}_C - \bm{p}_Z) + \bm{g}
+    \ddot{\bm{p}}_c = \lambda(t) (\bm{p}_c - \bm{p}_z) + \bm{g}
 \end{equation}
 by plugging the contact force \eqref{eq:contact-force-with-LG-0} into
 eq. \eqref{eq:VH-IP}.
@@ -267,9 +267,9 @@ eq. \eqref{eq:VH-IP}.
 %\bm{e}_z^T \bm{f}^{\mathrm{c}} > 0$ with $\bm{e}_z = (0 \; 0 \; 1)^T$), from eq.
 %\eqref{eq:contact-force-with-LG-0}, we have that
 %\begin{equation*}
-%    f_z^{\mathrm{c}} = m \lambda(t) (z_C - z_Z) > 0,
+%    f_z^{\mathrm{c}} = m \lambda(t) (z_c - z_z) > 0,
 %\end{equation*}
-%which implies that $z_C > z_Z$.
+%which implies that $z_c > z_z$.
 
 \subsection{Linear Inverted Pendulum}
 \label{sec:DynamicsHumanoidLocomotion:LinearInvertedPendulum}
@@ -279,15 +279,15 @@ section, we derive the dynamics of the \textit{Linear Inverted Pendulum} (LIP)
 \cite{Kajita2016IntroductiontoHumanoidRobotics}. To do so,
 we constrain the vertical motion of the CoM \cite{Zamparelli2018SYROCO} so that
 \begin{equation}
-    \lambda(t) = \frac{\ddot{z}_C + g}{z_C - z_Z} =
-    \frac{\bm{n} \cdot (\ddot{\bm{p}}_C - \bm{g})}{\bm{n} \cdot (\bm{p}_C - \bm{p}_Z)} =
+    \lambda(t) = \frac{\ddot{z}_c + g}{z_c - z_z} =
+    \frac{\bm{n} \cdot (\ddot{\bm{p}}_c - \bm{g})}{\bm{n} \cdot (\bm{p}_c - \bm{p}_z)} =
     \eta^2,
 \end{equation}
 with $\eta$ an arbitrary constant. In this way,
 the dynamics \eqref{eq:VH-IP-LG-0} becomes the dynamics of the LIP:
 \begin{equation}
     \label{eq:LIPM}
-    \ddot{\bm{p}}_C = \eta^2 (\bm{p}_C - \bm{p}_Z) + \bm{g},
+    \ddot{\bm{p}}_c = \eta^2 (\bm{p}_c - \bm{p}_z) + \bm{g},
 \end{equation}
 which is in equilibrium when the CoM and the ZMP are displaced by
 $\bm{g}/\eta^2$ \cite{Cipriano2023RAS}. Here, the gravity vector $\bm{g}$
@@ -305,14 +305,14 @@ When walking on flat floor (a single contact surface with normal
 $\bm{e}_z=(0 \; 0\; 1)^T$),
 a common choice is to constrain the ZMP to lie on
 a plane which coincides with the ground (i.e., without loss of generality
-$z_Z=0$). As a consequence, the CoM is constrained to lie on a parallel plane
-displaced by $h$ from the ZMP plane (i.e., $z_C=h$), and
+$z_z=0$). As a consequence, the CoM is constrained to lie on a parallel plane
+displaced by $h$ from the ZMP plane (i.e., $z_c=h$), and
 the LIP dynamics further simplifies to the following dynamics:
 \begin{align}
     \label{eq:LIPM-xy}
     \begin{split}
-        \ddot{x}_C &= \eta^2 (x_C - x_Z) \\
-        \ddot{y}_C &= \eta^2 (y_C - y_Z).
+        \ddot{x}_c &= \eta^2 (x_c - x_z) \\
+        \ddot{y}_c &= \eta^2 (y_c - y_z).
     \end{split}
 \end{align}
 Note that, in this particular case, the ZMP coincides with the center of
@@ -324,7 +324,7 @@ by rewriting it in state space form as
 \begin{equation}
     \label{eq:LIPM-state-space}
     \begin{bmatrix}
-        \dot{\bm{p}}_C \\ \ddot{\bm{p}}_C
+        \dot{\bm{p}}_c \\ \ddot{\bm{p}}_c
     \end{bmatrix}
     =
     \begin{bmatrix}
@@ -332,13 +332,13 @@ by rewriting it in state space form as
         \eta^2 \bm{I} & \bm{0}
     \end{bmatrix}
     \begin{bmatrix}
-        \bm{p}_C \\ \dot{\bm{p}}_C
+        \bm{p}_c \\ \dot{\bm{p}}_c
     \end{bmatrix}
     +
     \begin{bmatrix}
         \bm{0} \\ -\eta^2 \bm{I}
     \end{bmatrix}
-    \bm{p}_Z 
+    \bm{p}_z 
     +
     \begin{bmatrix}
         \bm{0} \\ \bm{g}
@@ -358,15 +358,15 @@ can be further highlight by the following change of coordinates:
         \bm{I} & -\frac{1}{\eta} \bm{I}
     \end{bmatrix}
     \begin{bmatrix}
-        \bm{p}_C\\ \dot{\bm{p}}_C
+        \bm{p}_c\\ \dot{\bm{p}}_c
     \end{bmatrix},
 \end{equation}
 which can be used to decouple the unstable and the stable subsystem. Indeed,
 by taking the time derivative of eq. \eqref{eq:LIP-change-of-coordinates}, we
 have
 %\begin{align}
-%    \dot{\bm{p}}_u &= \eta (\bm{p}_u - \bm{p}_Z) + \frac{\bm{g}}{\eta} \\
-%    \dot{\bm{p}}_s &= \eta (\bm{p}_Z - \bm{p}_s) - \frac{\bm{g}}{\eta}
+%    \dot{\bm{p}}_u &= \eta (\bm{p}_u - \bm{p}_z) + \frac{\bm{g}}{\eta} \\
+%    \dot{\bm{p}}_s &= \eta (\bm{p}_z - \bm{p}_s) - \frac{\bm{g}}{\eta}
 %\end{align}
 
 \begin{equation*}
@@ -385,7 +385,7 @@ have
     \begin{bmatrix}
         -\eta \bm{I} \\ \eta \bm{I}
     \end{bmatrix}
-    \bm{p}_Z 
+    \bm{p}_z 
     +
     \begin{bmatrix}
         \frac{\bm{g}}{\eta} \\ -\frac{\bm{g}}{\eta}
@@ -439,28 +439,28 @@ with all contact forces directed towards the CoM, as described in
 In this case, the contact forces can be rewritten as
 \begin{equation}
     \label{eq:contact-force-towards-com}
-    \bm{f}_k = \frac{\bm{p}_C - \bm{p}_k}{\| \bm{p}_C - \bm{p}_k \|_2} f_k,
+    \bm{f}_k = \frac{\bm{p}_c - \bm{p}_k}{\| \bm{p}_c - \bm{p}_k \|_2} f_k,
 \end{equation}
 with $f_k>0$ the norm of $\bm{f}_k$. By plugging eq.
 \eqref{eq:contact-force-towards-com} into eq.
 \eqref{eq:centroidal-dynamics}, we obtain
 \begin{equation}
-    m \ddot{\bm{p}}_C = m \bm{g} + \sum_{k=1}^K \frac{\bm{p}_C - \bm{p}_k}{\| \bm{p}_C - \bm{p}_k \|_2} f_k.
+    m \ddot{\bm{p}}_c = m \bm{g} + \sum_{k=1}^K \frac{\bm{p}_c - \bm{p}_k}{\| \bm{p}_c - \bm{p}_k \|_2} f_k.
 \end{equation}
 Moreover, using the dynamics of eq. \eqref{eq:LIPM}, we can obtain
 obtain (after rearranging the terms), the following:
 \begin{equation*}
-    \bm{p}_Z = \bm{p}_C - \sum_{k=1}^K \frac{\bm{p}_C - \bm{p}_k}{\| \bm{p}_C - \bm{p}_k \|_2} \frac{f_k}{m \eta^2}.
+    \bm{p}_z = \bm{p}_c - \sum_{k=1}^K \frac{\bm{p}_c - \bm{p}_k}{\| \bm{p}_c - \bm{p}_k \|_2} \frac{f_k}{m \eta^2}.
 \end{equation*}
 
 Because of the assumption of sufficient joint torque actuation made in Sec.
 \ref{sec:lagrangian-dynamics}, in principle, we could modulate $f_k$ to position
 the ZMP within the area defined by the following set:
 \begin{equation}
-    \mathcal{Z} = \left\{ \bm{p}_Z \,\middle\vert\, \bm{p}_Z = \bm{p}_C + \sum_{k=1}^K \gamma_k (\bm{p}_k - \bm{p}_C), \; \gamma_k > 0  \right\},
+    \mathcal{Z} = \left\{ \bm{p}_z \,\middle\vert\, \bm{p}_z = \bm{p}_c + \sum_{k=1}^K \gamma_k (\bm{p}_k - \bm{p}_c), \; \gamma_k > 0  \right\},
     \label{eq:ZMP-polyhedral-cone}
 \end{equation}
-which is a polyhedral cone with apex $\bm{p}_C$ (Fig. \ref{fig:balance3D}), and
+which is a polyhedral cone with apex $\bm{p}_c$ (Fig. \ref{fig:balance3D}), and
 is known in literature as \textit{support region} \cite{Sugihara2021ICRA},
 as it contains all feasible positions of the ZMP. Note that under dynamics
 \eqref{eq:LIPM-xy}, the support region becomes the \textit{support
@@ -470,7 +470,7 @@ polygon}, which is defined as the convex hull of all contact points
 \begin{figure}
     \centering
     \includegraphics[width=0.6\textwidth]{figures/balance3d.pdf}
-    \caption{3D balance: the ZMP $\bm{p}_Z$ must be inside the polyhedral cone $\mathcal{Z}$.}
+    \caption{3D balance: the ZMP $\bm{p}_z$ must be inside the polyhedral cone $\mathcal{Z}$.}
     \label{fig:balance3D}
 \end{figure}
 
@@ -478,5 +478,5 @@ Despite the above hypothesis on contact forces seems a strong assumption, it
 has been used successfully for both walking and running tasks
 \cite{Sugihara2002ICRA,Zamparelli2018SYROCO,Sugihara2021ICRA,Smaldone2022Running}. Moreover, when in
 single support (or when all contacts are coplanar), the above condition is
-always satisfied if $\dot{\bm{L}}_C=\bm{0}$
+always satisfied if $\dot{\bm{L}}_c=\bm{0}$
 \cite{Caron2017DynamicWalkingOverRoughTerrains}.
