@@ -83,7 +83,7 @@ control of the ZMP can be achieved by using the LIP model, which relates the
 position of the ZMP and the acceleration of the CoM. In order to obtain smoother
 trajectories, we dynamically extend the LIP model \eqref{eq:LIPM}, obtaining a
 model with derivative of the ZMP $\dot{\bm{p}}_z$ as control input. Denoting
-the CoM as $\bm{p}_c = (x_c \; y_c \; z_c)^T$ and the ZMP as $\bm{p}_z = (x_z \; y_z \; z_z)^T$, the 
+the CoM as $\bm{p}_c = (x_c \; y_c \; z_c)^\top$ and the ZMP as $\bm{p}_z = (x_z \; y_z \; z_z)^\top$, the 
 model can hence be rewritten as
 \begin{equation}
     \label{eq:LIPM-x-dynamic-extension}
@@ -160,9 +160,9 @@ receding window called the \textit{preview horizon} \cite{Scianca2020TRO}.
 Consider the following vectors collecting the ZMP positions:
 \begin{align}
     \label{eq:ZMP-positions-x-matrix}
-    \bm{X}_z^k &= (x_z^k \ x_z^{k+1} \ \dots \ x_z^{k+C-1})^T \\
-    \bm{Y}_z^k &= (y_z^k \ y_z^{k+1} \ \dots \ y_z^{k+C-1})^T \\
-    \bm{Z}_z^k &= (z_z^k \ z_z^{k+1} \ \dots \ z_z^{k+C-1})^T.
+    \bm{X}_z^k &= (x_z^k \ x_z^{k+1} \ \dots \ x_z^{k+C-1})^\top \\
+    \bm{Y}_z^k &= (y_z^k \ y_z^{k+1} \ \dots \ y_z^{k+C-1})^\top \\
+    \bm{Z}_z^k &= (z_z^k \ z_z^{k+1} \ \dots \ z_z^{k+C-1})^\top.
 \end{align}
 As explained in \cite{Scianca2016ISMPC}, by defining
 \begin{equation*}
@@ -248,9 +248,9 @@ For the purpose of this analysis, we will use the compact expression
 \begin{equation}
     \label{eq:stability-constraint-matrix}
     \begin{bmatrix}
-        \bm{s}^T & \bm{0}^T & \bm{0}^T \\
-        \bm{0}^T & \bm{s}^T & \bm{0}^T \\
-        \bm{0}^T & \bm{0}^T & \bm{s}^T
+        \bm{s}^\top & \bm{0}^\top & \bm{0}^\top \\
+        \bm{0}^\top & \bm{s}^\top & \bm{0}^\top \\
+        \bm{0}^\top & \bm{0}^\top & \bm{s}^\top
     \end{bmatrix}
     \begin{bmatrix}
         \dot{\bm{X}}_z^k \\ \dot{\bm{Y}}_z^k \\ \dot{\bm{Z}}_z^k
@@ -308,7 +308,7 @@ The IS-MPC block constructs ZMP constraints from the footstep plan
 $\mathcal{P}^l$. The moving constraint requires for the ZMP to be at all
 times within a convex
 polyhedron of fixed shape, in our case a box of dimensions $d_x$, $d_y$ and
-$d_z$ centered in $\bfp_{\rm mc}=(x_{\rm mc}, y_{\rm mc}, z_{\rm mc})^T$,
+$d_z$ centered in $\bfp_{\rm mc}=(x_{\rm mc}, y_{\rm mc}, z_{\rm mc})^\top$,
 which we call the \textit{moving box}. Note that approximating the polyhedral cone
 $\cal Z$ with a box might seem overly conservative. However, we argue that the
 neglected portion of the pyramid region is not crucial here, because large
@@ -323,9 +323,9 @@ fully contained within the 3D pyramid $\mathcal{Z}$
 (Fig \ref{fig:SYROCO18-double-support3D}).
 The vectors
 \begin{align*}
-    \bm{X}_{\rm mc}^{k+1} &= (x_{\rm mc}^{k+1} \ x_{\rm mc}^{k+2} \ \dots \ x_{\rm mc}^{k+C})^T \\
-    \bm{Y}_{\rm mc}^{k+1} &= (y_{\rm mc}^{k+1} \ y_{\rm mc}^{k+2} \ \dots \ y_{\rm mc}^{k+C})^T \\
-    \bm{Z}_{\rm mc}^{k+1} &= (z_{\rm mc}^{k+1} \ z_{\rm mc}^{k+2} \ \dots \ z_{\rm mc}^{k+C})^T
+    \bm{X}_{\rm mc}^{k+1} &= (x_{\rm mc}^{k+1} \ x_{\rm mc}^{k+2} \ \dots \ x_{\rm mc}^{k+C})^\top \\
+    \bm{Y}_{\rm mc}^{k+1} &= (y_{\rm mc}^{k+1} \ y_{\rm mc}^{k+2} \ \dots \ y_{\rm mc}^{k+C})^\top \\
+    \bm{Z}_{\rm mc}^{k+1} &= (z_{\rm mc}^{k+1} \ z_{\rm mc}^{k+2} \ \dots \ z_{\rm mc}^{k+C})^\top
 \end{align*}
 collect the coordinates of the center of the moving box in the control horizon.
 \begin{figure}
@@ -362,7 +362,7 @@ are the ZMP bounds along the prediction, which can be expressed as
     \end{aligned}
 \label{eq:FAPA:zmp_constraint_displacement}
 \end{equation}
-The size of the moving box $(d_x, d_y, d_z)^T$ is
+The size of the moving box $(d_x, d_y, d_z)^\top$ is
 determined in such a way to always be contained inside the pyramid $\cal Z$
 \cite{Zamparelli2018SYROCO, Cipriano2023RAS}.
 The center of the moving box $\bfp_{\rm mc}$ must be expressed in terms of
@@ -391,9 +391,9 @@ can be written as
 where
 \begin{equation*}
     \begin{aligned}
-        \bm{X}_{f}^{l} &= (x_{f}^{l} \ x_{f}^{l+1} \ \dots \ x_{f}^{l+F})^T \\
-        \bm{Y}_{f}^{l} &= (y_{f}^{l} \ y_{f}^{l+1} \ \dots \ y_{f}^{l+F})^T \\
-        \bm{Z}_{f}^{l} &= (z_{f}^{l} \ z_{f}^{l+1} \ \dots \ z_{f}^{l+F})^T
+        \bm{X}_{f}^{l} &= (x_{f}^{l} \ x_{f}^{l+1} \ \dots \ x_{f}^{l+F})^\top \\
+        \bm{Y}_{f}^{l} &= (y_{f}^{l} \ y_{f}^{l+1} \ \dots \ y_{f}^{l+F})^\top \\
+        \bm{Z}_{f}^{l} &= (z_{f}^{l} \ z_{f}^{l+1} \ \dots \ z_{f}^{l+F})^\top
     \end{aligned}
 \end{equation*}
 collect the footstep positions.
@@ -446,7 +446,7 @@ The IS-MPC iteration performs, at each timestep $t_k$, the following steps:
         Compute $(y_c^{k+1}, \dot{y}_c^{k+1}, y_z^{k+1})$ and 
         $(z_c^{k+1}, \dot{z}_c^{k+1}, z_z^{k+1})$ similarly (using
         \eqref{eq:LIPM-x-dynamic-extension} for the $z$ component).
-    \item Send the CoM position $\bm{p}_c^{k+1}=(x_c^{k+1}, y_c^{k+1}, z_c^{k+1})^T$
+    \item Send the CoM position $\bm{p}_c^{k+1}=(x_c^{k+1}, y_c^{k+1}, z_c^{k+1})^\top$
         to the kinematic controller.
 \end{enumerate}
 
@@ -460,11 +460,11 @@ IS-MPC optimization problem \eqref{eq:ISMPC-algorithm} is feasible.
 IS-MPC is feasible at time $t_k$ if
 \begin{align}
 \label{eq:FAPA:mpc-feasibility-constraint}
-\bm{s}^T \bm{P}^{-1} (\bm{X}_z^{{\rm m}, k+1} \!-\! \bm{p} x_z^k)  \!&\le\! x_u^k \!+\! b_x^k \!\le\! \bm{s}^T \bm{P}^{-1} (\bm{X}_z^{{\rm M}, k+1} \!-\! \bm{p} x_z^k),
+\bm{s}^\top \bm{P}^{-1} (\bm{X}_z^{{\rm m}, k+1} \!-\! \bm{p} x_z^k)  \!&\le\! x_u^k \!+\! b_x^k \!\le\! \bm{s}^\top \bm{P}^{-1} (\bm{X}_z^{{\rm M}, k+1} \!-\! \bm{p} x_z^k),
 \nonumber\\
-\bm{s}^T \bm{P}^{-1} (\bm{Y}_z^{{\rm m}, k+1} \!-\! \bm{p} y_z^k)  \!&\le\! y_u^k \!+\! b_y^k \!\le\! \bm{s}^T \bm{P}^{-1} (\bm{Y}_z^{{\rm M}, k+1} \!-\! \bm{p} y_z^k),
+\bm{s}^\top \bm{P}^{-1} (\bm{Y}_z^{{\rm m}, k+1} \!-\! \bm{p} y_z^k)  \!&\le\! y_u^k \!+\! b_y^k \!\le\! \bm{s}^\top \bm{P}^{-1} (\bm{Y}_z^{{\rm M}, k+1} \!-\! \bm{p} y_z^k),
 \nonumber\\
-\bm{s}^T \bm{P}^{-1} (\bm{Z}_z^{{\rm m}, k+1} \!-\! \bm{p} z_z^k)  \!&\le\! z_u^k \!+\! b_z^k \!\le\! \bm{s}^T \bm{P}^{-1} (\bm{Z}_z^{{\rm M}, k+1} \!-\! \bm{p} z_z^k).
+\bm{s}^\top \bm{P}^{-1} (\bm{Z}_z^{{\rm m}, k+1} \!-\! \bm{p} z_z^k)  \!&\le\! z_u^k \!+\! b_z^k \!\le\! \bm{s}^\top \bm{P}^{-1} (\bm{Z}_z^{{\rm M}, k+1} \!-\! \bm{p} z_z^k).
 \end{align}
 \end{proposition}
 {\em Proof}.
@@ -472,8 +472,8 @@ We focus the proof on the inequalities for the $x$ component, as the logic, for
 the other components is identical. The bounds of the feasibility region along
 $x$ are given by
 \begin{align*}
-x_u^{k,b1} &= \bm{s}^T \bm{P}^{-1} (\bm{X}_z^{{\rm m}, k+1} - \bm{p} x_z^k) - b_x^k, \\
-x_u^{k,b2} &= \bm{s}^T \bm{P}^{-1} (\bm{X}_z^{{\rm M}, k+1} - \bm{p} x_z^k) - b_x^k.
+x_u^{k,b1} &= \bm{s}^\top \bm{P}^{-1} (\bm{X}_z^{{\rm m}, k+1} - \bm{p} x_z^k) - b_x^k, \\
+x_u^{k,b2} &= \bm{s}^\top \bm{P}^{-1} (\bm{X}_z^{{\rm M}, k+1} - \bm{p} x_z^k) - b_x^k.
 \end{align*}
 Then, if $x_u^k$ is inside the feasibility region, it is possible to express
 it as a convex combination of the two bounds, i.e.,
@@ -487,13 +487,13 @@ Consider the following ZMP velocity trajectory:
 \end{equation}
 We will show that this particular trajectory satisfies both the stability
 constraint and the ZMP constraints. As for the stability constraint, multiply
-both sides of (\ref{eq:FAPA:candidate_trajectory}) by $\bm{s}^T$
+both sides of (\ref{eq:FAPA:candidate_trajectory}) by $\bm{s}^\top$
 % \begin{equation}
-% \bm{s}^T\bm{\dot X}_z^k = \bm{s}^T(\alpha \bm{Z}^{-1}(\bm{X}_z^{{\rm m}, k+1} - \bm{z} x_z^k) + (1-\alpha)\bm{Z}^{-1}(\bm{X}_z^{{\rm M}, k+1} - \bm{z} x_z^k)),
+% \bm{s}^\top\bm{\dot X}_z^k = \bm{s}^\top(\alpha \bm{Z}^{-1}(\bm{X}_z^{{\rm m}, k+1} - \bm{z} x_z^k) + (1-\alpha)\bm{Z}^{-1}(\bm{X}_z^{{\rm M}, k+1} - \bm{z} x_z^k)),
 % \end{equation}
 and plug in the definitions of $x_u^{k,b1}$ and $x_u^{k,b2}$ to obtain
 \begin{equation*}
-\bm{s}^T\dot{\bm X}_z^k = (\alpha (x_u^{k,b1} + b^k_x)) + (1-\alpha)(x_u^{k,b2} + b^k_x)).
+\bm{s}^\top\dot{\bm X}_z^k = (\alpha (x_u^{k,b1} + b^k_x)) + (1-\alpha)(x_u^{k,b2} + b^k_x)).
 \end{equation*}
 Using (\ref{eq:FAPA:xu_convex}), this is equivalent to the stability
 constraint (\ref{eq:stability-constraint-matrix}).

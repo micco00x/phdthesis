@@ -67,7 +67,7 @@ with normal $\bm{n}_k$ at the $k$-th
 contact point $\bm{p}_k\in\mathbb{R}^3$. Unilaterality of $k$-th contact is formally
 defined by
 \begin{equation*}
-    \bm{n}_k^T \bm{f}_k > 0,
+    \bm{n}_k^\top \bm{f}_k > 0,
 \end{equation*}
 and it describes the impossibility of pulling on the ground. Moreover, we
 assume constant contact phase, hence not considering impact dynamics, which
@@ -88,7 +88,7 @@ is characterized by the following Lagrangian dynamics:
     \end{bmatrix} +
     \sum_{k=1}^{K}
     \begin{bmatrix}
-        \bm{J}_{k, u}^T \\ \bm{J}_{k, a}^T
+        \bm{J}_{k, u}^\top \\ \bm{J}_{k, a}^\top
     \end{bmatrix}
     \bm{f}_k,
     \label{eq:equation-of-motion-humanoids}
@@ -141,7 +141,7 @@ center of mass (CoM), defined as
     \frac{\sum_{i=1}^{n+1} m_i \bm{p}_{l_i}}{m},
 \end{equation*}
 with $\bm{p}_{l_i}$ and $m_i$ are respectively the position and the mass of the $i$-th link, 
-$\bm{g} = (0 \; 0 \; {-g})^T$ is the gravity vector ($g=9.81$~[m/s$^2$]), $\bm{f}_k$ is the contact force
+$\bm{g} = (0 \; 0 \; {-g})^\top$ is the gravity vector ($g=9.81$~[m/s$^2$]), $\bm{f}_k$ is the contact force
 applied at a point with coordinates $\bm{p}_k$ over a contact surface with normal
 $\bm{n}_k$, $K$ is the total number of contacts, and $\bm{L}_c$ is the angular
 momentum of the robot taken at the CoM.
@@ -264,7 +264,7 @@ eq. \eqref{eq:VH-IP}.
 
 %During locomotion, since the the $\bm{f}^{\mathrm{c}}$ are such that its
 %component along the $z$ axis is positive (i.e., $f_z^{\mathrm{c}}=
-%\bm{e}_z^T \bm{f}^{\mathrm{c}} > 0$ with $\bm{e}_z = (0 \; 0 \; 1)^T$), from eq.
+%\bm{e}_z^\top \bm{f}^{\mathrm{c}} > 0$ with $\bm{e}_z = (0 \; 0 \; 1)^\top$), from eq.
 %\eqref{eq:contact-force-with-LG-0}, we have that
 %\begin{equation*}
 %    f_z^{\mathrm{c}} = m \lambda(t) (z_c - z_z) > 0,
@@ -302,7 +302,7 @@ under the above dynamics.
 \end{figure}
 
 When walking on flat floor (a single contact surface with normal
-$\bm{e}_z=(0 \; 0\; 1)^T$),
+$\bm{e}_z=(0 \; 0\; 1)^\top$),
 a common choice is to constrain the ZMP to lie on
 a plane which coincides with the ground (i.e., without loss of generality
 $z_z=0$). As a consequence, the CoM is constrained to lie on a parallel plane

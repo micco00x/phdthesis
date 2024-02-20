@@ -136,7 +136,7 @@ A patch $P$ is identified by the inequality
 \end{equation*}
 where $\bm{A}(P) \in \mathbb{R}^{V(P) \times 2}$ and
 $\bm{b}(P) \in \mathbb{R}^{V(P)} $ define a polytope (with $V(P)$ vertices)
-and $\bfp = (x, y)^T$ is a generic 2D point. 
+and $\bfp = (x, y)^\top$ is a generic 2D point. 
 In this way, non-polytopic portions of ground (e.g., round edges) are
 approximated, but the number of vertices can be arbitrarily large.
 Since each patch $P$ is flat, its height is denoted simply as $z(P)$.
@@ -153,7 +153,7 @@ For each planned footstep $\hat\bff$
     \item $\hat T_{\rm ds}$ and $\hat T_{\rm ss}$ are the durations of its  double support and single support phases, respectively;
     \item we denote by $\Pi(\hat\bff)$ the patch that contains the footstep, i.e., the patch $P$ such that\footnote{Note that this patch is unique because the environment is subdivided into non-overlapping patches.}
     \[
-    (\hat{x}_f, \hat{y}_f)^T \in P,\quad \hat{z}_f = z(P).
+    (\hat{x}_f, \hat{y}_f)^\top \in P,\quad \hat{z}_f = z(P).
     \]
 \end{itemize}
 
@@ -204,9 +204,9 @@ the \textit{admissible region}
 \label{eq:FAPA:kinematic-constraint}
 \begin{split}
 \begin{pmatrix}
-    \bm{n}_1^T\left(\bm{p}_{xy}^{l+j} - \bm{p}_{xy}^{l+j-1} - \bm{R}(\theta_f^{l+j-1})\bm{v}_1\right) \\
+    \bm{n}_1^\top\left(\bm{p}_{xy}^{l+j} - \bm{p}_{xy}^{l+j-1} - \bm{R}(\theta_f^{l+j-1})\bm{v}_1\right) \\
     \vdots \\
-    \bm{n}_V^T\left(\bm{p}_{xy}^{l+j} - \bm{p}_{xy}^{l+j-1} - \bm{R}(\theta_f^{l+j-1})\bm{v}_V\right) \\
+    \bm{n}_V^\top\left(\bm{p}_{xy}^{l+j} - \bm{p}_{xy}^{l+j-1} - \bm{R}(\theta_f^{l+j-1})\bm{v}_V\right) \\
 \end{pmatrix} \ge \bm{0},\\
     \Delta z^{\rm m} \le z_{l+j} - z_{l+j-1} \le \Delta z^{\rm M}, \\
     \Delta \theta^{\rm m} \le \theta_{l+j} - \theta_{l+j-1} \le \Delta \theta^{\rm M}, 
@@ -254,7 +254,7 @@ to lie within its associated patch $\Pi(\bff^{l+j})$, which is the one
 originally chosen by the high-level planner. This constraint can be written as
 \begin{equation}
     \begin{cases}
-		\bm{A}(\Pi(\bff^{l+j})) \left( x_f^{l+j} \ y_f^{l+j} \right)^T \leq \bm{b}(\Pi(\bff^{l+j})), \\
+		\bm{A}(\Pi(\bff^{l+j})) \left( x_f^{l+j} \ y_f^{l+j} \right)^\top \leq \bm{b}(\Pi(\bff^{l+j})), \\
 		z_f^{l+j} = z(\Pi(\bff^{l+j})).
     \end{cases}
 	\label{eq:FAPA:fixed_patch_constraint}
@@ -268,7 +268,7 @@ $b_{l+j,\kappa}$ is {\em true}, then a linear constraint must be verified:
 \begin{equation}
 	b_{l+j,\kappa}=1 \Rightarrow 
 	\begin{cases}
-		\bm{A}(P^\kappa) \left( x_f^{l+j} \ y_f^{l+j} \right)^T \leq \bm{b}(P^\kappa), \\
+		\bm{A}(P^\kappa) \left( x_f^{l+j} \ y_f^{l+j} \right)^\top \leq \bm{b}(P^\kappa), \\
 		z_f^{l+j} = z(P^\kappa).
 	\end{cases}
 	\label{eq:FAPA:implication}
@@ -286,7 +286,7 @@ the so-called {\em big-M} technique
 \eqref{eq:FAPA:implication} as
 \begin{equation}
 	\begin{cases}
-		\bm{A}(P^\kappa)\left( x_f^{l+j} \ y_f^{l+j} \right)^T \leq \bm{b}(P^\kappa) + (1 - b_{l+j,\kappa}) M \bm{1}_{V(P^\kappa)}, \\
+		\bm{A}(P^\kappa)\left( x_f^{l+j} \ y_f^{l+j} \right)^\top \leq \bm{b}(P^\kappa) + (1 - b_{l+j,\kappa}) M \bm{1}_{V(P^\kappa)}, \\
 		z_{l+j} \leq z(P^\kappa) + (1 - b_{l+j,\kappa}) M, \\
 		-z_{l+j} \leq -z(P^\kappa) + (1 - b_{l+j,\kappa}) M,
 	\end{cases}
@@ -361,9 +361,9 @@ This results in
 \begin{equation}
     \label{eq:FAPA:gait_feasibility_constraint}
     \begin{aligned}
-        x_u^k + b_x^k &\le \bm{s}^T \bm{P}^{-1} \left(\bfM\bfX_f^l + \bfm x_f^l + \bm{p} \left(\frac{d_x}{2} - x_z^k\right)\right) \\
-        y_u^k + b_y^k &\le \bm{s}^T \bm{P}^{-1} \left(\bfM\bfY_f^l + \bfm y_f^l + \bm{p} \left(\frac{d_y}{2} - y_z^k\right)\right) \\
-        z_u^k + b_z^k &\le \bm{s}^T \bm{P}^{-1} \left(\bfM\bfZ_f^l + \bfm z_f^l + \bm{p} \left(\frac{d_z}{2} - z_z^k\right)\right).
+        x_u^k + b_x^k &\le \bm{s}^\top \bm{P}^{-1} \left(\bfM\bfX_f^l + \bfm x_f^l + \bm{p} \left(\frac{d_x}{2} - x_z^k\right)\right) \\
+        y_u^k + b_y^k &\le \bm{s}^\top \bm{P}^{-1} \left(\bfM\bfY_f^l + \bfm y_f^l + \bm{p} \left(\frac{d_y}{2} - y_z^k\right)\right) \\
+        z_u^k + b_z^k &\le \bm{s}^\top \bm{P}^{-1} \left(\bfM\bfZ_f^l + \bfm z_f^l + \bm{p} \left(\frac{d_z}{2} - z_z^k\right)\right).
     \end{aligned}
 \end{equation}
 with $x_u^k, y_u^k, z_u^k, b_x^k, b_y^k, b_z^k, \bm{s}, \bm{p}, \bm{P}, \bm{m}, \bm{M}, d_x, d_y, d_z, x_z^k, y_z^k$ and $z_z^k$
@@ -469,10 +469,10 @@ Simulation videos are available at \url{https://youtu.be/4_QYsZH1E7Y}.
         $\beta$ & 100 \\
         $d_x, d_y, d_z$ & 0.035 [m] \\
         $F$ & 3 \\
-        $\bm{v}_1$ & $(0.28, 0.13)^T $ [m] \\
-        $\bm{v}_2$ & $(0.2, 0.43)^T$ [m] \\
-        $\bm{v}_3$ & $(-0.12, 0.43)^T$ [m] \\
-        $\bm{v}_4$ & $(-0.2, 0.13)^T$ [m] \\
+        $\bm{v}_1$ & $(0.28, 0.13)^\top $ [m] \\
+        $\bm{v}_2$ & $(0.2, 0.43)^\top$ [m] \\
+        $\bm{v}_3$ & $(-0.12, 0.43)^\top$ [m] \\
+        $\bm{v}_4$ & $(-0.2, 0.13)^\top$ [m] \\
         $\Delta_z^m$ & -0.10 [m] \\
         $\Delta_z^M$ & 0.10 [m] \\
         $\Delta_{\theta}^m$ & -0.4 [rad] \\
