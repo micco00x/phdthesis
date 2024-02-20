@@ -1,3 +1,63 @@
 \chapter{Conclusions}
-Todo.
+\textbf{From Humanoid motion generation in a world of stairs:}\\
+In Chapter \ref{ch:humanoid-motion-generation-WoS},
+we addressed the problem of motion generation for a humanoid
+robot that must reach a certain goal region walking in an environment consisting
+of horizontal patches located at different heights, called \textit{world of stairs}.
+We considered two versions of such problem: the off-line and on-line case. 
+In the first, the geometry of the environment is completely known in advance,
+while in the second, it is reconstructed by the robot itself during motion using
+an on-board sensor. In both cases, available information about the environment
+is maintained in the form of an elevation map. 
 
+For the off-line case, we proposed an architecture working in two main stages:
+footstep planning and gait generation.
+First, a feasible footstep plan leading to the goal region is off-line computed
+using a randomized algorithm that takes into account the plan quality specified
+by a given optimality criterion.
+Then, an intrinsically stable MPC-based scheme computes a CoM trajectory that
+realizes the found footstep sequence, while guaranteeing dynamic balance and
+boundedness of the CoM w.r.t. the ZMP at all time instants.
+
+For the on-line case, we proposed an extension of the architecture for the
+off-line case where footstep plans are computed in parallel to gait generation
+and map building.
+To this end, we presented a sensor-based version of the footstep planner that
+uses the knowledge about the environment incrementally acquired by the robot
+during motion.
+
+We validated  the proposed architectures by providing simulation results
+obtained in CoppeliaSim on the HRP-4 humanoid robot in scenarios of different
+complexity.
+
+Our future work will explore several directions, such as
+\begin{enumerate}
+    \item providing a formal proof of asymptotic optimality of the proposed
+        footstep planner;
+    \item developing a more general version of the proposed approach to deal
+        with arbitrary terrains, removing the world of stairs assumption;
+    \item implementing the presented architectures on a real humanoid robot;
+    \item extending them to the case of large-scale and multi-floor environments.
+\end{enumerate}
+
+\textbf{From Feasibility-aware plan adaptation in humanoid gait generation:}\\
+In Chapter \ref{ch:FAPA}, we presented a module for adapting positions, orientations and timings in
+such a way to enhance our IS-MPC scheme, using a gait feasibility constraint.
+Simulated results show that the plan is adapted in a very flexible way in
+reaction to strong pushes. In our MATLAB prototype, the performance is fully
+compatible with real time in the case of F-FAPA, while not yet in the case of
+V-FAPA. We believe that an optimized C++ implementation will be able to meet
+real-time requirements. Future work will be aimed at fully accommodating these
+requirements, as well as including the high-level planner
+\cite{Cipriano2023RAS} inside the architecture so that global replanning
+is possile.
+
+\textbf{From Nonlinear model predictive control for steerable wheeled mobile robots:}\\
+In Chapter \ref{ch:nmpc-swmr}, we presented a framework for trajectory tracking with steerable wheeled mobile robots, which makes use of a Nonlinear MPC based on real-time iteration. Our scheme is capable of tracking trajectories without violating wheels' velocity constraints, while taking into account kinematic model singularities. We have validated our approach on multiple trajectories using the Neobotix MPO-700, showing that our scheme is always able to track them. To the best of our knowledge, this is the first time a NMPC has been implemented on a SWMR.
+
+In our future works, we plan to extend the framework in several ways:
+\begin{enumerate}
+    \item extend the NMPC to a dual-arm mobile manipulators such as BAZAR robot \cite{Cherubini2019ACR}, making it interact with the environments with the arms while moving;
+    \item implement a motion planning algorithm such as kinodynamic RRT* \cite{Webb2013KinodynamicRRTstar}, making the robot able to navigate autonomously in an environment with obstacles;
+    \item further improve the performance of the framework by implementing it in C++ (while the scheme runs in real-time thanks to acados which compiles the NMPC, most of the time is taken by the auxiliary trajectory generation, which completely relies on Python).
+\end{enumerate}

@@ -1,4 +1,5 @@
 \chapter{Feasibility-aware plan adaptation in humanoid gait generation}
+\label{ch:FAPA}
 In Chapters \ref{ch:ISMPC} and \ref{ch:humanoid-motion-generation-WoS} we have
 seen how to design a scheme for humanoid locomotion, which allow 
 the robot to perform walking motions in complex scenarios. One of the
@@ -651,16 +652,3 @@ but some outliers violate the requirements. Since all results in this chapter
 are simulated, real-time performance is desirable but not critical.
 However, it is necessary for hardware implementation, which is why we will
 be working to guarantee real-time performance in future works.
-
-\section{Conclusions}
-\label{sec:FAPA:Conclusions}
-We presented a module for adapting positions, orientations and timings in
-such a way to enhance our IS-MPC scheme, using a gait feasibility constraint.
-Simulated results show that the plan is adapted in a very flexible way in
-reaction to strong pushes. In our MATLAB prototype, the performance is fully
-compatible with real time in the case of F-FAPA, while not yet in the case of
-V-FAPA. We believe that an optimized C++ implementation will be able to meet
-real-time requirements. Future work will be aimed at fully accommodating these
-requirements, as well as including the high-level planner
-\cite{Cipriano2023RAS} inside the architecture so that global replanning
-is possile.

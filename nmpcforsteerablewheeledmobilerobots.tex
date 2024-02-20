@@ -984,14 +984,3 @@ Figure \ref{fig:experiments:slalom-with-tangent-orientation:snapshots} shows a s
     \caption{Driving and steering velocities of the four wheels for the \textit{slalom with tangent orientation} trajectory.}
     \label{fig:simulations:slalom-with-tangent-orientation:wheel-velocities}
 \end{figure}
-
-\section{Conclusions}
-\label{sec:conclusions}
-In this work, we presented a framework for trajectory tracking with steerable wheeled mobile robots, which makes use of a Nonlinear MPC based on real-time iteration. Our scheme is capable of tracking trajectories without violating wheels' velocity constraints, while taking into account kinematic model singularities. We have validated our approach on multiple trajectories using the Neobotix MPO-700, showing that our scheme is always able to track them. To the best of our knowledge, this is the first time a NMPC has been implemented on a SWMR.
-
-In our future works, we plan to extend the framework in several ways:
-\begin{enumerate}
-    \item extend the NMPC to a dual-arm mobile manipulators such as BAZAR robot \cite{Cherubini2019ACR}, making it interact with the environments with the arms while moving;
-    \item implement a motion planning algorithm such as kinodynamic RRT* \cite{Webb2013KinodynamicRRTstar}, making the robot able to navigate autonomously in an environment with obstacles;
-    \item further improve the performance of the framework by implementing it in C++ (while the scheme runs in real-time thanks to acados which compiles the NMPC, most of the time is taken by the auxiliary trajectory generation, which completely relies on Python).
-\end{enumerate}
