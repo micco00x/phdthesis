@@ -459,8 +459,9 @@ Consider the output function $\bm{z}(\bm{q})=\bm{\xi}$ and dynamically extend
 so that $\bm{u} = \left[ a_{W_1}, a_{\omega}, v_{\beta_1} \right]^\top $ are
 the new control inputs. In the following, unless otherwise specified, we denote
 the robot configuration with dynamic extension as
-$\bm{q} = [x, y, \theta, \beta_1, \beta_2, \dots, \beta_{n_s}, v_{W_1}, \omega]^\top$.
-Note that $\bm{q}$ is a non-minimal configuration.
+%$\bm{q} = [x, y, \theta, \beta_1, \beta_2, \dots, \beta_{n_s}, v_{W_1}, \omega]^\top$.
+$\bm{q} = [x, y, \theta, \beta_1, v_{W_1}, \omega]^\top$.
+%Note that $\bm{q}$ is a non-minimal configuration.
 The dynamically extended kinematic model is
 \begin{equation}
 \label{eq:dynamically-extended-kinematic-model}
@@ -469,7 +470,7 @@ The dynamically extended kinematic model is
     \dot{y} &= v_{W_1} \sin(\theta + \beta_1) + \omega (-b_1 \cos\theta + a_1 \sin\theta) \\
     \dot{\theta} &= \omega \\
     \dot{\beta}_1 &= v_{\beta_1} \\
-    \dot{\beta}_i &= \dot{h}_i(\bm{q}, \bm{u}), \quad i = 2, \dots, n_s \\
+    %\dot{\beta}_i &= \dot{h}_i(\bm{q}, \bm{u}), \quad i = 2, \dots, n_s \\
     \dot{v}_{W_1} &= a_{{W_1}} \\
     \dot{\omega} &= a_{\omega},
 \end{split}
@@ -545,9 +546,9 @@ given over a time interval $[t_k, t_{k} + N \delta_{\mathrm{MPC}}]$, into
 $N + 1$ elements, with $\delta_{\mathrm{MPC}}$ timestep of the NMPC, and
 function $\bm{F}$ integrates kinematic model
 \eqref{eq:dynamically-extended-kinematic-model} using fourth-order Runge-Kutta
-over timestep $\delta_{\mathrm{MPC}}$, considering coordinating functions
-\eqref{eq:coordinating-function-post-kinematic-model} for the coordinated
-steerable wheels $\beta_2, \dots, \beta_{n_s}$.
+over timestep $\delta_{\mathrm{MPC}}$.%, considering coordinating functions
+%\eqref{eq:coordinating-function-post-kinematic-model} for the coordinated
+%steerable wheels $\beta_2, \dots, \beta_{n_s}$.
 
 \begin{algorithm}
 \small
