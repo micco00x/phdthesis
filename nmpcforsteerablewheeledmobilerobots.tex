@@ -39,33 +39,6 @@ real-time iteration scheme \cite{Gros2020Fromlineartononlinear}.
 Our approach is validated on a
 Neobotix MPO-700 on trajectories of increasing difficulty.
 
-%The contributions of our paper, with respect to the reviewed literature, are
-%the following:
-%\begin{itemize}
-%    \item we propose a framework for trajectory tracking of SWMR, which
-%        generates motions that satisfy driving and steering velocity bounds
-%        on all wheels;
-%    \item we present a NMPC which is intrinsically free-of-singularities
-%        because of the constraints (which guarantees that singularities can
-%        never be encountered);
-%    \item our NMPC is, to the best of our knowledge, the first model predictive
-%        control scheme to be applied to a SWMR.
-%\end{itemize}
-%
-%Moreover, note that our framework, with respect to the taxonomy of singularities
-%presented in \cite{Sorour2017RAL}:
-%\begin{itemize}
-%    \item cannot encounter the singularity of the ICR being on one of the
-%        steerable axis because of the NMPC constraints;
-%    \item cannot encounter singularities due to the mobile base having zero
-%        velocity because of the finite state machine (which, as described
-%        throughout the paper, makes use of a free-of-singularities kinematic
-%        model);
-%    \item it does not present a singularity when the ICR is at infinity,
-%        because of the use of a different parametrization
-%        \cite{RobuffoGiordano2009ICRA}.
-%\end{itemize}  
-
 \section{Kinematic model}
 \label{sec:kinematic-model}
 In this section, we will develop the kinematic model of a steerable wheeled
