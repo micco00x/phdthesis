@@ -1,36 +1,23 @@
 \chapter{Nonlinear model predictive control for steerable wheeled mobile robots}
 \label{ch:nmpc-swmr}
-
-\textbf{SWMR paper Abstract:}
 Steerable wheeled mobile robots (SWMRs) are known to be flexibile and robust
 thanks to their omnidirectionality and the presence of conventional wheels.
-Nevertheless, modeling and control of this kind of platform is complex, due
+Nevertheless, their modeling and control is complex, due
 to the presence of singularities in their representation or in the control
-scheme. This paper proposes a framework for trajectory tracking of SWMRs using
-a Nonlinear Model Predictive Control (NMPC) based on the real-time iteration
-scheme, which generates feasible motions for the robot by taking into account
-all kinematic singularities of the mobile base, together with bounds on driving
-and steering velocities on the wheels. Our NMPC works alongside a finite state
-machine and an auxiliary trajectory generation module based on dynamic feedback
-linearization, which makes our framework capable of tracking any trajectory,
-without ever encountering any singularity. Our approach is validated on a
-Neobotix MPO-700 on trajectories of increasing difficulty.
+scheme.
 
-\textbf{SWMR paper Introduction:}
-In this paper, we consider the problem of trajectory tracking for steerable
-wheeled mobile robots (SWMRs), equipped with an arbitrary number of wheels.
+In this chapter, we consider the problem of trajectory tracking for steerable
+wheeled mobile robots (SWMRs), equipped with two or more wheels.
 The robot is required to follow a user-defined reference pose trajectory in
 an environment free of obstacles, without violating the driving and steering
 velocity constraints of each wheel. Note that, in order to successfully perform
 this task, it is of utmost importance to take into account the kinematic
-singularities of the platform \cite{Sorour2019RAS}. In order to solve this
-problem, we propose a Nonlinear MPC \cite{Rawlings2017MPCBook}, which computes
-control inputs for a SWMR while tracking a reference pose trajectory,
-satisfying driving and steering velocity constraints on all wheels, and handling
-all kinematic singularities mentioned above. While there exists a large number
-of works using MPC on differential drive robots \cite{Tarantos2023Springer},
-autonomous vehicles such as cars \cite{Zanon2014Springer} and tractor trailers
-\cite{Beglini2022TMECH}, and wheeled-legged robots \cite{Bjelonic2021IROS},
+singularities of the platform \cite{Sorour2019RAS}. To solve this
+problem, we propose a framework which makes use of
+Nonlinear Model Predictive Control \cite{Rawlings2017MPCBook}.
+While many existing work use MPC on differential drive robots \cite{Tarantos2023Springer},
+on autonomous vehicles such as cars \cite{Zanon2014Springer} and tractor trailers
+\cite{Beglini2022TMECH}, and on wheeled-legged robots \cite{Bjelonic2021IROS},
 the application of MPC to SWMRs has yet to be explored.
 
 \begin{figure}
@@ -40,53 +27,72 @@ the application of MPC to SWMRs has yet to be explored.
     \label{fig:mpo-700}
 \end{figure}
 
-Our Nonlinear MPC (NMPC) is supported by a finite state machine, which is
-responsible for starting and stopping the motion of the robot while
-guaranteeing that the robot never encounters any kinematic singularity, and
-an auxiliary trajectory generation scheme based on dynamic feedback
-linearization \cite{Oriolo2002WMRControlDFL}, which generates reference
-configurations and reference control inputs for the NMPC itself, given a
-user-defined reference pose trajectory. The NMPC is formulated as a Nonlinear
-Programming (NLP) problem, and it is solved using the real-time iteration
-\cite{Gros2020Fromlineartononlinear} scheme.
+Our NMPC is supported by a \textit{finite state machine}, responsible for
+starting and stopping the motion of the robot, while guaranteeing that it never
+encounters any kinematic singularity, and
+an \textit{auxiliary trajectory generation scheme} based on dynamic
+feedback linearization \cite{Oriolo2002WMRControlDFL}, which generates
+reference configurations and reference control inputs for the NMPC
+itself, given the reference pose trajectory. 
+The NMPC is formulated as a Nonlinear Programming problem, and solved using the
+real-time iteration scheme \cite{Gros2020Fromlineartononlinear}.
+Our approach is validated on a
+Neobotix MPO-700 on trajectories of increasing difficulty.
 
-The contributions of our paper, with respect to the reviewed literature, are
-the following:
-\begin{itemize}
-    \item we propose a framework for trajectory tracking of SWMR, which
-        generates motions that satisfy driving and steering velocity bounds
-        on all wheels;
-    \item we present a NMPC which is intrinsically free-of-singularities
-        because of the constraints (which guarantees that singularities can
-        never be encountered);
-    \item our NMPC is, to the best of our knowledge, the first model predictive
-        control scheme to be applied to a SWMR.
-\end{itemize}
-
-Moreover, note that our framework, with respect to the taxonomy of singularities
-presented in \cite{Sorour2017RAL}:
-\begin{itemize}
-    \item cannot encounter the singularity of the ICR being on one of the
-        steerable axis because of the NMPC constraints;
-    \item cannot encounter singularities due to the mobile base having zero
-        velocity because of the finite state machine (which, as described
-        throughout the paper, makes use of a free-of-singularities kinematic
-        model);
-    \item it does not present a singularity when the ICR is at infinity,
-        because of the use of a different parametrization
-        \cite{RobuffoGiordano2009ICRA}.
-\end{itemize}  
+%The contributions of our paper, with respect to the reviewed literature, are
+%the following:
+%\begin{itemize}
+%    \item we propose a framework for trajectory tracking of SWMR, which
+%        generates motions that satisfy driving and steering velocity bounds
+%        on all wheels;
+%    \item we present a NMPC which is intrinsically free-of-singularities
+%        because of the constraints (which guarantees that singularities can
+%        never be encountered);
+%    \item our NMPC is, to the best of our knowledge, the first model predictive
+%        control scheme to be applied to a SWMR.
+%\end{itemize}
+%
+%Moreover, note that our framework, with respect to the taxonomy of singularities
+%presented in \cite{Sorour2017RAL}:
+%\begin{itemize}
+%    \item cannot encounter the singularity of the ICR being on one of the
+%        steerable axis because of the NMPC constraints;
+%    \item cannot encounter singularities due to the mobile base having zero
+%        velocity because of the finite state machine (which, as described
+%        throughout the paper, makes use of a free-of-singularities kinematic
+%        model);
+%    \item it does not present a singularity when the ICR is at infinity,
+%        because of the use of a different parametrization
+%        \cite{RobuffoGiordano2009ICRA}.
+%\end{itemize}  
 
 \section{Kinematic model}
 \label{sec:kinematic-model}
-In this section we will develop the kinematic model of a steerable wheeled mobile robot (SWMR), following the analysis presented in \cite{RobuffoGiordano2009ICRA}. Note that while our mobile base is equipped with azimut wheels (which, in the following, we will denote as steerable wheels), the resulting kinematic model is identical to the one described in the aforementioned paper, which takes into account caster wheels.
+In this section, we will develop the kinematic model of a steerable wheeled
+mobile robot (SWMR), following the analysis presented in
+\cite{RobuffoGiordano2009ICRA}. Note that while our mobile base is equipped
+with steerable wheels, its kinematic model is identical to the one described
+in \cite{RobuffoGiordano2009ICRA}, which considers caster wheels.
 
-Consider a SWMR equipped with $n_s \ge 2$ independent steerable wheels. With reference to Fig. \ref{fig:swmr}, we will denote the vector $\bm{\xi} = [x, y, \theta]^\top \in SE(2)$ as the pose of mobile base, where $(x, y)$ is its position, and $\theta$ is its orientation. Let $S_i$ be the $i$-th steering joint of the mobile base, and $W_i$ be the $i$-th wheel of the mobile base, and let $\bm{o}_{S_i}$ and $\bm{o}_{W_i}$ respectively be their positions, the latter parameterized by the steering angle $\beta_i$. Each wheel is also described by two independent velocities, the driving velocity $v_{Wi}$ and the steering velocity $v_{\beta_i}$, which are taken as control inputs. We define the whole robot configuration via the vector $\bm{q}=[\bm{\xi}^\top, \bm{\beta}^\top]^\top$, where $\bm{\beta}=[\beta_1, \dots, \beta_{n_s}]^\top$.
+Consider a SWMR equipped with $n_s \ge 2$ independent steerable wheels.
+With reference to Fig. \ref{fig:swmr}, we will denote the vector
+$\bm{\xi} = [x, y, \theta]^\top \in SE(2)$ as the pose of mobile base,
+with $(x, y)$ its position and $\theta$ its orientation. Let $S_i$ be
+the $i$-th steering joint of the mobile base, and $W_i$ the $i$-th wheel of
+the mobile base, and let $\bm{o}_{S_i}$ and $\bm{o}_{W_i}$ respectively be
+their positions, the latter parameterized by the steering angle $\beta_i$.
+Each wheel is also described by two independent velocities, the driving
+velocity $v_{Wi}$ and the steering velocity $v_{\beta_i}$, which are taken
+as control inputs. We define the whole robot configuration via the vector
+$\bm{q}=[\bm{\xi}^\top, \bm{\beta}^\top]^\top$, where
+$\bm{\beta}=[\beta_1, \dots, \beta_{n_s}]^\top$.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.65\textwidth]{figures/SWMR/swmr.pdf}
-    \caption{Schematic model of a SWMR. Note that, even if the figure represents a robot equipped with four wheels, our approach is generic and works with an arbitrary number of wheels.}
+    \caption{Schematic model of a SWMR. Note that, even if the figure
+        represents a robot equipped with four wheels, our approach is generic
+        and works with an arbitrary number of 2 or more wheels.}
     \label{fig:swmr}
 \end{figure}
 
@@ -147,7 +153,9 @@ where $\bm{R} \in SO(2)$ is a rotation matrix.
 %    \end{bmatrix}.
 %\end{align*}
 
-Due to the assumption of no lateral skidding (i.e., the velocity of the contact point of the wheel must be orthogonal with respect to the zero motion line of the wheel itself), each wheel is subject to the Pfaffian constraint
+Due to the assumption of no lateral skidding (i.e., the velocity of the contact
+point of the wheel must be orthogonal with respect to the zero motion line of
+the wheel itself), each wheel is subject to the Pfaffian constraint
 \begin{equation}
     \label{eq:no-lateral-skidding-constraint}
     \begin{bmatrix}
@@ -163,7 +171,8 @@ Due to the assumption of no lateral skidding (i.e., the velocity of the contact 
 %    (b_i \cos(\beta_i) + a_i \sin(\beta_i)) \dot{\theta} = 0.
 %\end{equation}
 
-By combining the above equations, it is possible to rearrange the $n_s$ nonholonomic constraints in matrix form
+By combining the above equations, it is possible to rearrange the $n_s$
+nonholonomic constraints in matrix form
 \begin{equation}
     \label{eq:pfaffian-constraints-matrix-form}
     \underbrace{
@@ -187,10 +196,17 @@ By combining the above equations, it is possible to rearrange the $n_s$ nonholon
 \end{equation}
 with $\Delta_i = b_i \cos\beta_i + a_i \sin\beta_i$.
 
-In order for the mobile base to perform a motion, all wheel axles must instantaneously intersect at the same point, the ICR. The existence of an ICR can be seen as a geometric constraint, which requires all wheel orientations to be coordinated. In the following, we will study how the ICR constraint affect the mobility of the system.
+For the mobile base to perform a motion, all wheel axles must instantaneously
+intersect at the same point, the ICR. The existence of an ICR can also be seen
+as a geometric constraint, which requires all wheel orientations to be
+coordinated. In the following, we will study how the ICR constraint affects
+the robot mobility.
 
 \subsection{ICR constraint not satisfied}
-Whenever the robot configuration is such that it has no instantaneous center of rotation (ICR), since from~(\ref{eq:pfaffian-constraints-matrix-form}) $\dot{\bm{q}} \in \mathcal{N}(\bm{A}^\top(\bm{q}))$, the kinematic model of the robot is the following:
+Whenever the robot configuration is such that it has no instantaneous center
+of rotation (ICR), since from~(\ref{eq:pfaffian-constraints-matrix-form})
+$\dot{\bm{q}} \in \mathcal{N}(\bm{A}^\top(\bm{q}))$, the kinematic model of
+the robot is the following:
 \begin{align*}
 \begin{split}
 %    \dot{x} &= 0 \\
@@ -199,16 +215,27 @@ Whenever the robot configuration is such that it has no instantaneous center of 
     \dot{\beta}_i &= v_{\beta_i},
 \end{split}
 \end{align*}
-with $v_{\beta_i}$ steering velocities. In this case, the pose of the robot remains constant, and it is only possible to control the steering angles. 
+with $v_{\beta_i}$ steering velocities. In this case, the pose of the robot
+remains constant, and it is only possible to control the steering angles. 
 
 \subsection{ICR constraint satisfied}
 \label{sec:icr-constraint-satisfied}
-Whenever the robot configuration is such that there exists an ICR, it is possible to simplify~\eqref{eq:pfaffian-constraints-matrix-form} through the use of coordinating functions for $\beta_i$ \cite{RobuffoGiordano2009ICRA}, with $i \ge 2$. The idea is to let the ICR be defined by the trajectory of $\bm{\xi}$, namely $\bm{\xi} \left( t \right)$. Indeed, considering the $i$-th constraint in \eqref{eq:pfaffian-constraints-matrix-form} and solving\footnote{Note that $\beta_i$ could be either $h_i(\bm{\xi}, \dot{\bm{\xi}})$ or $h_i(\bm{\xi}, \dot{\bm{\xi}}) + \pi$. In our analysis, to keep the notation simpler, we consider only the first case. However, when implementing the coordinating function, both cases need to be carefully taken into account.} for $\beta_i$ yields the coordinating function (holonomic constraint)
+Whenever the robot configuration is such that there exists an ICR,
+it is possible to simplify~\eqref{eq:pfaffian-constraints-matrix-form}
+through the use of \textit{coordinating functions} for $\beta_i$
+\cite{RobuffoGiordano2009ICRA}, with $i \ge 2$. The idea is to let the ICR
+be defined by the trajectory of $\bm{\xi}$, namely $\bm{\xi} \left( t \right)$.
+Indeed, considering the $i$-th constraint in
+\eqref{eq:pfaffian-constraints-matrix-form} and solving for $\beta_i$ yields
+the coordinating function\footnote{Note that $\beta_i$ can have two values,
+shifted by $\pi$. We select the one closest to the current $\beta_i$.}
+(holonomic constraint)
 \begin{equation}
     \label{eq:coordinating-function-pre-kinematic-model}
     \beta_i = h_i(\bm{\xi}, \dot{\bm{\xi}}) = \mathrm{arctan} \frac{-\sin\theta\dot{x}+\cos\theta\dot{y}+b_i\dot{\theta}}{\cos\theta\dot{x}+\sin\theta\dot{y}-a_i\dot{\theta}},
 \end{equation}
-which can be used to ``transform'' the last $n_s-1$ constraints of \eqref{eq:pfaffian-constraints-matrix-form}, obtaining:
+which can be used to ``transform'' the last $n_s-1$ constraints of
+\eqref{eq:pfaffian-constraints-matrix-form}, obtaining:
 \begin{equation}
     \label{eq:reduced-pfaffian-constraints-matrix-form}
     \begin{bmatrix}
@@ -226,7 +253,8 @@ which can be used to ``transform'' the last $n_s-1$ constraints of \eqref{eq:pfa
     \beta_i = h_i(\bm{\xi}, \dot{\bm{\xi}}), \quad i = 2, \dots, n_s.
 \end{equation*}
 
-From \eqref{eq:reduced-pfaffian-constraints-matrix-form}, it is trivial to get the reduced kinematic model
+From \eqref{eq:reduced-pfaffian-constraints-matrix-form}, it is trivial to
+get the reduced kinematic model
 \begin{equation}
 \label{eq:reduced-kinematic-model}
 \begin{split}
@@ -236,7 +264,8 @@ From \eqref{eq:reduced-pfaffian-constraints-matrix-form}, it is trivial to get t
     \dot{\beta}_1 &= v_{\beta_1},
 \end{split}
 \end{equation}
-which can be used together with \eqref{eq:coordinating-function-pre-kinematic-model} to express $\beta_i$ as
+which can be used together with \eqref{eq:coordinating-function-pre-kinematic-model}
+to express $\beta_i$ as
 \begin{equation}
     \label{eq:coordinating-function-post-kinematic-model}
     \beta_i = h_i(v_{W_1}, \omega, \beta_1) = \mathrm{arctan} \frac{v_{W_1}\sin\beta_1+\omega(b_i-b_1)}{v_{W_1}\cos\beta_1+\omega(a_1-a_i)}.
@@ -244,12 +273,33 @@ which can be used together with \eqref{eq:coordinating-function-pre-kinematic-mo
 
 Note that the above equations (named \textit{coordinating functions}) present a singularity whenever the position of the $i$-th steering joint $S_i$ is constant (i.e., $\dot{\bm{o}}_{S_i}=\bm{0}$). This needs to be considered when designing a controller. Note that this condition is met when the platform is not moving or when the position of the ICR coincides with the position of $S_i$. 
 
-As a consequence, if the ICR does not lie on any of the steering joints $S_i$ and if it does not change through time (i.e. $\dot{\beta}_i = 0$), all coordinating functions $h_i$ are free of singularity. Two interesting cases when these hypotheses hold are when the ICR is constant at infinity (i.e., $\omega = 0$), and when the ICR is constant, but not at infinity (i.e., $v_{W_1} = \omega R$, with $R > 0$ the distance between $\bm{o}_{W_1}$ and the ICR). In the following, we define the reduced kinematic models and the coordinating functions for these two cases, which will be used to start/stop the robot.
+As a consequence, if the ICR does not lie on any of the steering joints $S_i$
+and if it does not change through time (i.e. $\dot{\beta}_i = 0$), all
+coordinating functions $h_i$ are free of singularity. Two interesting cases when
+these hypotheses hold are when the ICR is constant at infinity
+(i.e., $\omega = 0$), and when the ICR is constant, not at infinity
+(i.e., $v_{W_1} = \omega R$, with $R > 0$ the distance between ICR and
+$\bm{o}_{W_1}$). Hereby, we define the reduced kinematic models and coordinating
+functions for these 2 cases, which we use to start/stop the robot.
 
 \begin{figure*}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/blockscheme.pdf}
-    \caption{A block scheme of the proposed framework. A user-defined reference pose trajectory $\bm{\xi}^{\rm ref}$ of the mobile base is used by a FSM to determine when to start and stop the motion of the robot. As soon as a new reference trajectory is available, the state of the FSM becomes \textit{Starting}, and the mobile base is accelerated (using open-loop commands) until all wheel driving velocities are different than zero. When this condition is met, the state of the FSM becomes \textit{Moving}, and the Nonlinear MPC takes full control of the motion of the robot. In this situation, an auxiliary trajectory generation module based on dynamic feedback linearization computes the trajectories $\bm{q}^{\rm aux}$ and $\bm{u}^{\rm aux}$ (using $\bm{\xi}^{\rm ref}$), which are used by the Nonlinear MPC to compute optimal control inputs $\bm{u}^*$. The state of the FSM becomes \textit{Stopping} when $\bm{\xi}^{\rm ref} = \bm{0}$, and the robot is decelerated until it stops.}
+    \caption{Block scheme of the proposed framework. A user-defined reference
+        pose trajectory $\bm{\xi}^{\rm ref}$ of the mobile base is fed to a
+        Finite State Machine (FSM), which determines when to start/stop robot
+        motion. As soon as a reference trajectory is available, the state of
+        the FSM becomes \textit{Starting}, and the mobile base is accelerated
+        (using open-loop commands) until all wheel driving velocities are non
+        null. When this condition is met, the state of the FSM becomes
+        \textit{Moving}, and the Nonlinear MPC takes full control of the
+        robot motion. In this case, an auxiliary trajectory generation scheme
+        based on dynamic feedback linearization computes the trajectories
+        $\bm{q}^{\rm aux}$ and $\bm{u}^{\rm aux}$ (using $\bm{\xi}^{\rm ref}$),
+        which are used by the Nonlinear MPC to compute optimal control inputs
+        $\bm{u}^*$. The state of the FSM becomes \textit{Stopping} when
+        $\bm{\xi}^{\rm ref} = \bm{0}$, and the robot decelerates, then stops.
+    }
     \label{fig:block-scheme}
 \end{figure*}
 
@@ -263,7 +313,8 @@ As a consequence, if the ICR does not lie on any of the steering joints $S_i$ an
 
 \subsubsection{ICR constant at infinity}
 \label{sec:icr-constant-at-infinity}
-in the first case, we assume that the ICR exists and that it is constantly at infinity (i.e., the steering angles are the same for all wheels and $\omega = 0$). Then, the reduced kinematic model of the robot \eqref{eq:reduced-kinematic-model} becomes
+in this case, the steering angles are the same for all wheels and $\omega = 0$.
+Then, the robot's reduced kinematic model \eqref{eq:reduced-kinematic-model} becomes
 \begin{align}
 \label{eq:icr-constant-at-infinity-kinematic-model}
 \begin{split}
@@ -273,11 +324,15 @@ in the first case, we assume that the ICR exists and that it is constantly at in
 %    \dot{\beta}_1 &= 0,
 \end{split}
 \end{align}
-and the coordinating functions become $\beta_i = h_i(\beta_1) = \beta_1$. In this case, the robot can only move along a line which is parallel to the sagittal axes of the wheels.
+and the coordinating functions become
+\begin{equation*}
+    \beta_i = h_i(\beta_1) = \beta_1.
+\end{equation*}
+The robot can only move along a line parallel to the wheels' sagittal axes.
 
 \subsubsection{ICR constant not at infinity}
 \label{sec:icr-constant-not-at-infinity}
-in the second case, we assume an ICR exists and it is at a constant position (different than the position of the steering joints), but not at infinity. Then, the reduced kinematic model of the robot \eqref{eq:reduced-kinematic-model} becomes
+in this case, the robot's reduced kinematic model \eqref{eq:reduced-kinematic-model} becomes
 \begin{align}
 \label{eq:icr-constant-not-at-infinity-kinematic-model}
 \begin{split}
@@ -291,69 +346,122 @@ and the coordinating functions become
 \begin{equation*}
     \beta_i = h_i(\beta_1) = \mathrm{arctan}\frac{R \sin\beta_1 + b_i - b_1}{R \cos\beta_1 + a_1 - a_i}.
 \end{equation*}
-Note that $R$ can be determined from the ICR, which can be computed as the intersection point of the wheel axles. In this case, the robot can only move along the circle centered at the ICR, and radius corresponding to the distance between the position of the robot and the ICR itself. Both the center and the radius are constant, and are determined by the initial configuration of the robot.
+Note that $R$ can be determined from the ICR, which can be computed as the
+intersection of the wheel axles. In this case, the robot can only move along
+the circle centered at the ICR, and radius corresponding to the distance between
+the position of the robot and the ICR itself.
 
 \section{Proposed framework}
 \label{sec:proposed-framework}
-This section describes in detail the main components of our framework (shown in Fig. \ref{fig:block-scheme}), namely: the finite state machine, responsible for starting and stopping the robot while avoiding kinematic model singularities, the auxiliary trajectory generation module, based on dynamic feedback linearization, which provides trajectories to the NMPC, and the NMPC itself, which computes control inputs for the robot, while satisfying driving and steering velocity constraints on all wheels.
+This section describes in detail the main components of our framework
+(shown in Fig. \ref{fig:block-scheme}), namely: the finite state machine,
+responsible for starting and stopping the robot while avoiding kinematic
+singularities, the auxiliary trajectory generation scheme, which provides
+trajectories to the NMPC, and the NMPC itself, which computes control inputs
+for the robot, while satisfying the driving and steering velocity constraints
+of each wheel.
 
 \subsection{Finite state machine}
 \label{sec:finite-state-machine}
-As mentioned above, since the initial configuration of the robot may be such that the ICR constraint is not satisfied, and since the NMPC must avoid configurations in which coordinating functions \eqref{eq:coordinating-function-post-kinematic-model} are singular (in order to avoid numerical instabilities), we implemented a finite state machine (FSM) to guarantee that the robot is always in a configuration free of singularity.
+Since the ICR constraint may be not satisfied at initialization, and since the
+NMPC must avoid configurations in which coordinating functions
+\eqref{eq:coordinating-function-post-kinematic-model} are singular, we
+designed a finite state machine (FSM) to move the robot towards a configuration
+free of singularity.
 
-The FSM, shown in Fig. \ref{fig:finite-state-machine}, consists of five states (\textit{NoICR}, \textit{Ready}, \textit{Starting}, \textit{Moving} and \textit{Stopping}), described -- along with the triggering events -- hereby.
+The FSM, shown in Fig. \ref{fig:finite-state-machine}, consists of five states,
+described -- along with the triggering events -- hereby.
 \begin{itemize}
     %\renewcommand{\labelitemi}{$\blacktriangleright$}
-    \item[$\blacktriangleright$] \textit{NoICR}. The configuration of the robot is such that the ICR constraint is not satisfied. In this state, the wheels are regulated to a user-defined configuration using a proportional controller.
-        \begin{itemize}
-            \item[$\bullet$] Once the ICR constraint is satisfied, the state of the FSM becomes \textit{Ready}.
-        \end{itemize}
-    \item[$\blacktriangleright$] \textit{Ready}. The configuration of the robot is such that the ICR constraint is satisfied and the robot is not moving.
-        \begin{itemize}
-            \item[$\bullet$] Once a new trajectory is available, the state of the FSM becomes \textit{Starting}.
-        \end{itemize}
-    \item[$\blacktriangleright$] \textit{Starting}. An open loop controller makes the robot start its motion taking into account the free-of-singularities kinematic models previously presented: either \eqref{eq:icr-constant-at-infinity-kinematic-model} or \eqref{eq:icr-constant-not-at-infinity-kinematic-model} depending on the initial configuration of the robot.
-        \begin{itemize}
-            \item[$\bullet$] Once all velocities $\dot{\bm{o}}_{S_i}$ become non-zero, the state of the FSM becomes \textit{Moving}.
-        \end{itemize}
-    \item[$\blacktriangleright$] \textit{Moving}. The robot is moving using the NMPC.
-        \begin{itemize}
-            \item[$\bullet$] If the trajectory tracking task is about to be be completed, the state of the FSM becomes \textit{Stopping}.
-        \end{itemize}
-    \item[$\blacktriangleright$] \textit{Stopping}. Similarly to \textit{Starting}, an open loop motion makes the mobile base reduce its speed until it stops.
-        \begin{itemize}
-            \item[$\bullet$] Once the robot stops its motion, the state of the FSM becomes \textit{Ready}.
-        \end{itemize}
+    \item[$\blacktriangleright$] \textit{NoICR}. The configuration of the robot
+        is such that the ICR constraint is not satisfied. In this state, the
+        wheels are regulated to a user-defined configuration using a
+        proportional controller. Once the ICR constraint is satisfied,
+        the state of the FSM becomes \textit{Ready}.
+
+    \item[$\blacktriangleright$] \textit{Ready}. The configuration of the robot
+        is such that the ICR constraint is satisfied and the robot is not
+        moving. Once a new trajectory is available, the state of the FSM
+        becomes \textit{Starting}.
+    
+    \item[$\blacktriangleright$] \textit{Starting}. An open loop controller
+        makes the robot start its motion taking into account the
+        singularity-free kinematic models previously presented: either
+        \eqref{eq:icr-constant-at-infinity-kinematic-model} or
+        \eqref{eq:icr-constant-not-at-infinity-kinematic-model},
+        depending on the robot's initial configuration. Once all velocities
+        $\dot{\bm{o}}_{S_i}$ become non-null, the state of the FSM becomes
+        \textit{Moving}.
+    
+    \item[$\blacktriangleright$] \textit{Moving}. The robot moves using the
+        NMPC. If the trajectory tracking task is about to be be completed,
+        the state of the FSM becomes \textit{Stopping}.
+
+    \item[$\blacktriangleright$] \textit{Stopping}. Similarly to
+        \textit{Starting}, an open loop motion makes the mobile base reduce
+        its speed until it stops. Once the robot stops its motion, the state
+        of the FSM becomes \textit{Ready}.
 \end{itemize}
 
-\subsection{Starting and stopping}
+\subsection{Open-loop commands (starting and stopping)}
 \label{sec:starting-and-stopping}
-In this section, we present our free-of-singularity strategy for handling starting and stopping motions. To this end, we first constrain the ICR to be constant, as already explained in Sect.~\ref{sec:icr-constraint-satisfied}, and accelerate (decelerate) the mobile base along the arc of circle defined by the initial position of the robot and the initial ICR, until all velocities $\dot{\bm{o}}_{S_i}$ are different than zero (until the robot stops its motion).
+In this section, we present our singularity-free strategy, for handling
+starting and stopping motions. To this end, we first constrain the ICR to be
+constant, as explained in Sect.~\ref{sec:icr-constraint-satisfied}, and we
+accelerate (respectively, decelerate) the mobile base along the arc of circle
+defined by the initial position of the robot and the initial ICR, until all
+velocities $\dot{\bm{o}}_{S_i}$ are non-null (respectively, null).
 
-Assuming the ICR is constant at infinity, the system evolves according to~\eqref{eq:icr-constant-at-infinity-kinematic-model}. Considering the driving acceleration~$a_{W_1}$ as control input:
+If the ICR is constant at infinity, the robot evolves according
+to~\eqref{eq:icr-constant-at-infinity-kinematic-model}.
+Considering the dynamic extension $\dot{v}_{W_1}=a_{W_1}$, with $a_{W_1}$ new control input:
 \begin{itemize}
-    \item when the state of the FSM is \textit{Starting}, we accelerate the mobile base by choosing $a_{W_1} = a_{W_1}^{\mathrm{init}}$, where $a_{W_1}^{\mathrm{init}}$ is a hyperparameter;
-    \item when the state of the FSM is \textit{Stopping}, we decelerate the mobile base by choosing $a_{W_1} = -K_{v_{W_1}}^{\mathrm{stop}} v_{W_1}$, with $K_{v_{W_1}}^{\mathrm{stop}} > 0$.
+    \item when the state of the FSM is \textit{Starting},
+        we accelerate the mobile base by choosing
+        $a_{W_1} = a_{W_1}^{\mathrm{init}}$, where $a_{W_1}^{\mathrm{init}}$
+        is a parameter;
+    \item when the state of the FSM is \textit{Stopping}, we decelerate the
+        mobile base by choosing $a_{W_1} = -K_{v_{W_1}}^{\mathrm{stop}} v_{W_1}$,
+        with $K_{v_{W_1}}^{\mathrm{stop}} > 0$.
 \end{itemize}
 
-Assuming that the ICR is constant, but not at infinity and not lying on any of the steering joint positions, the system evolves according to~\eqref{eq:icr-constant-not-at-infinity-kinematic-model}.
-Considering the angular acceleration $a_{\omega}$ as control input:
+Assuming that the ICR is constant, but not at infinity and not lying on any of
+the steering joint, the robot evolves according to~\eqref{eq:icr-constant-not-at-infinity-kinematic-model}.
+Considering the dynamic extension $\dot{\omega}=a_{\omega}$, with
+$a_{\omega}$ new control input:
 \begin{itemize}
-    \item when the state of the FSM is \textit{Starting}, we accelerate the mobile base via $a_{\omega} = a_{W_1}^{\mathrm{init}} / R$, which, since $\dot{v}_{W_1}=a_{\omega} R$, is equivalent to accelerate $W_1$ by $a_{W_1}^{\mathrm{init}}$;
-    \item when the state of the FSM is \textit{Stopping}, we decelerate the mobile base via $a_{\omega} = -K_{v_{W_1}}^{\mathrm{stop}} v_{W_1} / R$, which is equivalent to decelerate $W_1$ by $-K_{v_{W_1}}^{\mathrm{stop}} v_{W_1}$.
+    \item when the state of the FSM is \textit{Starting}, we accelerate the
+        mobile base via $a_{\omega} = a_{W_1}^{\mathrm{init}} / R$, which,
+        since $\dot{v}_{W_1}=a_{\omega} R$, is equivalent to accelerate $W_1$ by $a_{W_1}^{\mathrm{init}}$;
+    \item when the state of the FSM is \textit{Stopping}, we decelerate the
+        mobile base via $a_{\omega} = -K_{v_{W_1}}^{\mathrm{stop}} v_{W_1} / R$,
+        which is equivalent to decelerate $W_1$ by $-K_{v_{W_1}}^{\mathrm{stop}} v_{W_1}$.
 \end{itemize}
 
 \subsection{Auxiliary trajectory generation}
-As already mentioned, once velocities $\dot{\bm{o}}_{S_i}$ become non-zero, the state of the FSM becomes \textit{Moving}, and the robot is controlled by the NMPC. In this section, we develop an auxiliary trajectory generation module based on dynamic feedback linearization \cite{Oriolo2002WMRControlDFL}, whose purpose is to compute auxiliary configuration and control input trajectories for the NMPC, given a reference pose trajectory of the mobile base. Note that both auxiliary trajectory generation and the NMPC are only used when the state of the FSM is \textit{Moving}.
+Once the velocities $\dot{\bm{o}}_{S_i}$ become non-null, the state becomes
+\textit{Moving}, and the robot is controlled by the NMPC. In this section, we
+present the auxiliary trajectory generation scheme based on dynamic feedback
+linearization \cite{Oriolo2002WMRControlDFL}, which computes auxiliary
+configurations and control input trajectories for the NMPC, given a reference
+pose trajectory $\bm{\xi}^{\mathrm{ref}}$ of the mobile base. Note that both
+auxiliary trajectory generation and NMPC are only active when the state is
+\textit{Moving}.
 
-Consider the output function $\bm{z}(\bm{q})=\bm{\xi}$ and dynamically extend the robot state~\eqref{eq:reduced-kinematic-model} by adding the following integrators:
+Consider the output function $\bm{z}(\bm{q})=\bm{\xi}$ and dynamically extend
+\eqref{eq:reduced-kinematic-model} by adding the following integrators:
 \begin{subequations}
     \begin{align*}
         \dot{v}_{W_1} &= a_{W_1} \\
         \dot{\omega} &= a_{\omega},
     \end{align*}
 \end{subequations}
-so that $\bm{u} = \left[ a_{W_1}, a_{\omega}, v_{\beta_1} \right]^\top $ are the new control inputs. In the following, unless specified otherwise, we denote the robot configuration with dynamic extension as $\bm{q} = (x, y, \theta, \beta_1, \beta_2, \dots, \beta_{n_s}, v_{W_1}, \omega)^\top$. Note that $\bm{q}$ is a non-minimal configuration. The dynamically extended kinematic model is
+so that $\bm{u} = \left[ a_{W_1}, a_{\omega}, v_{\beta_1} \right]^\top $ are
+the new control inputs. In the following, unless otherwise specified, we denote
+the robot configuration with dynamic extension as
+$\bm{q} = [x, y, \theta, \beta_1, \beta_2, \dots, \beta_{n_s}, v_{W_1}, \omega]^\top$.
+Note that $\bm{q}$ is a non-minimal configuration.
+The dynamically extended kinematic model is
 \begin{equation}
 \label{eq:dynamically-extended-kinematic-model}
 \begin{split}
@@ -395,11 +503,12 @@ with $\bm{M}(\bm{q}) \in \mathbb{R}^3$ and $\bm{H}(\bm{q}) \in \mathbb{R}^{3 \ti
     \bm{H}(\bm{q})
     &=
     \begin{bmatrix}
-        \cos(\theta+\beta_1) &  b_1 \sin\theta + a_1 \cos\theta & -\sin(\theta+\beta_1) v_{W_1} \\
-        \sin(\theta+\beta_1) & -b_1 \cos\theta + a_1 \sin\theta &  \cos(\theta+\beta_1) v_{W_1} \\
+        \mathrm{c}(\theta+\beta_1) &  b_1 \mathrm{s}\theta + a_1 \mathrm{c}\theta & -\mathrm{s}(\theta+\beta_1) v_{W_1} \\
+        \mathrm{s}(\theta+\beta_1) & -b_1 \mathrm{c}\theta + a_1 \mathrm{s}\theta &  \mathrm{c}(\theta+\beta_1) v_{W_1} \\
         0 & 1 & 0
-    \end{bmatrix}.
+    \end{bmatrix},
 \end{align*}
+where $\mathrm{c}(\cdot)$ and $\mathrm{s}(\cdot)$ respectively denote $\cos(\cdot)$ and $\sin(\cdot)$.
 
 By choosing
 \begin{equation*}
@@ -408,17 +517,37 @@ By choosing
     \end{bmatrix}
     = \bm{H}(\bm{q})^{-1} \left(\bm{a} - \bm{M}(\bm{q})\right),
 \end{equation*}
-it is possible to transform~\eqref{eq:zddot} into an equivalent chain of integrators
+we can transform~\eqref{eq:zddot} into an equivalent chain of integrators
 \begin{equation*}
     \ddot{\bm{z}} = \bm{a},
 \end{equation*}
-which can be easily stabilized. Indeed, exponential regulation of the trajectory tracking error $\bm{e}(t) = \bm{z}^{\mathrm{ref}}(t)-\bm{z}(t)$, can be achieved by taking
+which can be easily stabilized. Indeed, exponential regulation of the trajectory
+tracking error $\bm{e}(t) = \bm{z}^{\mathrm{ref}}(t)-\bm{z}(t)$, can be
+achieved by taking
 \begin{equation*}
     \bm{a} = \ddot{\bm{z}}^{\mathrm{ref}} + \bm{K}_P \bm{e} + \bm{K}_D \dot{\bm{e}}, \quad \bm{K}_P, \bm{K}_D > 0,
 \end{equation*}
-with $\bm{z}^{\mathrm{ref}}(t)$ twice differentiable and persistent (i.e., $v_{W_1} \ne 0$) reference trajectory. Note that the above decoupling matrix $\bm{H}(\bm{q})$ is singular at $v_{W_1} = 0$. This kind of singularity is structural for mobile robots \cite{Oriolo2002WMRControlDFL}.
+with $\bm{z}^{\mathrm{ref}}(t)$ twice differentiable and persistent
+(i.e., $v_{W_1} \ne 0$) reference trajectory. Note that the above decoupling
+matrix $\bm{H}(\bm{q})$ is singular at $v_{W_1} = 0$. This kind of singularity
+is structural for mobile robots \cite{Oriolo2002WMRControlDFL}.
 
-Given the reference trajectories $\bm{\xi}^{\mathrm{ref}}, \dot{\bm{\xi}}^{\mathrm{ref}}, \ddot{\bm{\xi}}^{\mathrm{ref}}$, the scheme (Algorithm \ref{alg:AuxiliaryTrajectoryGeneration}) generates, at each timestep $t_k$, the auxiliary configurations $\bm{q}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N$), together with the auxiliary control inputs $\bm{u}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N-1$). These will be used by the NMPC, described in the next section, to compute control inputs $(a_{W_1, k}, a_{\omega, k}, v_{\beta_1, k})^T$ for the mobile base. Note that the function $\mathrm{Sample}$ discretizes a trajectory given over a time interval $[t_k, t_{k} + N \delta_{\mathrm{MPC}}]$, into $N + 1$ elements, with $\delta_{\mathrm{MPC}}$ timestep of the NMPC, and the function $\bm{F}$ integrates the dynamically extended kinematic model \eqref{eq:dynamically-extended-kinematic-model} using fourth-order Runge-Kutta over a timestep $\delta_{\mathrm{MPC}}$, considering coordinating functions \eqref{eq:coordinating-function-post-kinematic-model} for the coordinated steerable wheels $\beta_2, \dots, \beta_{n_s}$.
+Given the reference trajectories
+$\bm{\xi}^{\mathrm{ref}}, \dot{\bm{\xi}}^{\mathrm{ref}}, \ddot{\bm{\xi}}^{\mathrm{ref}}$,
+Algorithm \ref{alg:AuxiliaryTrajectoryGeneration} generates, at each timestep
+$t_k$, the auxiliary configurations $\bm{q}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N$),
+together with the auxiliary control inputs
+$\bm{u}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N-1$). These will be used by the
+NMPC, described in the next section, to compute control inputs
+$(a_{W_1, k}, a_{\omega, k}, v_{\beta_1, k})^T$ for the mobile base.
+In the pseudocode: function $\mathrm{Sample}$ discretizes a trajectory,
+given over a time interval $[t_k, t_{k} + N \delta_{\mathrm{MPC}}]$, into
+$N + 1$ elements, with $\delta_{\mathrm{MPC}}$ timestep of the NMPC, and
+function $\bm{F}$ integrates kinematic model
+\eqref{eq:dynamically-extended-kinematic-model} using fourth-order Runge-Kutta
+over timestep $\delta_{\mathrm{MPC}}$, considering coordinating functions
+\eqref{eq:coordinating-function-post-kinematic-model} for the coordinated
+steerable wheels $\beta_2, \dots, \beta_{n_s}$.
 
 \begin{algorithm}
 \small
@@ -438,7 +567,6 @@ $\bm{q}_{0|k}^{\mathrm{aux}} \gets \bm{q}_{0|k}^{\mathrm{ref}}$\;
 }
 \Return{$\bm{q}_{0|k}^{\mathrm{aux}}, \dots, \bm{q}_{N|k}^{\mathrm{aux}}, \bm{u}_{0|k}^{\mathrm{aux}}, \dots, \bm{u}_{N-1|k}^{\mathrm{aux}}$}\;
 \end{algorithm}
-
 %\begin{algorithm}
 %\small
 %\caption{CoordinateWheels}
@@ -452,10 +580,17 @@ $\bm{q}_{0|k}^{\mathrm{aux}} \gets \bm{q}_{0|k}^{\mathrm{ref}}$\;
 %\Return $\bm{\beta}^{\mathrm{coord}}$\;
 %\end{algorithm}
 
-\subsection{Nonlinear MPC}
+\subsection{Nonlinear Model Predictive Control}
 \label{sec:model-predictive-control}
-The Nonlinear MPC solves, at each control cycle, a finite horizon constrained OCP, taking into account the kinematic model \eqref{eq:reduced-kinematic-model}, wheel velocity and control inputs constraints, singularities of the coordinating functions \eqref{eq:coordinating-function-post-kinematic-model}, and the singularity of the decoupling matrix $\bm{H}(\bm{q})$ in the auxiliary trajectory generation scheme.
-In the following, we will denote as $\mathbb{I}_a^b=\{a,\, \dots,\, b\}\subset\mathbb{N}$ the subset of natural numbers containing all naturals from $a$ to $b$.
+The Nonlinear MPC solves, at each control cycle, a finite horizon constrained
+Optimal Control Problem (OCP), taking into account the kinematic model
+\eqref{eq:reduced-kinematic-model}, wheel velocity and control inputs
+constraints, singularities of the coordinating functions
+\eqref{eq:coordinating-function-post-kinematic-model}, and singularity of the
+decoupling matrix $\bm{H}(\bm{q})$ in the auxiliary trajectory generation scheme.
+In the following, we will denote as
+$\mathbb{I}_a^b=\{a,\, \dots,\, b\}\subset\mathbb{N}$ the subset of natural
+numbers containing all naturals from $a$ to $b$.
 
 The OCP can be defined as 
 \begin{equation*}
@@ -474,14 +609,22 @@ The OCP can be defined as
                          & \bm{q}(t_k) = \bm{q}_k,
     \end{aligned}
 \end{equation*}
-with $T_{\mathrm{MPC}}$ duration of the prediction horizon, stage and terminal cost respectively defined as
+with $T_{\mathrm{MPC}}$ duration of the prediction horizon, stage and terminal
+cost respectively defined as
 \begin{align*}
     \mathcal{L}(\bm{q}, \bm{u}) &= \|\bm{q}^{\mathrm{aux}} - \bm{q}\|_{\bm{W_q}}^2 + \|\bm{u}^{\mathrm{aux}} - \bm{u}\|_{\bm{W_u}}^2 \\
     \Phi(\bm{q}) &= \|\bm{q}^{\mathrm{aux}} - \bm{q}\|_{\bm{W_q}}^2,
 \end{align*}
-$\bm{W_q}, \bm{W_u}$ positive semi-definite weighting matrices, $v_W^-$ and $v_W^+$ min/max wheel driving velocity, $a_W^-$ and $a_W^+$ min/max wheel driving acceleration, $v_{\beta}^-$ and $v_{\beta}^+$  min/max  wheel steering velocity and $\bm{q}_k$ initial configuration.
+$\bm{W_q}, \bm{W_u}$ positive semi-definite weighting matrices, $v_W^-$ and
+$v_W^+$ min/max wheel driving velocity, $a_W^-$ and $a_W^+$ min/max wheel
+driving acceleration, $v_{\beta}^-$ and $v_{\beta}^+$  min/max  wheel steering
+velocity and $\bm{q}_k$ initial configuration.
 
-Note that the velocity constraints are linear for the coordinating wheel (since $v_{W_1}$ and $v_{\beta_1}$ are part of $\bm{q}$) and nonlinear for the coordinated wheels. In particular, because of the assumption of no lateral skidding \eqref{eq:no-lateral-skidding-constraint}, the driving velocity of the coordinated wheels can be computed as
+Note that the velocity constraints are linear for the coordinating wheel
+(since $v_{W_1}$ and $v_{\beta_1}$ are part of $\bm{q}$) and nonlinear for the
+coordinated wheels. In particular, because of the assumption of no lateral
+skidding \eqref{eq:no-lateral-skidding-constraint}, the driving velocity of
+the coordinated wheels can be computed as
 \begin{equation*}
     v_{W_i} = 
     \begin{bmatrix}
@@ -489,12 +632,21 @@ Note that the velocity constraints are linear for the coordinating wheel (since 
         \sin(\theta + \beta_i)
     \end{bmatrix}^\top \dot{\bm{o}}_{W_i}.
 \end{equation*}
-Since the steering angles of the coordinated wheels are defined as $\beta_i=h_i(v_{W_1}, \omega, \beta_1)$, the steering velocities can simply be computed as their time derivatives.
+Since the steering angles of the coordinated wheels are defined as
+$\beta_i=h_i(v_{W_1}, \omega, \beta_1)$, the steering velocities can simply be
+computed as their time derivatives.
 
 %\begin{equation}
 %        v_{W_i}(\bm{q}, \bm{u}) = \cos(\theta + \beta_i) \dot{x} + \sin(\theta + \beta_i) \dot{y} + (d - a_i \cos\beta_i + b_i \sin\beta_i) \dot{\theta} + d \dot{\beta}_i.
 %\end{equation}
-As already mentioned, since the coordinating function $h_i$ is singular when $\dot{\bm{o}}_{S_i}=\bm{0}$, it is important to carefully design the control scheme. A simple strategy to make the NMPC free of singularities, is to never let the position of the $i$-th steering joint be at rest. Since the NMPC is activated only when changing the FSM state from \textit{Starting} to \textit{Moving}, it is possible to constrain $\dot{\bm{o}}_{S_i}$ in such a way to never be $\bm{0}$. Indeed, the constraint $\dot{\bm{o}}_{S_i} \ne \bm{0}$, with a proper change of coordinates, can be rewritten as
+As already mentioned, since the coordinating function $h_i$ is singular when
+$\dot{\bm{o}}_{S_i}=\bm{0}$, it is important to carefully design the control
+scheme. A simple strategy to make the NMPC free of singularities, is to never
+let the position of the $i$-th steering joint be at rest. Since the NMPC is
+activated only when changing the FSM state from \textit{Starting} to
+\textit{Moving}, it is possible to constrain $\dot{\bm{o}}_{S_i}$ so that it
+is never null. Indeed, the constraint $\dot{\bm{o}}_{S_i} \ne \bm{0}$, with a
+proper change of coordinates, can be rewritten as
 \begin{equation*}
     \bm{R}(\theta + \beta_i) \dot{\bm{o}}_{S_i} =
     \begin{bmatrix}
@@ -510,16 +662,23 @@ with
     \end{bmatrix}^\top \dot{\bm{o}}_{S_i}.
 \end{equation*}
 
-Hence, in order to satisfy the above inequality, we need to have $v_{S_i} \ne 0$, which is equivalent to constrain $\mathrm{sgn}(v_{S_i})$ to be constant. Note that, because of the starting motion described in Sect. \ref{sec:starting-and-stopping}, $v_{S_i}$ is either positive or negative when the NMPC is activated. This implies that the constraint will simply be
+To satisfy the above inequality, we need to have $v_{S_i} \ne 0$, which is
+equivalent to imposing constant $\mathrm{sgn}(v_{S_i})$. Note that, because of
+the starting motion described in Sect. \ref{sec:starting-and-stopping},
+$v_{S_i}$ is either positive or negative when the NMPC is activated.
+This implies that the constraint will simply be
 \begin{equation*}
 \begin{cases}
     v_{S_i} > 0, & \text{if $v_{S_i}(t_0)>0$} \\
     v_{S_i} < 0, & \text{otherwise}
 \end{cases},
 \end{equation*}
-with $t_0$ time of activation of the NMPC. A similar reasoning can be done for the constraint $v_{W_1} \ne 0$, which guarantees subsequent calls of the auxiliary trajectory generation module are free of singularities.
+with $t_0$ time of activation of the NMPC. A similar reasoning can be done
+for the constraint $v_{W_1} \ne 0$, which guarantees that subsequent calls of
+the auxiliary trajectory generation scheme are free of singularities.
 
-We transcribe the above OCP into a nonlinear programming problem (NLP) by using multiple shooting \cite{Bock1984MultipleShooting}. The resulting NLP is the following:
+We can transcribe the above OCP into the following nonlinear programming (NLP)
+problem by using multiple shooting \cite{Bock1984MultipleShooting}:
 \begin{equation*}
     \begin{aligned}
         \min_{\bm{Q}_k, \bm{U}_k} \;
@@ -535,14 +694,22 @@ We transcribe the above OCP into a nonlinear programming problem (NLP) by using 
                          & \bm{q}_{0|k} = \bm{q}_k,
     \end{aligned}
 \end{equation*}
-with
+with vectors
 \begin{align*}
 \bm{Q}_k &= (\bm{q}_{0|k}^\top, \bm{q}_{1|k}^\top, \dots, \bm{q}_{N|k}^\top)^\top \\
 \bm{U}_k &= (\bm{u}_{0|k}^\top, \bm{u}_{1|k}^\top, \dots, \bm{u}_{N-1|k}^\top)^\top
 \end{align*}
-collecting the decision variables of the NMPC at $t_k$, $T_{\mathrm{MPC}}=N\delta_{\mathrm{MPC}}$, $\delta_{\mathrm{MPC}}$ timestep of the NMPC, and the cost function evaluated using $\bm{q}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N$) and $\bm{u}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N - 1$), computed by the auxiliary trajectory generation module. Notice that, within the constraints of the NLP, we used $(\cdot)$ to denote the use of nonlinear functions.
+collecting the decision variables of the NMPC at $t_k$,
+$T_{\mathrm{MPC}}=N\delta_{\mathrm{MPC}}$, $\delta_{\mathrm{MPC}}$ timestep of
+the NMPC, and the cost function evaluated using
+$\bm{q}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N$) and
+$\bm{u}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N - 1$), computed by the auxiliary
+trajectory generation scheme. Note that, within the constraints, we used
+$(\cdot)$ to denote the use of nonlinear functions.
 
-Once the NLP is solved, the control sample $\bm{u}_{0|k}$ is extracted from $\bm{U}_k$, and it is used to compute the driving and steering velocities which realize it, that are sent to the robot.
+Once the NLP problem is solved, the control sample $\bm{u}_{0|k}$ is extracted 
+rom $\bm{U}_k$, and used to compute the driving velocities and the steering
+angles, which are sent to the robot.
 
 % \subsection{NMPC}
 % The above optimal control problem \eqref{eq:ocp-swmr} can be transcribed to a nonlinear programming problem by properly discretizing the cost function and the constraints.
@@ -690,15 +857,25 @@ Once the NLP is solved, the control sample $\bm{u}_{0|k}$ is extracted from $\bm
 
 \section{Experiments}
 \label{sec:simulations-and-experiments}
-The proposed framework has been implemented in Python, using the acados library \cite{Verschueren2021acados} to solve the aforementioned NLP with the real-time iteration scheme \cite{Gros2020Fromlineartononlinear}. The mobile base used is the Neobotix MPO-700, which is equipped with $n_s=4$ steerable wheels. The scheme runs at 75 Hz on an Intel Core i5-10210U (1.6 GHz, 8 cores) with Ubuntu 20.04 LTS.
+The proposed framework has been implemented in Python, using the acados library
+\cite{Verschueren2021acados} to solve the aforementioned NLP problem with
+real-time iteration scheme \cite{Gros2020Fromlineartononlinear}. We use the
+robot Neobotix MPO-700, which has $n_s=4$ steerable wheels
+(Fig. \ref{fig:mpo-700}). The scheme runs at 75 Hz on an Intel Core i5-10210U
+(1.6 GHz, 8 cores) with Ubuntu 20.04 LTS.
 
-We validate our implementation on a series of trajectory tracking experiments with increasing complexity. In particular, we define a reference pose trajectory using a geometric path $\bm{\xi}^{\mathrm{ref}}(s)$ and a timing law $s(t)$. All timing laws $s(t)$ used below are 5-th order polynomials such that:
+We validate our implementation on a series of trajectory tracking experiments
+of increasing complexity. We define the trajectories, using a geometric path
+$\bm{\xi}^{\mathrm{ref}}(s)$ and a timing law $s(t) \in [0, 1]$. Naming $t_0$
+and $t_f$ respectively initial and final time, all $s(t)$ are 5-th order
+polynomials, such that:
 \begin{equation*}
 s(t_0) = \dot{s}(t_0) = \dot{s}(t_f) = \ddot{s}(t_0) = \ddot{s}(t_f)=0, s(t_f)=1,
 \end{equation*}
-with $s \in [0, 1]$, and with $t_0$ and $t_f$ respectively initial and final time of the reference trajectory. This guarantees that all trajectories are defined with initial and final velocity set to zero, and with initial and final acceleration set to zero. In the following, we will use $t_0 = 0.0$ [s], and we will assume that the initial position of the robot is $x_0 = 0.0$~[m], $y_0 = 0.0$~[m].
+In the following, we will use $t_0 = 0$ [s], and we will assume that the initial
+position of the robot is $x_0 = 0$~[m], $y_0 = 0$~[m].
 
-The hyperparameters used are listed in Table \ref{tab:hyperparameters}. Video clips of the described experiments are included in the accompanying video. %Video clips of the described experiments are available at YOUTUBE LINK HERE.
+The hyperparameters used are listed in Table \ref{tab:hyperparameters}. %Video clips of the described experiments are included in the accompanying video. %Video clips of the described experiments are available at YOUTUBE LINK HERE.
 
 \begin{table}
 \centering
