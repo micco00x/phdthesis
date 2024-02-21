@@ -286,7 +286,7 @@
          style="font-size:3.52778px;stroke-width:0.264583"
          x="142.41832"
          y="119.7581"
-         id="tspan4">(Sect. IV-D)</tspan></text></g><path
+         id="tspan4">(Sect. 8.2.4)</tspan></text></g><path
      style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.25;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle)"
      d="m 61.198406,36.315995 10.341082,0.006"
      id="path16-5-7"
@@ -341,7 +341,7 @@
          style="font-size:3.52778px;stroke-width:0.264583"
          x="76.812645"
          y="89.510895"
-         id="tspan3">(Sect. IV-C)</tspan></text><g
+         id="tspan3">(Sect. 8.2.3)</tspan></text><g
        transform="matrix(0.352778,0,0,0.352778,98.531956,79.416376)"
        ns4:version="1.9.0"
        ns4:texconverter="pdflatex"
@@ -623,7 +623,7 @@
          style="font-size:3.52778px;stroke-width:0.264583"
          x="21.268597"
          y="193.07803"
-         id="tspan2">(Sect. IV-A)</tspan></text><text
+         id="tspan2">(Sect. 8.2.1)</tspan></text><text
        xml:space="preserve"
        style="font-size:3.175px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:0.264583"
        x="44.107971"
@@ -784,7 +784,7 @@
          style="font-size:3.52778px;stroke-width:0.264583"
          x="76.887199"
          y="89.457336"
-         id="tspan46">(Sect. IV-B)</tspan></text><path
+         id="tspan46">(Sect. 8.2.2)</tspan></text><path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.25;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
        d="m 46.455745,111.33903 -0.01279,-9.91075"
        id="path51"
