@@ -1,9 +1,19 @@
 \chapter{Literature review}
-Brief intro about literature here.
+In this chapter, we give an overview on the literature of locomotion for
+humanoid robots and motion control for
+steerable wheeled mobile robots (SWMRs). In the first part of 
+the chapter, we introduce the problems of 
+gait generation, footstep planning, sensor-based locomotion, and footstep and 
+timing adaptation for humanoids robots. In the second part of the chapter,
+we study motion control algorithms for SWMRs.
 
 \section{Humanoid robots}
 \subsection{Gait generation}
+What is gait generation. Static vs dynamic balance. Dynamic walking and ZMP.
+LIP. DCM and capture point. Preview control, MPC of Wieber. IS-MPC and 
+boundedness. VH-IP. Centroidal dynamics. Whole-body approaches.
 
+\textbf{From RAS23:}
 Once a footstep sequence has been planned, a whole-body motion must be generated in order to let the robot move by stepping over said sequence without falling. On flat ground, it is common to enforce dynamic balance by requiring that the Zero Moment Point (ZMP, the point with respect to which horizontal components of the momentum of contact forces are zero) is always contained inside the convex hull of contact surfaces, i.e., the \emph{support polygon}.
 The ZMP cannot be controlled directly, but its dynamics can be related to the position and acceleration of the CoM. The traditional approach is to assume a constant CoM height and a negligible derivative of the angular momentum around the CoM, which leads to a Linear Inverted Pendulum (LIP)~\cite{Kajita2003BipedWalkingPatternGeneration} model. The LIP has seen widespread use, also thanks to the fact that it allows to perform Model Predictive Control (MPC) using linear-quadratic optimization techniques, enforcing balance by means of constraints on the ZMP. However the constant CoM height assumption limits its ability to be employed for motion on uneven ground.
 
@@ -51,12 +61,14 @@ Several efforts to improve this basic paradigm have been made. To include automa
 
 
 \section{Motion control for steerable wheeled mobile robots}
-\textbf{From SWMR paper:}
-Mobile robots equipped with multiple steerable wheels (Fig. \ref{fig:mpo-700})
+As already discussed in the previous chapter, mobile robots equipped with
+multiple steerable wheels
 have greater maneuverability than other wheeled mobile robots, since they are
 omnidirectional \cite{RobuffoGiordano2009ICRA}. Besides, they can transport
-higher payloads than omnidirectional robots equipped with mecanum wheels or
-with omni wheels. Nevertheless, modeling and controlling these robots is not
+higher payloads than omnidirectional robots equipped with mecanum wheels
+\cite{Dickerson1991ControlOminidirectionalRobotwithMecaumWheels} or
+with omni wheels \cite{Blumrich1974OmnidirectionalWheel}.
+Nevertheless, modeling and controlling these robots is not
 trivial due to the presence of kinematic singularities \cite{Sorour2017RAL},
 which need to be handled with particular care, in order to avoid negatively
 affecting their functionalities.
