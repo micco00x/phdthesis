@@ -9,21 +9,72 @@ we study motion control algorithms for SWMRs.
 
 \section{Humanoid robots}
 \subsection{Gait generation}
-What is gait generation. Static vs dynamic balance. Dynamic walking and ZMP.
-LIP. DCM and capture point. Preview control, MPC of Wieber. IS-MPC and 
-boundedness. VH-IP. Centroidal dynamics. Whole-body approaches.
+In order for humanoid robots to successfully complete their tasks, they need to 
+maintain balance at all times. The problem of gait generation consists in the
+generation of trajectories that keep the robot balanced, and the realization of 
+such trajectories on the humanoid itself. The most common type of gaits studied for 
+humanoids are \textit{walking} and \textit{running}.
+In this section, we briefly review the main 
+scientific contributions to the problem of walking gait generation in 
+planar and 3D environments.
 
-\textbf{From RAS23:}
-Once a footstep sequence has been planned, a whole-body motion must be generated in order to let the robot move by stepping over said sequence without falling. On flat ground, it is common to enforce dynamic balance by requiring that the Zero Moment Point (ZMP, the point with respect to which horizontal components of the momentum of contact forces are zero) is always contained inside the convex hull of contact surfaces, i.e., the \emph{support polygon}.
-The ZMP cannot be controlled directly, but its dynamics can be related to the position and acceleration of the CoM. The traditional approach is to assume a constant CoM height and a negligible derivative of the angular momentum around the CoM, which leads to a Linear Inverted Pendulum (LIP)~\cite{Kajita2003BipedWalkingPatternGeneration} model. The LIP has seen widespread use, also thanks to the fact that it allows to perform Model Predictive Control (MPC) using linear-quadratic optimization techniques, enforcing balance by means of constraints on the ZMP. However the constant CoM height assumption limits its ability to be employed for motion on uneven ground.
+Humanoid walking can be \textit{static} or \textit{dynamic}. In case of planar
+contacts, in static walking, the 
+projection of the \textit{Center of Mass} (CoM) lies within the
+\textit{support polygon},
+defined as the convex hull of the contact points. In dynamic walking, 
+it is the \textit{Zero-tilting Moment Point} (ZMP) \cite{Vukobratovic1972ZMP},
+defined as the point 
+where the moment of the contact wrench aligns with the normal of the contact 
+surface \cite{SardainBessonnet2004}, which lies within the support polygon.
+In case of non-coplanar contacts,
+an algorithm for testing static equilibrium has been developed by Bretl in
+\cite{Bretl2008TestingStaticEquilibriumforLeggedRobots}, while for dynamic
+walking, a more general
+condition on the ZMP has been presented by Caron in
+\cite{Caron2017TRO}.
 
-Traditionally, conditions on the ZMP implicitly assume that the latter is located on the ground, making these conditions obviously unsuitable to the 3D case where there is no univocally defined ground surface. In this work, we adopt an extension~\cite{Sugihara2021ICRA} of the basic criterion, in which the ZMP is instead a point in 3D space. According to this modified criterion, the 3D ZMP must belong to a pyramidal region whose extent is defined by the position of the Center of Mass (CoM) and the contact surfaces.
+Because of the complex nonlinear dynamics of the humanoid, the problem of gait 
+generation is typically decomposed into two sub-problems: trajectory generation and 
+whole-body trajectory tracking. The problem of trajectory generation is 
+usually solved considering a simplified dynamics, such as the \textit{Centroidal
+Dynamics} (the dynamics of the humanoid projected at its CoM)
+\cite{Orin2013CentroidalDynamics} or the \textit{Linear Inverted Pendulum} (LIP)
+\cite{Kajita1991LIP}. The problem of trajectory tracking is solved with a 
+kinematic controller, typically implemented as a
+stack-of-tasks \cite{Escande2014IJRR}, and solved through a hierarchy of 
+Quadratic Programming (QP) problems.
 
-By letting the CoM height be a variable quantity, the CoM-ZMP relation takes the form of a Variable Height Inverted Pendulum (VH-IP) \cite{Caron2019CapturabilitybasedPatternGeneration}, where the stiffness of the pendulum itself is a control input. This model is nonlinear, which is usually a problem when trying to perform fast MPC, unless further approximations are introduced. However, it is possible to restrict the allowed trajectories of the CoM in such a way that the dynamics are linear and 3D motions are allowed \cite{Zamparelli2018SYROCO, Ferrari2019ECC}. To do this, the pendulum stiffness is picked a priori, and the ZMP/CoM trajectories are generated in such a way to satisfy a linear relation.
+The LIP relates the CoM to the ZMP through a linear dynamics, proving a 
+theoretical tool that can be used for the generation of walking gait in 
+real-time \cite{Sugihara2002ICRA}. More advanced techniques for the control 
+of the ZMP can be found in \cite{Kajita2003BipedWalkingPatternGeneration}, which
+presents a walking pattern generation scheme using preview control, or in
+\cite{Wieber2006LMPCWalking}, which develops a Linear Model Predictive Control
+scheme. In particular, the latter adopted a Cart Table model
+\cite{Kajita2016IntroductiontoHumanoidRobotics}, minimizing the CoM jerk while enforcing the dynamic balance
+condition (ZMP within the support polygon) as a constraint. This technique
+was further developed taking into account automatic footstep placement
+\cite{Herdt2010OnlineWalkingMotionGenerationWithAFSP}, stability \cite{Sherikov2014Humanoids}
+and recursive feasibility \cite{Ciocca2017Humanoids} of the MPC.
 
-A common problem in the field of humanoid gait generation is given by the fact that humanoid dynamics are unstable. This is seen in the LIP by the presence of an unstable mode, and signifies that even if one were to determine a gait such that the ZMP trajectory is always within the appropriate bounds, this might still not be enough, as the associated CoM trajectory might be divergent, rendering the resulting motion infeasible in practice. This issue is crucial and must be accounted for when designing the gait generation module, by providing appropriate guarantees against the divergence of the generated trajectories.
+More recently, Scianca introduced
+\textit{Intrinsically-Stable MPC} (IS-MPC) \cite{Scianca2016ISMPC, Scianca2020TRO},
+a gait generation scheme which 
+uses the LIP as prediction model, enforcing dynamic balance
+by constraining the ZMP within the support polygon,
+and using a stability constraint to ensure that the CoM does not diverge 
+with respect to the ZMP \cite{Lanari2015Inversionbasedgaitgeneration}. IS-MPC,
+which will be used for gait generation throughout this manuscript,
+has been extended to uneven ground in \cite{Zamparelli2018SYROCO} by
+considering a dynamic balance condition in 3D
+\cite{Caron2017DynamicWalkingOverRoughTerrains, Sugihara2021ICRA}. Because
+IS-MPC is formulated as a QP problem, it can be efficiently solved by a 
+QP solver and deployed on a real robot.
 
 \subsection{Footstep planning}
+
+Cite Ferrari \cite{Ferrari2019ECC} for RRT footstep planner working together with IS-MPC.
 
 Footstep planners can be subdivided in two broad categories based on whether they employ continuous or discrete techniques.
 
