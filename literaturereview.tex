@@ -167,12 +167,37 @@ volume and then computes a compatible sequence of footsteps, which is a
 suitable technique as long as it is not necessary to traverse narrow passages.
 
 \subsection{Footstep and timing adaptation}
-\textbf{From Humanoids 2023:}
+The techniques discussed so far assume that the robot is not subject to strong 
+disturbances. Nevertheless, in order for the humanoids to be deployed in
+real-world scenarios, the presence of possible external forces must be taken 
+into account. In principle, when subject
+to external perturbations, the humanoid should be able to adapt the footstep plan
+by changing the position and the timing of the footsteps.
 
-Humanoid robot locomotion is a complex task that involves multiple concurrent activities. It is usually tackled by breaking it down into several subproblems and solving each of them more or less independently. The first component is in general a footstep planner, which determines a sequence of footstep, e.g., leading the robot to some desired location. This sequence of footsteps must be kinematically realizable at least in terms of step lengths. The humanoid dynamics are usually accounted for in a second stage, typically based on Model Predictive Control (MPC), using a simplified robot model which is used to generate Center of Mass (CoM) trajectories. MPC, in its basic form, allows to perform real-time footstep position adaptation \cite{Herdt2010IROS} and obtain reactive stepping so to  reject pushes and impacts. However, in order to be able to formulate the optimization problem as a Quadratic Program (QP), constraints should be kept linear. For this reason, most schemes only adapt footstep positions, leaving out footstep orientation and step timing.
+Model Predictive Control schemes, in their basic form, allow to
+perform real-time footstep position adaptation \cite{Herdt2010IROS} and obtain
+reactive stepping so to reject pushes and impacts. However, in order to be
+able to formulate the optimization problem as a Quadratic Program (QP),
+constraints should be kept linear. For this reason, most schemes only adapt
+footstep positions, leaving out footstep orientation and step timing, and not
+considering the possibility to place footsteps on a different contact surface,
+which is crucial when walking on uneven terrains.
 
-Several efforts to improve this basic paradigm have been made. To include automatic step timing adaptation, one could make the MPC nonlinear \cite{Maximo2020MIQPAutomaticWalking,Bohorquez2017AdaptiveStepDuration,Caron2017Whentomakeastep,Aurelien2014IROS}, denying real-time implementation or requiring significant compromise in the control rate. A linear formulation is obtainable by considering only the duration of the first footstep \cite{Smaldone2021FeasibilityDrivenSTA,Khadiv2020StepTimingAdaptation}. As for footstep orientation, this is also often ignored or planned independently of the dynamics \cite{Herdt2010IROS}. To couple rotation decision with the dynamics, some schemes employ non-convex optimization through nonlinear \cite{Naveau2017RAL,Bohorquez2018AdaptiveStepRotation} or Mixed-Integer Programming (MIP) \cite{Maximo2020MIQPAutomaticWalking}. MIP can also be used to alternatively select between multiple convex regions in which to place the footsteps, which would otherwise constitute a non-convex constraint \cite{Aceituno2018RAL,Deits2014FootstepPlanningMIQCQP}.
-
+Several efforts to improve this basic paradigm have been made. To include
+automatic step timing adaptation, one could make the MPC nonlinear
+\cite{Maximo2020MIQPAutomaticWalking,Bohorquez2017AdaptiveStepDuration,
+Caron2017Whentomakeastep,Aurelien2014IROS}, denying real-time implementation or
+requiring significant compromise in the control rate. A linear formulation is
+obtainable by considering only the duration of the first footstep
+\cite{Smaldone2021FeasibilityDrivenSTA,Khadiv2020StepTimingAdaptation}.
+As for footstep orientation, this is also often ignored or planned independently
+of the dynamics \cite{Herdt2010IROS}. To couple rotation decision with the
+dynamics, some schemes employ non-convex optimization through nonlinear
+\cite{Naveau2017RAL,Bohorquez2018AdaptiveStepRotation} or Mixed-Integer
+Programming (MIP) \cite{Maximo2020MIQPAutomaticWalking}.
+MIP can also be used to alternatively select between multiple convex regions
+in which to place the footsteps, which would otherwise constitute a
+non-convex constraint \cite{Aceituno2018RAL,Deits2014FootstepPlanningMIQCQP}.
 
 \section{Motion control for steerable wheeled mobile robots}
 As already discussed in the previous chapter, mobile robots equipped with
