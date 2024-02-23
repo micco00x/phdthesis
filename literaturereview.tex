@@ -126,24 +126,45 @@ primitives, because it requires the evaluation of all possible successors.
 
 An alternative option is to use a randomized approach (sampling-based) such as
 a variants of the Rapidly-exploring Random Tree (RRT) algorithm \cite{LaValle1998RRT}. 
-This has been applied in simple 3D environments \cite{Liu2012IROS}, showing
+This has been first developed in \cite{Zeyang2009RRTFootstepPlanning,
+Zeyang2011RRTFootstepPlanning} in 2D environments, and later applied in simple
+3D environments \cite{Perrin2012TRO, Liu2012IROS}, showing
 good performance both in planning and replanning for dynamic environments.
+Recently, Ferrari \cite{Ferrari2019ECC} presented a RRT footstep planner 
+for humanoid navigation in uneven terrain, which is integrated with IS-MPC.
 Clearly the disadvantage of RRT over a deterministic approach is that it does
 not account, at least in its basic form, for the quality of the footstep plan.
 
-Cite Ferrari \cite{Ferrari2019ECC} for RRT footstep planner working together
-with IS-MPC.
-
 \subsection{Sensor-based locomotion}
-So far, it was assumed that a complete knowledge of the environment is available from the start, or that, in case of dynamic environment, changes to the latter are readily communicated to the planner. However, this is not often the case in practical situations. In fact, the environment could be unknown, either partially or completely, and it must be reconstructed online with the aid of on-board sensors.
+So far, it was assumed that a complete knowledge of the environment is available
+from the start, or that, in case of dynamic environment, changes to the latter
+are readily communicated to the planner. However, this is not often the case in
+practical situations. In fact, the environment could be unknown, either
+partially or completely, and it must be reconstructed online with the aid of
+on-board sensors.
 
-Many existing methods exploit information acquired through on-board sensors to identify planar surfaces that define safe regions where the robot can step onto.
-Such environment representation was used in combination with different kinds of footstep planners, for example, based on simple geometric criteria \cite{Okada2005ICRA}, A* \cite{Chestnutt2009IROS} and MIQP \cite{Fallon2015Humanoids}.   
-%Typically, planar surface detection introduces a computational overhead that in complex environment might affect the real time performance of the overall motion generation pipeline.
-Other methods maintain a more complete representation of the environment by employing an elevation map.
-Examples can be found in \cite{Maier2013IROS, Stumpf2014Humanoids}, where ARA*-based approaches are used to plan footsteps on uneven ground; the use of on-line information is aimed at improving the plan during the execution, and not for replanning/extension using newly acquired information.
-%rather than modifying and/or extending it according to newly acquired information in case of partially unknown environment where faster replanning capabilities are required.
-To achieve more flexibility in the on-line capabilities, \cite{Karkowski2016Humanoids} proposed to use adaptive sets of possible foot displacements in an A*-based planner, which proved to be effective in relatively simple scenarios. Alternatively, \cite{Yamamoto2021AdvancedRobotics} proposed a two-stage method that first finds a collision-free path for a bounding occupancy volume and then computes a compatible sequence of footsteps, which is a suitable technique as long as it is not necessary to traverse narrow passages.
+Many existing methods exploit information acquired through on-board sensors to
+identify planar surfaces that define safe regions where the robot can step onto
+\cite{Gutmann2008EnvironmentMapGeneration, Biswas2012PlanarPolygonExtraction,
+Deits2015ComputingLargeConvexRegions, Bertrand2020DetectingUsablePlanarRegions,
+Mishra2021GPUAcceleratedRapidPlanarRegionExtraction}.
+Such environment representation was used in combination with different kinds of
+footstep planners, for example, based on simple geometric criteria
+\cite{Okada2005ICRA}, A* \cite{Chestnutt2009IROS, Calvert2022BipedalWalkingoverRapidRegions}
+and MIQP \cite{Fallon2015Humanoids}.   
+Other methods maintain a more complete representation of the environment by
+employing an elevation map \cite{Burgard2016WorldModeling}.
+Examples can be found in \cite{Maier2013IROS, Stumpf2014Humanoids},
+where ARA*-based approaches are used to plan footsteps on uneven ground; the
+use of on-line information is aimed at improving the plan during the execution,
+and not for replanning/extension using newly acquired information.
+To achieve more flexibility in the on-line capabilities,
+\cite{Karkowski2016Humanoids} proposed to use adaptive sets of possible foot
+displacements in an A*-based planner, which proved to be effective in relatively
+simple scenarios. Alternatively, \cite{Yamamoto2021AdvancedRobotics} proposed a
+two-stage method that first finds a collision-free path for a bounding occupancy
+volume and then computes a compatible sequence of footsteps, which is a
+suitable technique as long as it is not necessary to traverse narrow passages.
 
 \subsection{Footstep and timing adaptation}
 \textbf{From Humanoids 2023:}
