@@ -153,7 +153,7 @@ For each planned footstep $\hat\bff$
     \item $\hat T_{\rm ds}$ and $\hat T_{\rm ss}$ are the durations of its  double support and single support phases, respectively;
     \item we denote by $\Pi(\hat\bff)$ the patch that contains the footstep, i.e., the patch $P$ such that\footnote{Note that this patch is unique because the environment is subdivided into non-overlapping patches.}
     \[
-    (\hat{x}_f, \hat{y}_f)^\top \in P,\quad \hat{z}_f = z(P).
+    \left[\hat{x}_f, \hat{y}_f\right]^\top \in P,\quad \hat{z}_f = z(P).
     \]
 \end{itemize}
 
@@ -203,23 +203,23 @@ the \textit{admissible region}
 \begin{equation}
 \label{eq:FAPA:kinematic-constraint}
 \begin{split}
-\begin{pmatrix}
+\begin{bmatrix}
     \bm{n}_1^\top\left(\bm{p}_{xy}^{l+j} - \bm{p}_{xy}^{l+j-1} - \bm{R}(\theta_f^{l+j-1})\bm{v}_1\right) \\
     \vdots \\
     \bm{n}_V^\top\left(\bm{p}_{xy}^{l+j} - \bm{p}_{xy}^{l+j-1} - \bm{R}(\theta_f^{l+j-1})\bm{v}_V\right) \\
-\end{pmatrix} \ge \bm{0},\\
+\end{bmatrix} \ge \bm{0},\\
     \Delta z^{\rm m} \le z_{l+j} - z_{l+j-1} \le \Delta z^{\rm M}, \\
     \Delta \theta^{\rm m} \le \theta_{l+j} - \theta_{l+j-1} \le \Delta \theta^{\rm M}, 
 \end{split}
 \end{equation}
-with $\bm{R}(\theta_f^{l+j-1})$ a 2D rotation matrix, $\bm{n}_i$ the vector
+with $\bm{R}\left(\theta_f^{l+j-1}\right)$ a 2D rotation matrix, $\bm{n}_i$ the vector
 normal to the $i$-th segment of the convex region computed as
 \begin{equation*}
     \bm{n}_i =
-    \begin{pmatrix}
+    \begin{bmatrix}
         0 & -1 \\ 1 & 0
-    \end{pmatrix}
-    \bm{R}(\theta_f^{l+j-1})(\bm{v}_{i+1}-\bm{v}_i),
+    \end{bmatrix}
+    \bm{R}\left(\theta_f^{l+j-1}\right)(\bm{v}_{i+1}-\bm{v}_i),
 \end{equation*}
 and $\bm{v}_i$ being the vertices defining the convex polygon (different
 depending whether the support foot is left or right), shown in
@@ -254,8 +254,8 @@ to lie within its associated patch $\Pi(\bff^{l+j})$, which is the one
 originally chosen by the high-level planner. This constraint can be written as
 \begin{equation}
     \begin{cases}
-		\bm{A}(\Pi(\bff^{l+j})) \left( x_f^{l+j} \ y_f^{l+j} \right)^\top \leq \bm{b}(\Pi(\bff^{l+j})), \\
-		z_f^{l+j} = z(\Pi(\bff^{l+j})).
+		\bm{A}\left(\Pi\left(\bff^{l+j}\right)\right) \left[ x_f^{l+j} \ y_f^{l+j} \right]^\top \leq \bm{b}\left(\Pi\left(\bff^{l+j}\right)\right), \\
+		z_f^{l+j} = z\left(\Pi\left(\bff^{l+j}\right)\right).
     \end{cases}
 	\label{eq:FAPA:fixed_patch_constraint}
 \end{equation}
@@ -268,8 +268,8 @@ $b_{l+j,\kappa}$ is {\em true}, then a linear constraint must be verified:
 \begin{equation}
 	b_{l+j,\kappa}=1 \Rightarrow 
 	\begin{cases}
-		\bm{A}(P^\kappa) \left( x_f^{l+j} \ y_f^{l+j} \right)^\top \leq \bm{b}(P^\kappa), \\
-		z_f^{l+j} = z(P^\kappa).
+		\bm{A}\left(P^\kappa\right) \left[ x_f^{l+j} \ y_f^{l+j} \right]^\top \leq \bm{b}\left(P^\kappa\right), \\
+		z_f^{l+j} = z\left(P^\kappa\right).
 	\end{cases}
 	\label{eq:FAPA:implication}
 \end{equation}
@@ -286,8 +286,8 @@ the so-called {\em big-M} technique
 \eqref{eq:FAPA:implication} as
 \begin{equation}
 	\begin{cases}
-		\bm{A}(P^\kappa)\left( x_f^{l+j} \ y_f^{l+j} \right)^\top \leq \bm{b}(P^\kappa) + (1 - b_{l+j,\kappa}) M \bm{1}_{V(P^\kappa)}, \\
-		z_{l+j} \leq z(P^\kappa) + (1 - b_{l+j,\kappa}) M, \\
+		\bm{A}\left(P^\kappa\right)\left[ x_f^{l+j} \ y_f^{l+j} \right]^\top \leq \bm{b}\left(P^\kappa\right) + \left(1 - b_{l+j,\kappa}\right) M \bm{1}_{V(P^\kappa)}, \\
+		z_{l+j} \leq z\left(P^\kappa\right) + \left(1 - b_{l+j,\kappa}\right) M, \\
 		-z_{l+j} \leq -z(P^\kappa) + (1 - b_{l+j,\kappa}) M,
 	\end{cases}
 \label{eq:FAPA:mi_patch_constraint}
@@ -378,29 +378,32 @@ Variables patches FAPA (V-FAPA).
 
 The decision variable over the planning horizon are collected as
 \begin{align*}
-    \bfX_f^l & =  (x_f^l,\dots,x_f^{l+F}), \quad 
-    \,\, \bfY_f^l  =  (y_f^l,\dots,y_f^{l+F}), \\
-    \,\, \bfZ_f^l & = (z_f^l,\dots,z_f^{l+F}), \quad
-    \bm{\Theta}_f^l = (\theta_f^l,\dots,\theta_f^{l+F}), \\
-    \,\, \bfT_{\rm ds}^l & =  (T_{\rm ds}^l,\dots,T_{\rm ds}^{l+F}), \quad \bfT_{\rm ss}^l \!=\! (T_{\rm ss}^l,\dots,T_{\rm ss}^{l+F}), 
+    \bfX_f^l & =  \left[x_f^l,\dots,x_f^{l+F}\right], \quad 
+    \,\, \bfY_f^l  =  \left[y_f^l,\dots,y_f^{l+F}\right], \\
+    \,\, \bfZ_f^l & = \left[z_f^l,\dots,z_f^{l+F}\right], \quad
+    \bm{\Theta}_f^l = \left[\theta_f^l,\dots,\theta_f^{l+F}\right], \\
+    \,\, \bfT_{\rm ds}^l & =  \left[T_{\rm ds}^l,\dots,T_{\rm ds}^{l+F}\right], \quad \bfT_{\rm ss}^l \!=\! \left[T_{\rm ss}^l,\dots,T_{\rm ss}^{l+F}\right], 
 \end{align*}
 \begin{equation*}
-\bfB^l = \left(
-\begin{array}{ccc}b_{l,1} & \dots & b_{l,L}\\ \vdots & \ddots & \vdots \\ b_{l+F,1} & \dots & b_{l+F,L} \end{array}
-\right),
+\bm{B}^l =
+\begin{bmatrix}
+    b_{l,1}   & \dots  & b_{l,L} \\
+    \vdots    & \ddots & \vdots  \\
+    b_{l+F,1} & \dots  & b_{l+F,L}
+\end{bmatrix},
 \end{equation*}
 while the corresponding candidate values are identified by the vectors
 $\hat \bfX_f^l$, $\hat \bfY_f^l$, $\hat \bfZ_f^l$, $\hat {\bm{\Theta}}_f^l$, $\hat \bfT^l_{\rm ds}$, $\hat \bfT^l_{\rm ss}$, $\hat \bfB^l$, similarly defined.
 
 \begin{sloppypar}
 F-FAPA solves the following problem, with decision variables
-${\bfU^l = (\bm{X}_f^l, \bm{Y}_f^l, \bm{Z}_f^l, \bm{\Theta}_f^l, \bm{T}_{\rm ds}^l, \bm{T}_{\rm ss}^l)}$:
+${\bfU^l = \left[\bm{X}_f^l, \bm{Y}_f^l, \bm{Z}_f^l, \bm{\Theta}_f^l, \bm{T}_{\rm ds}^l, \bm{T}_{\rm ss}^l\right]}$:
 \end{sloppypar}
 \begin{braced}
     \begin{equation*}
         \begin{split}
             \min_{\bfU^l}\quad
-            & w_x \| \hat{\bm{X}}_f^l - \bm{X}_f^l \|^2 + w_y \| \hat{\bm{Y}}_f^l - \bm{Y}_f^l \|^2 + \\& w_z \| \hat{\bm{Z}}_f^l - \bm{Z}_f^l \|^2 + w_{\theta} \| \hat{\bm{\Theta}}_f^l - \bm{\Theta}_f^l \|^2 + \\& w_{\rm ds} \| \hat{\bm{T}}_{\rm ds}^l - \bm{T}_{\rm ds}^l \|^2 + w_{\rm ss} \| \hat{\bm{T}}_{\rm ss}^l - \bm{T}_{\rm ss}^l \|^2
+            & w_x \left\| \hat{\bm{X}}_f^l - \bm{X}_f^l \right\|^2 + w_y \left\| \hat{\bm{Y}}_f^l - \bm{Y}_f^l \right\|^2 + \\& w_z \left\| \hat{\bm{Z}}_f^l - \bm{Z}_f^l \right\|^2 + w_{\theta} \left\| \hat{\bm{\Theta}}_f^l - \bm{\Theta}_f^l \right\|^2 + \\& w_{\rm ds} \left\| \hat{\bm{T}}_{\rm ds}^l - \bm{T}_{\rm ds}^l \right\|^2 + w_{\rm ss} \left\| \hat{\bm{T}}_{\rm ss}^l - \bm{T}_{\rm ss}^l \right\|^2
         \end{split}
     \end{equation*}
     \hspace{0.25cm} subject to:
@@ -416,16 +419,16 @@ ${\bfU^l = (\bm{X}_f^l, \bm{Y}_f^l, \bm{Z}_f^l, \bm{\Theta}_f^l, \bm{T}_{\rm ds}
 \medskip
 
 Since F-FAPA does not have binary variables, it can be implemented using a
-regular nonlinear solver (i.e., \texttt{ipopt}).
+regular nonlinear solver (i.e., IPOPT \cite{Wachter2006IPOPT}).
 
 V-FAPA solves the following problem, with decision variables which now include
-the binary variables $\bm{B}^{l}$ that is $\bfW^l = (\bm{X}_f^l, \bm{Y}_f^l, \bm{Z}_f^l, \bm{\Theta}_f^l, \bm{T}_{\rm ds}^l, \bm{T}_{\rm ss}^l, \bm{B}^{l})$:
+the binary variables $\bm{B}^{l}$ that is $\bfW^l = \left[\bm{X}_f^l, \bm{Y}_f^l, \bm{Z}_f^l, \bm{\Theta}_f^l, \bm{T}_{\rm ds}^l, \bm{T}_{\rm ss}^l, \bm{B}^{l}\right]$:
 \begin{braced}
     \begin{equation*}
         \begin{split}
             \min_{\bfW^l} \quad
-            & w_x \| \hat{\bm{X}}_f^l - \bm{X}_f^l \|_2^2 + w_y \| \hat{\bm{Y}}_f^l - \bm{Y}_f^l \|_2^2 + \\& w_z \| \hat{\bm{Z}}_f^l - \bm{Z}_f^l \|_2^2 + w_{\theta} \| \hat{\bm{\Theta}}_f^l - \bm{\Theta}_f^l \|_2^2 + \\& w_{\rm ds} \| \hat{\bm{T}}_{\rm ds}^l - \bm{T}_{\rm ds}^l \|_2^2 + w_{\rm ss} \| \hat{\bm{T}}_{\rm ss}^l - \bm{T}_{\rm ss}^l \|_2^2 +  \\&
-            w_{\rm b} \| \hat{\bm{B}}^l - \bm{B}^l \|_2^2
+            & w_x \left\| \hat{\bm{X}}_f^l - \bm{X}_f^l \right\|_2^2 + w_y \left\| \hat{\bm{Y}}_f^l - \bm{Y}_f^l \right\|_2^2 + \\& w_z \left\| \hat{\bm{Z}}_f^l - \bm{Z}_f^l \right\|_2^2 + w_{\theta} \left\| \hat{\bm{\Theta}}_f^l - \bm{\Theta}_f^l \right\|_2^2 + \\& w_{\rm ds} \left\| \hat{\bm{T}}_{\rm ds}^l - \bm{T}_{\rm ds}^l \right\|_2^2 + w_{\rm ss} \left\| \hat{\bm{T}}_{\rm ss}^l - \bm{T}_{\rm ss}^l \right\|_2^2 +  \\&
+            w_{\rm b} \left\| \hat{\bm{B}}^l - \bm{B}^l \right\|_2^2
         \end{split}
     \end{equation*}
     \hspace{0.25cm} subject to:
@@ -469,10 +472,10 @@ Simulation videos are available at \url{https://youtu.be/4_QYsZH1E7Y}.
         $\beta$ & 100 \\
         $d_x, d_y, d_z$ & 0.035 [m] \\
         $F$ & 3 \\
-        $\bm{v}_1$ & $(0.28, 0.13)^\top $ [m] \\
-        $\bm{v}_2$ & $(0.2, 0.43)^\top$ [m] \\
-        $\bm{v}_3$ & $(-0.12, 0.43)^\top$ [m] \\
-        $\bm{v}_4$ & $(-0.2, 0.13)^\top$ [m] \\
+        $\bm{v}_1$ & $[0.28, 0.13]^\top $ [m] \\
+        $\bm{v}_2$ & $[0.2, 0.43]^\top$ [m] \\
+        $\bm{v}_3$ & $[-0.12, 0.43]^\top$ [m] \\
+        $\bm{v}_4$ & $[-0.2, 0.13]^\top$ [m] \\
         $\Delta_z^m$ & -0.10 [m] \\
         $\Delta_z^M$ & 0.10 [m] \\
         $\Delta_{\theta}^m$ & -0.4 [rad] \\

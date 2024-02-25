@@ -477,12 +477,11 @@ with $\bm{M}(\bm{q}) \in \mathbb{R}^3$ and $\bm{H}(\bm{q}) \in \mathbb{R}^{3 \ti
     \bm{H}(\bm{q})
     &=
     \begin{bmatrix}
-        \mathrm{c}(\theta+\beta_1) &  b_1 \mathrm{s}\theta + a_1 \mathrm{c}\theta & -\mathrm{s}(\theta+\beta_1) v_{W_1} \\
-        \mathrm{s}(\theta+\beta_1) & -b_1 \mathrm{c}\theta + a_1 \mathrm{s}\theta &  \mathrm{c}(\theta+\beta_1) v_{W_1} \\
+        \cos(\theta+\beta_1) &  b_1 \sin\theta + a_1 \cos\theta & -\sin(\theta+\beta_1) v_{W_1} \\
+        \sin(\theta+\beta_1) & -b_1 \cos\theta + a_1 \sin\theta &  \cos(\theta+\beta_1) v_{W_1} \\
         0 & 1 & 0
-    \end{bmatrix},
+    \end{bmatrix}.
 \end{align*}
-where $\mathrm{c}(\cdot)$ and $\mathrm{s}(\cdot)$ respectively denote $\cos(\cdot)$ and $\sin(\cdot)$.
 
 By choosing
 \begin{equation*}
@@ -586,8 +585,8 @@ The OCP can be defined as
 with $T_{\mathrm{MPC}}$ duration of the prediction horizon, stage and terminal
 cost respectively defined as
 \begin{align*}
-    \mathcal{L}(\bm{q}, \bm{u}) &= \|\bm{q}^{\mathrm{aux}} - \bm{q}\|_{\bm{W_q}}^2 + \|\bm{u}^{\mathrm{aux}} - \bm{u}\|_{\bm{W_u}}^2 \\
-    \Phi(\bm{q}) &= \|\bm{q}^{\mathrm{aux}} - \bm{q}\|_{\bm{W_q}}^2,
+    \mathcal{L}(\bm{q}, \bm{u}) &= \left\|\bm{q}^{\mathrm{aux}} - \bm{q}\right\|_{\bm{W_q}}^2 + \left\|\bm{u}^{\mathrm{aux}} - \bm{u}\right\|_{\bm{W_u}}^2 \\
+    \Phi(\bm{q}) &= \left\|\bm{q}^{\mathrm{aux}} - \bm{q}\right\|_{\bm{W_q}}^2,
 \end{align*}
 $\bm{W_q}, \bm{W_u}$ positive semi-definite weighting matrices, $v_W^-$ and
 $v_W^+$ min/max wheel driving velocity, $a_W^-$ and $a_W^+$ min/max wheel
@@ -670,8 +669,8 @@ problem by using multiple shooting \cite{Bock1984MultipleShooting}:
 \end{equation*}
 with vectors
 \begin{align*}
-\bm{Q}_k &= (\bm{q}_{0|k}^\top, \bm{q}_{1|k}^\top, \dots, \bm{q}_{N|k}^\top)^\top \\
-\bm{U}_k &= (\bm{u}_{0|k}^\top, \bm{u}_{1|k}^\top, \dots, \bm{u}_{N-1|k}^\top)^\top
+\bm{Q}_k &= \left[\bm{q}_{0|k}^\top, \bm{q}_{1|k}^\top, \dots, \bm{q}_{N|k}^\top\right]^\top \\
+\bm{U}_k &= \left[\bm{u}_{0|k}^\top, \bm{u}_{1|k}^\top, \dots, \bm{u}_{N-1|k}^\top\right]^\top
 \end{align*}
 collecting the decision variables of the NMPC at $t_k$,
 $T_{\mathrm{MPC}}=N\delta_{\mathrm{MPC}}$, $\delta_{\mathrm{MPC}}$ timestep of

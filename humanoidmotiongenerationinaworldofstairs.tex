@@ -117,7 +117,7 @@ The problem will be solved under the following assumptions.
 \item[A1] Information about the environment is maintained in an
 {\em elevation map} ${\cal M}_{z}$, i.e., a 2.5D grid map of equally-sized
 cells that, whenever needed, can be queried as $z = {\cal M}_{z}(x,y)$, to
-provide the height of the ground at the cell having coordinates $(x,y)$
+provide the height of the ground at the cell having coordinates $[x,y]$
 \cite{Burgard2016WorldModeling}.
 In the off-line case, ${\cal M}_{z}$ is available a priori, while in the
 on-line case it must be incrementally built by the humanoid based on sensory
@@ -170,7 +170,7 @@ footstep planning, gait generation and localization modules.
 \end{figure}
 
 In the following, we denote by $\bff = (x_{f}, y_{f}, z_{f}, \theta_{f})$ the
-{\em pose} of a certain footstep, with $x_{f}$, $y_{f}$, $z_{f}$ representing
+{\em pose} of a certain footstep, with $(x_{f}$, $y_{f}$, $z_{f})$ representing
 the coordinates of a representative point, henceforth collectively denoted as
 $\bfp_f$, and $\theta_{f}$ its orientation\footnote{To represent the footstep
 orientation we only use the yaw angle, as roll and pitch are always zero thanks
@@ -197,13 +197,13 @@ The planner works off-line to find, within $\Delta T$, an optimal
 \textit{footstep plan} ${\cal P}^\ast = \{ {\cal S}_f, {\cal S}_\varphi \}$
 leading to the desired goal region $\cal G$. In ${\cal P}^*$, we denote by
 \begin{equation*}
-    {\cal S}_f = \{\bff^1, \dots, \bff^n\}
+    {\cal S}_f = \left\{\bff^1, \dots, \bff^n\right\}
 \end{equation*}
 the sequence of footstep placements, whose generic element $\bff^j$ is the
 pose of the $j$-th footstep, with $\bff^1 = \bff_{\rm swg}^{\rm ini}$ and
 $\bff^2 = \bff_{\rm sup}^{\rm ini}$. Also, we denote by
 \begin{equation*}
-    {\cal S}_\varphi = \{\bfvarphi^1, \dots, \bfvarphi^{n-2}\}
+    {\cal S}_\varphi = \left\{\bfvarphi^1, \dots, \bfvarphi^{n-2}\right\}
 \end{equation*} 
 the sequence of associated swing foot trajectories, whose generic element
 $\bfvarphi^j$ is the $j$-th {\em step}, i.e., the trajectory leading the foot
@@ -272,7 +272,7 @@ poses of all vertexes and the steps corresponding to all edges.
 \medskip
 
 \subsubsection{Footstep feasibility}
-Footstep $\bff^j=(x_f^j,y_f^j,z_f^j,\theta_f^j) \in {\cal S}_f$ is
+Footstep $\bff^j=\left(x_f^j,y_f^j,z_f^j,\theta_f^j\right) \in {\cal S}_f$ is
 \textit{feasible} if it satisfies the following requirements:   
 
 \begin{itemize}
@@ -296,20 +296,20 @@ $\bff^{j-1}$ (this is actually {\em stance feasibility}).
 The admissible region (a submanifold of $\RealSet^3 \times SO(2)$) for placing
 $\bff^{j}$ next to $\bff^{j-1}$ is defined by the following constraints:
 \begin{gather} 
--\begin{pmatrix}
+-\begin{bmatrix}
 \Delta_x^- \\[5pt] \Delta_y^-
-\end{pmatrix}
+\end{bmatrix}
 \le
-R_{j-1}^\top \begin{pmatrix}
+R_{j-1}^\top \begin{bmatrix}
 x_f^j - x_f^{j-1} \\[5pt] y_f^j - y_f^{j-1}
-\end{pmatrix}
-\pm \begin{pmatrix}
+\end{bmatrix}
+\pm \begin{bmatrix}
 0 \\ \ell
-\end{pmatrix}
+\end{bmatrix}
 \le
-\begin{pmatrix}
+\begin{bmatrix}
 \Delta_x^+ \\[5pt] \Delta_y^+
-\end{pmatrix} \label{eq:WoS:XYAdmissible}\\[5pt]
+\end{bmatrix} \label{eq:WoS:XYAdmissible}\\[5pt]
 -\Delta_z^- \le z_f^j - z_f^{j-1} \le \Delta_z^+
 \label{eq:WoS:ZAdmissible}\\[5pt]
 -\Delta_\theta^- \le \theta_f^j - \theta_f^{j-1} \le \Delta_\theta^+. \label{eq:WoS:ThetaAdmissible}
@@ -1105,12 +1105,12 @@ Let $(\hat{\bff}_{\rm swg}^{j}, \hat{\bff}_{\rm sup}^{j})$ be the current
 stance, with $\hat{\bff}_{\rm swg}^{j}$ and $\hat{\bff}_{\rm sup}^{j}$ the
 estimates of the swing and support foot poses at $t_s^j$, and
 ${\cal P}^{j,*} = \{ {\cal S}_f^{j}, {\cal S}_\varphi^{j} \}$ be the current
-footstep plan -- computed during the previous ($(j-1)$-th) step -- where the
+footstep plan -- computed during the previous $(j-1)$-th step -- where the
 sequences of footstep placements and associated swing trajectories are defined
 as
 \begin{gather*}
-    {\cal S}_f^j = \{\bff^{j|j}, \dots, \bff^{j+n|j}\}, \\
-    {\cal S}_\varphi^j = \{\bfvarphi^{j|j}, \dots, \bfvarphi^{j+n-2|j}\}
+    {\cal S}_f^j = \left\{\bff^{j|j}, \dots, \bff^{j+n|j}\right\}, \\
+    {\cal S}_\varphi^j = \left\{\bfvarphi^{j|j}, \dots, \bfvarphi^{j+n-2|j}\right\}
 \end{gather*}
 with their generic elements $\bff^{j+i|j}$ and $\bfvarphi^{j+i|j}$ denoting,
 respectively, the $(j+i)$-th footstep and trajectory produced by the $j$-th
