@@ -255,7 +255,7 @@ these hypotheses hold are when the ICR is constant at infinity
 $\bm{o}_{W_1}$). Hereby, we define the reduced kinematic models and coordinating
 functions for these 2 cases, which we use to start/stop the robot.
 
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/blockscheme.pdf}
     \caption{Block scheme of the proposed framework. A user-defined reference
@@ -274,7 +274,7 @@ functions for these 2 cases, which we use to start/stop the robot.
         $\bm{\xi}^{\rm ref} = \bm{0}$, and the robot decelerates, then stops.
     }
     \label{fig:block-scheme}
-\end{figure*}
+\end{figure}
 
 \begin{figure}
     \centering
@@ -913,23 +913,23 @@ Figure \ref{fig:simulations:forward:wheel-velocities} shows the corresponding
 driving and steering velocities. Note that the initial spike in the 
 steering velocity is due to the change of status of the FSM from \textit{Starting}
 to \textit{Moving}.
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/simulations/forward/snapshots.jpeg}
     \caption{Snapshots of the mobile base tracking a \textit{forward motion} trajectory.
         The robot accelerates for half the duration of the motion, eventually
         decelerating and stopping.}
     \label{fig:experiments:forward:snapshots}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{figures/SWMR/simulations/forward/inputs_and_errors.pdf}
     \caption{Control inputs and trajectory tracking errors for the
         \textit{forward motion} trajectory.
     }
     \label{fig:simulations:forward:inputs-and-errors}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{figures/SWMR/simulations/forward/wheels_velocities.pdf}
     \caption{Driving and steering velocities of the four wheels for the
@@ -939,7 +939,7 @@ to \textit{Moving}.
         (due to numerical approximations), are always close to zero, indicating
         that the robot is not steering.}
     \label{fig:simulations:forward:wheel-velocities}
-\end{figure*}
+\end{figure}
 
 The \textit{backward motion} trajectory is defined similarly to the
 \textit{forward motion} trajectory, with the difference that
@@ -957,24 +957,24 @@ the robot is slightly deviating from the straight line. This behavior is due the
 odometric localization module, which is not as precise as a Kalman filter or
 SLAM \cite{Thrun2005ProbabilisticRobotics}.
 The integration of a better localization system will be part of future works.
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/simulations/backward/snapshots.jpeg}
     \caption{Snapshots of the mobile base tracking a \textit{backward motion} trajectory.}
     \label{fig:experiments:backward:snapshots}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{figures/SWMR/simulations/backward/inputs_and_errors.pdf}
     \caption{Control inputs and trajectory tracking errors for the \textit{backward motion} trajectory.}
     \label{fig:simulations:backward:inputs-and-errors}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{figures/SWMR/simulations/backward/wheels_velocities.pdf}
     \caption{Driving and steering velocities of the four wheels for the \textit{backward motion} trajectory.}
     \label{fig:simulations:backward:wheel-velocities}
-\end{figure*}
+\end{figure}
 
 The \textit{diagonal motion} trajectory is defined similarly to the
 \textit{forward motion} trajectory, but with $\theta^{\mathrm{dir}} \ne \theta_0$.
@@ -988,20 +988,20 @@ inputs computed by the NMPC and the trajectory tracking error.
 Figure \ref{fig:simulations:diagonal:wheel-velocities} shows the corresponding
 driving and steering velocities. Once again, the trajectory is tracking while 
 keeping the error close to zero, and satisfying all constraints of the system.
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/simulations/diagonal/snapshots.jpeg}
     \caption{Snapshots of the mobile base tracking a \textit{diagonal motion} trajectory.}
     \label{fig:experiments:diagonal:snapshots}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{figures/SWMR/simulations/diagonal/inputs_and_errors.pdf}
     \caption{Control inputs and trajectory tracking errors for the
         \textit{diagonal motion} trajectory.}
     \label{fig:simulations:diagonal:inputs-and-errors}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{figures/SWMR/simulations/diagonal/wheels_velocities.pdf}
     \caption{Driving and steering velocities of the four wheels for the
@@ -1010,7 +1010,7 @@ keeping the error close to zero, and satisfying all constraints of the system.
         joints are displaced by $\pi$ [rad] with respect to the previous 
         experiment.}
     \label{fig:simulations:diagonal:wheel-velocities}
-\end{figure*}
+\end{figure}
 
 In all these experiments (\textit{forward}, \textit{backward} and
 \textit{diagonal motion}), the reference position of the robot is the same.
@@ -1051,7 +1051,7 @@ Figure \ref{fig:simulations:circle-with-constant-orientation:inputs-and-errors}
 shows the control inputs computed by the NMPC and the trajectory tracking error.
 Figure \ref{fig:simulations:circle-with-constant-orientation:wheel-velocities}
 shows the corresponding driving and steering velocities.
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/simulations/circular_with_constant_orientation/snapshots.jpeg}
     \caption{Snapshots of the mobile base tracking a
@@ -1059,19 +1059,19 @@ shows the corresponding driving and steering velocities.
         the same orientation throughout the motion. This is possible because 
         of the omnidirectional capabilities of the platform.}
     \label{fig:experiments:circle-with-constant-orientation:snapshots}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{figures/SWMR/simulations/circular_with_constant_orientation/inputs_and_errors.pdf}
     \caption{Control inputs and trajectory tracking errors for the \textit{circle with constant orientation} trajectory.}
     \label{fig:simulations:circle-with-constant-orientation:inputs-and-errors}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{figures/SWMR/simulations/circular_with_constant_orientation/wheels_velocities.pdf}
     \caption{Driving and steering velocities of the four wheels for the \textit{circle with constant orientation} trajectory.}
     \label{fig:simulations:circle-with-constant-orientation:wheel-velocities}
-\end{figure*}
+\end{figure}
 
 In the \textit{circle with tangent orientation} trajectory, the reference
 orientation is defined by
@@ -1094,12 +1094,12 @@ shows the corresponding driving and steering velocities.
 The trajectory tracking error is always close to zero, and the control inputs,
 together with steering and driving velocities of the wheels, are always within
 their boundaries.
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/simulations/circular_with_tangent_orientation/snapshots.jpeg}
     \caption{Snapshots of the mobile robot tracking a \textit{circle with tangent orientation}.}
     \label{fig:experiments:circle-with-tangent-orientation:snapshots}
-\end{figure*}
+\end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{figures/SWMR/simulations/circular_with_tangent_orientation/inputs_and_errors.pdf}
@@ -1133,12 +1133,12 @@ Figure \ref{fig:simulations:circle-with-inward-orientation:inputs-and-errors}
 shows the control inputs computed by the NMPC and the trajectory tracking error.
 Figure \ref{fig:simulations:circle-with-inward-orientation:wheel-velocities}
 shows the corresponding driving and steering velocities. 
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/simulations/circular_with_inward_orientation/snapshots.jpeg}
     \caption{Snapshots of the mobile base tracking a \textit{circle with inward orientation}.}
     \label{fig:experiments:circle-with-inward-orientation:snapshots}
-\end{figure*}
+\end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{figures/SWMR/simulations/circular_with_inward_orientation/inputs_and_errors.pdf}
@@ -1171,24 +1171,24 @@ Figure \ref{fig:simulations:circle-with-outward-orientation:wheel-velocities}
 shows the corresponding driving and steering velocities. In this experiment,
 the behavior is similar to the \textit{circle with inward orientation}, as the 
 only difference in the reference trajectory is the orientation of the base.
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/simulations/circular_with_outward_orientation/snapshots.jpeg}
     \caption{Snapshots of the mobile base tracking a \textit{circle with outward orientation}.}
     \label{fig:experiments:circle-with-outward-orientation:snapshots}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{figures/SWMR/simulations/circular_with_outward_orientation/inputs_and_errors.pdf}
     \caption{Control inputs and trajectory tracking errors for the \textit{circle with outward orientation} trajectory.}
     \label{fig:simulations:circle-with-outward-orientation:inputs-and-errors}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{figures/SWMR/simulations/circular_with_outward_orientation/wheels_velocities.pdf}
     \caption{Driving and steering velocities of the four wheels for the \textit{circle with outward orientation} trajectory.}
     \label{fig:simulations:circle-with-outward-orientation:wheel-velocities}
-\end{figure*}
+\end{figure}
 
 \subsection{Slalom motions}
 In this section, we consider tasks in which the robot is required to follow
@@ -1232,7 +1232,7 @@ satisfy the constraints of the platform. The NMPC is able to take this into
 account, generating a control action which satisfy all requirements. The
 resulting behavior is a realignment of the steerable wheels at the beginning of 
 the motion, which makes it possible to successfully complete the assigned task.
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/simulations/slalom_with_constant_orientation/snapshots.jpeg}
     \caption{Snapshots of the mobile base tracking a
@@ -1241,8 +1241,8 @@ the motion, which makes it possible to successfully complete the assigned task.
         is possible because of the omnidirectional capabilities of the platform.
     }
     \label{fig:experiments:slalom-with-constant-orientation:snapshots}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{figures/SWMR/simulations/slalom_with_constant_orientation/inputs_and_errors.pdf}
     \caption{Control inputs and trajectory tracking errors for the
@@ -1256,8 +1256,8 @@ the motion, which makes it possible to successfully complete the assigned task.
         feasible control inputs.
     }
     \label{fig:simulations:slalom-with-constant-orientation:inputs-and-errors}
-\end{figure*}
-\begin{figure*}
+\end{figure}
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{figures/SWMR/simulations/slalom_with_constant_orientation/wheels_velocities.pdf}
     \caption{Driving and steering velocities of the four wheels for the
@@ -1266,7 +1266,7 @@ the motion, which makes it possible to successfully complete the assigned task.
         reflect the behavior of the control inputs computed by the NMPC.
     }
     \label{fig:simulations:slalom-with-constant-orientation:wheel-velocities}
-\end{figure*}
+\end{figure}
 
 In the \textit{slalom with tangent orientation} trajectory, the robot is
 required to follow again the sinusoidal trajectory defined above, but while
@@ -1289,12 +1289,12 @@ Figure \ref{fig:simulations:slalom-with-tangent-orientation:wheel-velocities}
 shows the corresponding driving and steering velocities.
 Once again, the NMPC generates feasible control inputs while satisfying driving
 and steering velocity constraints on all wheels.
-\begin{figure*}
+\begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/simulations/slalom_with_tangent_orientation/snapshots.jpeg}
     \caption{Snapshots of the mobile base tracking a \textit{slalom with tangent orientation}.}
     \label{fig:experiments:slalom-with-tangent-orientation:snapshots}
-\end{figure*}
+\end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{figures/SWMR/simulations/slalom_with_tangent_orientation/inputs_and_errors.pdf}
