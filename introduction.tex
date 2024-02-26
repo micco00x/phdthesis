@@ -44,7 +44,7 @@ algorithms.
 \section{Contribution}
 \subsubsection{Humanoid motion generation in a world of stairs}
 The first contribution of this thesis is a framework for the generation of 
-motion of humanoid robots in a \textit{world of stairs}, an uneven terrain 
+motion of humanoid robots in a world of stairs, an uneven terrain 
 where all contact surfaces are piecewise-horizontal. The problem is first 
 addressed by assuming complete knowledge of the environment, and then 
 extended to the case in which the environment is unknown. In order to 
@@ -82,7 +82,19 @@ in \textit{2023 IEEE-RAS International Conference on Humanoid
 Robots}~\cite{Cipriano2023Humanoids}.
 
 \subsubsection{Nonlinear model predictive control for steerable WMRs}
-RA-L 2023 here.
+The third contribution of this thesis is a framework for trajectory tracking 
+for steerable wheeled mobile robots. The difficulty with this kind of platform,
+as we will discuss more in detail later, is the presence of kinematic model 
+singularities. These must be taken into account when developing a control 
+scheme, possibly together with constraints on actuation, in order to generate
+feasible control actions. We propose to solve this problem by implementing a 
+nonlinear MPC based on the real-time iteration scheme. Our MPC is supported by a 
+finite state machine, and an auxiliary trajectory generation scheme based 
+on dynamic feedback linearization, which guarantee kinematic singularities 
+are never encountered, and actutation constraints are always satisfied.
+At the time of writing of this manuscript, this work is about to be 
+submitted to \textit{IEEE Robotics and Automation Letters}.
+
 
 \section{Outline}
 Outline of the thesis.
