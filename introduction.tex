@@ -57,13 +57,29 @@ capable of replanning the sequence of footsteps during the execution of the
 motion, improving the footstep plan, and taking into account changes 
 in the map (we map the environment in real-time using an elevation mapping 
 module) due to dynamic obstacles. Moreover, our scheme
-uses a model predictive control algorithm that guarantees that the humanoid is
+uses a model predictive control (MPC) algorithm that guarantees that the humanoid is
 dynamically balanced at all times. This work led to a journal paper, which 
 has been published in \textit{Robotics and Autonomous Systems} 
 \cite{Cipriano2023RAS}.
 
 \subsubsection{Feasibility-aware plan adaptation in humanoid gait generation}
-Humanoids 2023 here \cite{Cipriano2023Humanoids}.
+The second contribution of this thesis is a module for adapting footstep plans 
+(positions, orientations and timings) in such a way to increase robustness 
+of humanoid robot locomotion in 3D environments.
+Indeed, while the robot walks, it may be subject 
+to external perturbations (such as pushes), which may make the robot lose its 
+equilibrium. The problem is first addressed by considering the case in which 
+adaptation does not allow to select a different contact surface with respect
+to the one initially assigned to each footstep, and then extended to the case 
+in which the contact surface may be reassigned, further increasing the external 
+disturbances the robot can sustain. We propose to solve this problem by 
+implementing the adaptation scheme as a nonlinear programming problem for the
+first case, and as a mixed-integer nonlinear programming problem for the
+second case. Our method, which is tightly integrated with our MPC scheme,
+allows to perform adaptation without affecting the performance of the MPC
+itself. This work led to a conference paper, which has been published 
+in \textit{2023 IEEE-RAS International Conference on Humanoid
+Robots}~\cite{Cipriano2023Humanoids}.
 
 \subsubsection{Nonlinear model predictive control for steerable WMRs}
 RA-L 2023 here.
