@@ -83,7 +83,8 @@ Robots}~\cite{Cipriano2023Humanoids}.
 
 \subsubsection{Nonlinear model predictive control for steerable WMRs}
 The third contribution of this thesis is a framework for trajectory tracking 
-for steerable wheeled mobile robots. The difficulty with this kind of platform,
+for steerable wheeled mobile robots (steerable WMRs).
+The difficulty with this kind of platform,
 as we will discuss more in detail later, is the presence of kinematic model 
 singularities. These must be taken into account when developing a control 
 scheme, possibly together with constraints on actuation, in order to generate
@@ -95,6 +96,44 @@ are never encountered, and actutation constraints are always satisfied.
 At the time of writing of this manuscript, this work is about to be 
 submitted to \textit{IEEE Robotics and Automation Letters}.
 
-
 \section{Outline}
-Outline of the thesis.
+The manuscript is organized as follows.
+\begin{itemize}
+    \item Chapter \ref{ch:humanoids-and-swmrs} presents an historical
+        overview on humanoid robots and steerable wheeled mobile robots,
+        discussing the role of robotics in our society and in research.
+    \item Chapter \ref{ch:literature-review} reviews the literature on the topics 
+        of gait generation, footstep planning, sensor-based locomotion, and footstep 
+        and timing adaptation for humanoid robots, and motion control for steerable 
+        WMRs.
+\end{itemize}
+Part I: Motion generation for humanoid robots
+\begin{itemize}
+    \item Chapter \ref{ch:humanoid-locomotion-dynamics} introduces the dynamics
+        of humanoid robots, focusing in particular on the Linear
+        Inverted Pendulum (LIP), and the condition of equilibrium for humanoids
+        in the world of stairs.
+    \item Chapter \ref{ch:ISMPC} presents Intrinsically-Stable MPC (IS-MPC), the gait 
+        generation scheme used in the subsequent chapters,
+        which takes into account the dynamics of the LIP, and guarantees the
+        stability of the system via a stability constraint.
+    \item Chapter \ref{ch:humanoid-motion-generation-WoS} presents a framework 
+        for motion generation in a world of stairs, which is composed of a 
+        footstep planner based on RRT*, a gait generation scheme based on IS-MPC,
+        a module to map the environment as an elevation map and a localization, 
+        system based on SLAM.
+    \item Chapter \ref{ch:FAPA} presents Feasibility-Aware Plan Adaptation
+        (FAPA), a module for footstep plan adaptation in 3D environments
+        which works alongside IS-MPC.
+\end{itemize}
+Part II: Motion control for steerable WMRs
+\begin{itemize}
+    \item Chapter \ref{ch:nmpc-rti} briefly reviews the Nonlinear MPC scheme 
+        based on real-time iteration (RTI), introducing the algorithms 
+        and the notation used in the subsequent chapter.
+    \item Chapter \ref{ch:nmpc-swmr} presents a framework for trajectory 
+        tracking for steerable WMRs, which makes use of a Nonlinear MPC
+        based on RTI.
+    \item Chapter \ref{ch:conclusions} concludes the thesis, summarizing the 
+        contributions and discussing future works.
+\end{itemize}
