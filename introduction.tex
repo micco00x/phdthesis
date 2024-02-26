@@ -29,12 +29,44 @@ While, in literature, there exists a large number of methodologies for
 generating and controlling the motion of mobile robots, the problems 
 of locomotion of humanoids in 3D environment, and locomotion of robots 
 equipped with steerable wheels (steerable wheeled mobile robots), has not been 
-entirely solved yet. TODO: say the main reasons [...].
+entirely solved yet. The reason lies in the complexity of the problem itself.
+In order to address locomotion, one should take into account a multitude of 
+subproblems, such as perception (how the robot sees its sorroudings,
+and how to build a representation of the environment), motion 
+planning (how to use such representation and efficiently plan how the robot 
+is going to move), and control (how to actually perform the motion, possibly 
+in a robust way, taking into account disturbances and external perturbations).
 
-TODO: The focus of this manuscript is [...].
+The focus of this manuscript is that of studying the aforementioned problems,
+and proposing new techniques which exploit modern planning and control
+algorithms.
 
 \section{Contribution}
-Thesis contribution and list of publications.
+\subsubsection{Humanoid motion generation in a world of stairs}
+The first contribution of this thesis is a framework for the generation of 
+motion of humanoid robots in a \textit{world of stairs}, an uneven terrain 
+where all contact surfaces are piecewise-horizontal. The problem is first 
+addressed by assuming complete knowledge of the environment, and then 
+extended to the case in which the environment is unknown. In order to 
+develop such scheme, localization, mapping, motion planning 
+and control modules must efficiently work together. We propose to solve this 
+problem by implementing a footstep planner based on RRT*, which efficiently 
+plans a sequence of footsteps that brings the robot from its current 
+configuration to a desired goal region. Our footstep planner is 
+capable of replanning the sequence of footsteps during the execution of the 
+motion, improving the footstep plan, and taking into account changes 
+in the map (we map the environment in real-time using an elevation mapping 
+module) due to dynamic obstacles. Moreover, our scheme
+uses a model predictive control algorithm that guarantees that the humanoid is
+dynamically balanced at all times. This work led to a journal paper, which 
+has been published in \textit{Robotics and Autonomous Systems} 
+\cite{Cipriano2023RAS}.
+
+\subsubsection{Feasibility-aware plan adaptation in humanoid gait generation}
+Humanoids 2023 here \cite{Cipriano2023Humanoids}.
+
+\subsubsection{Nonlinear model predictive control for steerable WMRs}
+RA-L 2023 here.
 
 \section{Outline}
 Outline of the thesis.
