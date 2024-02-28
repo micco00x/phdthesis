@@ -73,7 +73,54 @@
 %\end{acknowledgments}
 
 \begin{abstract}
-Abstract.
+Mobile robots have the potentiality to accomplish complex tasks because of 
+their capability of adapting to different scenarios. This is particularly 
+true for humanoid robots, which can navigate unstructured environments thanks 
+to their anthropomorphic structure, and steerable wheeled mobile robots (WMRs),
+which present an increased mobility with respect to their non-omnidirectional 
+counterpart.
+
+In this thesis, we focus on the problem of generation and control of motion 
+for humanoid robots in 3D, and steerable WMRs. In particular, when developing 
+a framework for locomotion, one should take into account how the 
+robot perceives its surroundings, how to move, and how to actually perform 
+the motion. These problems, which lie under the categories of perception,
+motion planning, and control, must be solved efficiently and simultaneously.
+
+In the first part of this manuscript, we study the problem of motion generation 
+for humanoid robots in a world of stairs, a particular kind of uneven terrain 
+where all contact surfaces are piecewise-horizontal. We present a framework 
+composed of a RRT*-based footstep planner, a gait generation scheme based 
+on Model Predictive Control (MPC), a mapping module, and a localization module.
+The footstep planner, which plans a feasible sequence of footsteps using an
+elevation map, exploits the time the robot takes to complete a step to
+replan the footsteps, improving the plan and taking 
+into account changes in the map, which may occur due to the presence of 
+dynamic obstacles. In order to improve the reliability of locomotion,
+external disturbances and pushes must be considered. To address these scenarios,
+we present 
+Feasibility-Aware Plan Adaptation (FAPA), a module for adapting 
+footstep plans (positions, orientations, and timings) in such a way 
+to guarantee the feasibility of the subsequence MPC stage. FAPA allows to 
+sustain external pushes on stairs, allowing the humanoid to safely complete 
+locomotion tasks.
+
+In the second part of this manuscript, we study the problem of motion control
+for steerable WMRs (SWMRs). The development of control scheme for this kind of platform 
+is not trivial, due to the presence of kinematic singularities, which must 
+be taken into account in order to properly make the robot move. We propose 
+a framework for trajectory tracking of SWMRs using Nonlinear MPC (NMPC) based on the 
+real-time iteration scheme. The NMPC generates feasible motions for the robot,
+taking into account both kinematic singularities of the mobile base, and 
+bounds on driving and steering velocities. Our NMPC works alongside a finite
+state machine and an auxiliary trajectory generation scheme
+based on dynamic feedback linearization, which makes our
+framework capable of tracking any trajectory, without ever
+encountering singularities.
+
+The proposed methods are validated in simulation using CoppeliaSim,
+and in experimental settings using the Neobotix MPO-700 platform.
+
 \end{abstract}
 
 \tableofcontents

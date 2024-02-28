@@ -8,7 +8,7 @@ of the robot must be dynamically balanced, i.e., the robot must not fall.
 To formally define the condition for dynamic balance, it is important
 to understand the dynamics of humanoid locomotion. The motion of humanoid robots
 is characterized by a sequence of foot contact phases. For example, a walking
-gait is composed by \textit{double support} and \textit{single support} phases. During
+gait is composed of \textit{double support} and \textit{single support} phases. During
 double support, both feet are in contact with the ground. During single support,
 only one foot is in contact with the ground, while the other one (the \textit{swing foot})
 moves towards the subsequent footstep location. Each single and double support
@@ -47,11 +47,11 @@ Consider a humanoid robot as an open kinematic chain composed of $n+1$ rigid bod
 configuration} of the robot\footnote{Note that, while this definition of
 joint configuration considers
 humanoids composed only by revolute joints, the presented analysis is valid also for
-robots composed by prismatic joints, or a combination of both.} as $\bm{q}_j \in \left(\mathrm{SO}(2)\right)^n$, and assume they
+robots composed of prismatic joints, or a combination of both.} as $\bm{q}_j \in \left(\mathrm{SO}(2)\right)^n$, and assume they
 are actuated by a torque $\bm{\tau} \in \mathbb{R}^n$. The root of the tree defining the
 kinematic chain represents the \textit{floating base} link, as it is not fixed to the
 world frame. The \textit{floating base configuration} is parametrized by
-$\bm{q}_b \in \mathrm{SE}(3)$, and it is composed by the position
+$\bm{q}_b \in \mathrm{SE}(3)$, and it is composed of the position
 $\bm{p}_b \in \mathbb{R}^3$ and the orientation $\bm{\theta}_b \in \mathrm{SO}(3)$
 of the floating base itself. We define the configuration of the robot as
 \begin{equation*}
@@ -194,7 +194,7 @@ Consider the gravito-inertial wrench defined in \ref{eq:gravito-intertial-wrench
 which, using Varignon formula\footnote{A screw $\bm{w}_O =
 (\bm{f},\bm{\tau}_O)$ represents the generalized force acting on a rigid body
 \cite{Featherstone2007RigidBodyDynamicsAlgorithms},
-and it is composed by a linear force $\bm{f}$ passing through $O$, together with the
+and it is composed of a linear force $\bm{f}$ passing through $O$, together with the
 total moment $\bm{\tau}_O$ about $O$. That total moment around any other point
 $A$ can be computed using Varignon formula as $\bm{\tau}_A=\bm{\tau}_O+\bm{f}\times(\bm{p}_A-\bm{p}_O)$.}, can be rewritten as
 \begin{equation*}
