@@ -450,10 +450,11 @@ Since V-FAPA contains the binary variables $\bm{B}$ it is implemented as a MINLP
 We ran four simulations in MATLAB, using CoppeliaSim to kinematically
 visualize the resulting motions. The system is an AMD Ryzen 9 5900X
 (4.8 GHz, 12 core) with 16 GB DDR4 3600 MHz running Ubuntu 22.04 LTS. IS-MPC
-runs at 100~Hz and is solved using \texttt{quadprog}, while FAPA runs at
+runs at 100~Hz and is solved using quadprog, while FAPA runs at
 10~Hz and is solved using the CasADi interface. In CasADi, we used
-\texttt{ipopt} for F-FAPA, and \texttt{bonmin} for V-FAPA. We also ran tests
-with the commercial solver \texttt{knitro}, to compare the performance
+IPOPT \cite{Wachter2006IPOPT} for F-FAPA, and BONMIN \cite{Ahmed2022BONMIN}
+for V-FAPA. We also ran tests
+with the commercial solver Knitro \cite{Byrd2006Knitro}, to compare the performance
 (see Table~\ref{tab:benchmarks}).
 
 All the simulations use the parameters of Table \ref{tab:FAPA:hyperparameters}.
@@ -633,10 +634,10 @@ HRP-4 humanoid robot executing the motion.
     \begin{tabular}{*{6}{c}}
         Algorithm & Solver & Average [s] & Std dev. [s] & Max [s] \\
         \hline
-        F-FAPA & \texttt{ipopt} & 0.0207 & 0.0041 & 0.0467 \\
-        F-FAPA & \texttt{knitro} & 0.0144 & 0.0032 & 0.0329 \\
-        V-FAPA & \texttt{bonmin} & 0.3164 & 0.2075 & 1.2098 \\
-        V-FAPA & \texttt{knitro} & 0.0316 & 0.0393 & 0.3985
+        F-FAPA & IPOPT & 0.0207 & 0.0041 & 0.0467 \\
+        F-FAPA & Knitro & 0.0144 & 0.0032 & 0.0329 \\
+        V-FAPA & BONMIN & 0.3164 & 0.2075 & 1.2098 \\
+        V-FAPA & Knitro & 0.0316 & 0.0393 & 0.3985
     \end{tabular}
     \caption{Performance metrics of F-FAPA in the {\em empty} scenario and
         V-FAPA in the {\em 2-patches} scenario, using different solvers.
@@ -645,12 +646,12 @@ HRP-4 humanoid robot executing the motion.
 \end{table}
 
 To discuss the real-time applicability of the scheme, we report performance
-metrics in Table~\ref{tab:benchmarks}. The solvers used are \texttt{ipopt}
-and \texttt{knitro} for F-FAPA, and \texttt{bonmin} and \texttt{knitro} for
-V-FAPA. \texttt{knitro} is faster overall, but \texttt{ipopt} still
+metrics in Table~\ref{tab:benchmarks}. The solvers used are IPOPT
+and Knitro for F-FAPA, and BONMIN and Knitro for
+V-FAPA. Knitro is faster overall, but IPOPT still
 demonstrates good performance for F-FAPA, compatible with real-time
-requirements. For V-FAPA, \texttt{bonmin} is clearly too slow, while
-\texttt{knitro} has an average performance that is real-time on average,
+requirements. For V-FAPA, BONMIN is clearly too slow, while
+Knitro has an average performance that is real-time on average,
 but some outliers violate the requirements. Since all results in this chapter
 are simulated, real-time performance is desirable but not critical.
 However, it is necessary for hardware implementation, which is why we will

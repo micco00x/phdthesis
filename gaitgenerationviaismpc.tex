@@ -305,7 +305,8 @@ Thus, we adopt a conservative approximation called the \textit{moving constraint
 \cite{Aboudonia2017Humanoids}.
 
 The IS-MPC block constructs ZMP constraints from the footstep plan
-$\mathcal{P}^l$. The moving constraint requires for the ZMP to be at all
+$\mathcal{P}^l$, where $l$ is the index of the first footstep of the current
+subplan (at $t_k$). The moving constraint requires for the ZMP to be at all
 times within a convex
 polyhedron of fixed shape, in our case a box of dimensions $d_x$, $d_y$ and
 $d_z$ centered in $\bfp_{\rm mc}=[x_{\rm mc}, y_{\rm mc}, z_{\rm mc}]^\top$,
@@ -353,12 +354,12 @@ where $\bm{X}_z^{\rm m,k+1}, \bm{X}_z^{\rm M,k+1}, \bm{Y}_z^{\rm m,k+1},
 are the ZMP bounds along the prediction, which can be expressed as
 \begin{equation}
     \begin{aligned}
-        \bm{X}_z^{\rm m,k+1} &= \bm{X}_{\rm mc}^{k+1} - \bfz \frac{d_x}{2} &
-        \bm{X}_z^{\rm M,k+1} &= \bm{X}_{\rm mc}^{k+1} + \bfz \frac{d_x}{2} \\
-        \bm{Y}_z^{\rm m,k+1} &= \bm{Y}_{\rm mc}^{k+1} - \bfz \frac{d_y}{2} &
-        \bm{Y}_z^{\rm M,k+1} &= \bm{Y}_{\rm mc}^{k+1} + \bfz \frac{d_y}{2} \\
-        \bm{Z}_z^{\rm m,k+1} &= \bm{Z}_{\rm mc}^{k+1} - \bfz \frac{d_z}{2} &
-        \bm{Z}_z^{\rm M,k+1} &= \bm{Z}_{\rm mc}^{k+1} + \bfz \frac{d_z}{2}.
+        \bm{X}_z^{\rm m,k+1} &= \bm{X}_{\rm mc}^{k+1} - \bfp \frac{d_x}{2} &
+        \bm{X}_z^{\rm M,k+1} &= \bm{X}_{\rm mc}^{k+1} + \bfp \frac{d_x}{2} \\
+        \bm{Y}_z^{\rm m,k+1} &= \bm{Y}_{\rm mc}^{k+1} - \bfp \frac{d_y}{2} &
+        \bm{Y}_z^{\rm M,k+1} &= \bm{Y}_{\rm mc}^{k+1} + \bfp \frac{d_y}{2} \\
+        \bm{Z}_z^{\rm m,k+1} &= \bm{Z}_{\rm mc}^{k+1} - \bfp \frac{d_z}{2} &
+        \bm{Z}_z^{\rm M,k+1} &= \bm{Z}_{\rm mc}^{k+1} + \bfp \frac{d_z}{2}.
     \end{aligned}
 \label{eq:FAPA:zmp_constraint_displacement}
 \end{equation}
@@ -366,7 +367,7 @@ The size of the moving box $[d_x, d_y, d_z]^\top$ is
 determined in such a way to always be contained inside the pyramid $\cal Z$
 \cite{Zamparelli2018SYROCO, Cipriano2023RAS}.
 The center of the moving box $\bfp_{\rm mc}$ must be expressed in terms of
-the subplan $\mathcal{P}^l$. First we define the {\em piecewise-linear sigmoid}
+the plan $\mathcal{P}^l$. First we define the {\em piecewise-linear sigmoid}
 function 
 \begin{equation*}
 \sigma (t,t_i,t_f)=\frac{1}{t_f-t_i} \left(\rho(t-t_i)-\rho(t-t_f)\right),
@@ -441,7 +442,7 @@ The IS-MPC iteration performs, at each timestep $t_k$, the following steps:
         $\dot{\bm{X}}_\text{z}^k, \dot{\bm{Y}}_\text{z}^k, \dot{\bm{Z}}_\text{z}^k$.
     \item From the solutions, extract the first sample $\left[\dot x_z^k, \dot y_z^k, \dot z_z^k\right]$.
     \item Integrate \eqref{eq:LIPM-x-dynamic-extension} from
-        $\left[x_c^k, \dot{x}_c^k, x_z^k\right]$ considering $\dot{x}_z=\dot{x}_z^k$, obtaining
+        $\left[x_c^k, \dot{x}_c^k, x_z^k\right]$ considering $\dot{x}_z=\dot{x}_z^k$, obtain
         $\left[x_c^{k+1}, \dot{x}_c^{k+1}, x_z^{k+1}\right]$.
         Compute $\left[y_c^{k+1}, \dot{y}_c^{k+1}, y_z^{k+1}\right]$ and 
         $\left[z_c^{k+1}, \dot{z}_c^{k+1}, z_z^{k+1}\right]$ similarly (using

@@ -28,7 +28,7 @@ of the omnidirectionality of the base) without sacrificing its robustness
 While, in literature, there exists a large number of methodologies for
 generating and controlling the motion of mobile robots, the problems 
 of locomotion of humanoids in 3D environment, and locomotion of robots 
-equipped with steerable wheels (steerable wheeled mobile robots), has not been 
+equipped with steerable wheels (steerable wheeled mobile robots), have not been 
 entirely solved yet. The reason lies in the complexity of the problem itself.
 In order to address locomotion, one should take into account a multitude of 
 subproblems, such as perception (how the robot sees its sorroudings,
@@ -50,7 +50,7 @@ addressed by assuming complete knowledge of the environment, and then
 extended to the case in which the environment is unknown. In order to 
 develop such scheme, localization, mapping, motion planning 
 and control modules must efficiently work together. We propose to solve this 
-problem by implementing a footstep planner based on RRT*, which efficiently 
+problem by implementing a footstep planner based on RRT*, which 
 plans a sequence of footsteps that brings the robot from its current 
 configuration to a desired goal region. Our footstep planner is 
 capable of replanning the sequence of footsteps during the execution of the 
@@ -83,7 +83,7 @@ Robots}~\cite{Cipriano2023Humanoids}.
 
 \subsubsection{Nonlinear model predictive control for steerable WMRs}
 The third contribution of this thesis is a framework for trajectory tracking 
-for steerable wheeled mobile robots (steerable WMRs).
+for steerable wheeled mobile robots (steerable WMRs, or SWMRs).
 The difficulty with this kind of platform,
 as we will discuss more in detail later, is the presence of kinematic model 
 singularities. These must be taken into account when developing a control 
@@ -120,7 +120,7 @@ Part I: Motion generation for humanoid robots
     \item Chapter \ref{ch:humanoid-motion-generation-WoS} presents a framework 
         for motion generation in a world of stairs, which is composed of a 
         footstep planner based on RRT*, a gait generation scheme based on IS-MPC,
-        a module to map the environment as an elevation map and a localization, 
+        a module to map the environment as an elevation map, and a localization 
         system based on SLAM.
     \item Chapter \ref{ch:FAPA} presents Feasibility-Aware Plan Adaptation
         (FAPA), a module for footstep plan adaptation in 3D environments

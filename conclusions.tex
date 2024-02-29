@@ -4,7 +4,7 @@ This thesis addressed the problem of generation and control of motion for
 humanoids and steerable wheeled 
 mobile robots. In particular, in the first part of the thesis
 we have studied the problem of motion generation for humanoids 
-in a \textit{world of stairs}, a particular uneven terrain where the contact 
+in a world of stairs, a particular uneven terrain where the contact 
 surfaces are piecewise-horizontal. After introducing their dynamics in Chapter
 \ref{ch:humanoid-locomotion-dynamics}, and Intrinsically-Stable Model Predictive
 Control (IS-MPC) in Chapter \ref{ch:ISMPC},
@@ -24,7 +24,7 @@ possible future works.
 
 In Chapter \ref{ch:humanoid-motion-generation-WoS},
 we addressed the problem of motion generation for a humanoid
-robot that must reach a certain goal region walking in a \textit{world of stairs}.
+robot that must reach a certain goal region walking in a  world of stairs.
 We considered two versions of such problem: the off-line and on-line case. 
 In the first, the geometry of the environment is completely known in advance,
 while in the second, it is reconstructed by the robot itself during motion using
@@ -33,11 +33,11 @@ is maintained in the form of an elevation map.
 
 For the off-line case, we proposed an architecture working in two main stages:
 footstep planning and gait generation.
-First, a feasible footstep plan leading to the goal region is off-line computed
-using a randomized algorithm that takes into account the plan quality specified
+First, a feasible footstep plan leading to the goal region is computed off-line
+using a randomized algorithm that takes into account the quality of the plan specified
 by a given optimality criterion.
 Then, an intrinsically stable MPC-based scheme computes a CoM trajectory that
-realizes the found footstep sequence, while guaranteeing dynamic balance and
+realizes the footstep plan, while guaranteeing dynamic balance and
 boundedness of the CoM with respect to the ZMP at all time instants.
 
 For the on-line case, we proposed an extension of the architecture for the
