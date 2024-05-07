@@ -67,7 +67,7 @@ with normal $\bm{n}_k$ at the $k$-th
 contact point $\bm{p}_k\in\mathbb{R}^3$. Unilaterality of $k$-th contact is formally
 defined by
 \begin{equation*}
-    \bm{n}_k^\top \bm{f}_k > 0,
+    \bm{n}_k \cdot \bm{f}_k > 0,
 \end{equation*}
 and it describes the impossibility of pulling on the ground. Moreover, we
 assume constant contact phase, hence not considering impact dynamics, which
@@ -117,7 +117,7 @@ $\bm{\tau}$ that realize the actuated part of eq.
 \eqref{eq:equation-of-motion-humanoids}.
 
 \section{Centroidal dynamics}
-The above hypothesis allows as to focus on the unactuated part of the equation
+The above hypothesis allows us to focus on the unactuated part of the equation
 \eqref{eq:equation-of-motion-humanoids}, and define the
 \textit{centroidal dynamics} \cite{Orin2013CentroidalDynamics} of the humanoid:
 \begin{equation}
@@ -225,7 +225,7 @@ Consider the non-tilting condition of Eq. \eqref{eq:zmp-non-tilting-condition}. 
 \end{equation}
 which, computing the triple product, becomes
 \begin{equation}
-    \bm{\tau}_c^{\rm gi} \times \bm{n} - \left(\bm{n} \cdot (\bm{p}_z - \bm{p}_c)\right) \bm{g}^{\rm gi} + (\bm{n} \cdot \bm{f}^{\rm gi}) (\bm{p}_z - \bm{p}_c) = \bm{0}.
+    \bm{\tau}_c^{\rm gi} \times \bm{n} - \left(\bm{n} \cdot (\bm{p}_z - \bm{p}_c)\right) \bm{f}^{\rm gi} + (\bm{n} \cdot \bm{f}^{\rm gi}) (\bm{p}_z - \bm{p}_c) = \bm{0}.
 \end{equation}
 
 Applying the definition of \textit{gravito-inertial wrench} of eq. \eqref{eq:gravito-intertial-wrench} and rearranging the terms, it is simple to prove \cite{Caron2017TRO} the following relationship between the CoM acceleration, the ZMP position and the angular momentum:

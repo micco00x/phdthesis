@@ -107,7 +107,7 @@ model can hence be rewritten as
 \end{equation}
 for the $x$ component (and analogously for the $y$ component), and
 \begin{equation}
-    \label{eq:LIPM-x-dynamic-extension}
+    \label{eq:LIPM-z-dynamic-extension}
     \begin{bmatrix}
         \dot{z}_c \\ \ddot{z}_c \\ \dot{z}_z 
     \end{bmatrix}
@@ -141,7 +141,7 @@ This assumption makes the ZMP piecewise linear over the IS-MPC sampling interval
 i.e.,
 \begin{equation}
     \label{eq:piecewise-linear-ZMP}
-    x_z(t) = x_z^i + x_z^i (t - t_i), \quad t \in [t_k, t_{k+1}),
+    x_z(t) = x_z^k + x_z^k (t - t_k), \quad t \in [t_k, t_{k+1}),
 \end{equation}
 for the $x$ component (an analogous relation can be written for the $y$ and $z$
 components).
@@ -446,7 +446,7 @@ The IS-MPC iteration performs, at each timestep $t_k$, the following steps:
         $\left[x_c^{k+1}, \dot{x}_c^{k+1}, x_z^{k+1}\right]$.
         Compute $\left[y_c^{k+1}, \dot{y}_c^{k+1}, y_z^{k+1}\right]$ and 
         $\left[z_c^{k+1}, \dot{z}_c^{k+1}, z_z^{k+1}\right]$ similarly (using
-        \eqref{eq:LIPM-x-dynamic-extension} for the $z$ component).
+        \eqref{eq:LIPM-z-dynamic-extension} for the $z$ component).
     \item Send the CoM position $\bm{p}_c^{k+1}=\left[x_c^{k+1}, y_c^{k+1}, z_c^{k+1}\right]^\top$
         to the kinematic controller.
 \end{enumerate}
