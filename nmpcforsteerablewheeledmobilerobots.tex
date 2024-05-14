@@ -217,7 +217,7 @@ which can be used to transform the last $n_s-1$ constraints of
         0
     \end{bmatrix}
     \begin{bmatrix}
-        x \\ y \\ \theta \\ \beta_1
+        \dot{x} \\ \dot{y} \\ \dot{\theta} \\ \dot{\beta}_1
     \end{bmatrix}
     = 0,
 \end{equation}
@@ -613,7 +613,7 @@ activated only when changing the FSM state from \textit{Starting} to
 is never null. Indeed, the constraint $\dot{\bm{o}}_{S_i} \ne \bm{0}$, with a
 proper change of coordinates, can be rewritten as
 \begin{equation*}
-    \bm{R}(\theta + \beta_i) \dot{\bm{o}}_{S_i} =
+    \bm{R}^\top(\theta + \beta_i) \dot{\bm{o}}_{S_i} =
     \begin{bmatrix}
         v_{S_i} \\ 0
     \end{bmatrix} \ne \bm{0},
