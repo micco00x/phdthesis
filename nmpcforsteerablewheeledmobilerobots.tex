@@ -30,7 +30,7 @@ the application of MPC to SWMRs has yet to be explored.
 Our NMPC is supported by a \textit{finite state machine}, responsible for
 starting and stopping the motion of the robot, while guaranteeing that it never
 encounters any kinematic singularity, and
-an \textit{auxiliary trajectory generation scheme} based on dynamic
+a \textit{state trajectory generation scheme} based on dynamic
 feedback linearization \cite{Oriolo2002WMRControlDFL}, which generates
 reference configurations and reference control inputs for the NMPC
 itself, given the reference pose trajectory. 
@@ -144,8 +144,7 @@ the wheel itself), each wheel is subject to the Pfaffian constraint
 %    (b_i \cos(\beta_i) + a_i \sin(\beta_i)) \dot{\theta} = 0.
 %\end{equation}
 
-By combining the above equations, it is possible to rearrange the $n_s$
-nonholonomic constraints in matrix form
+By combining the above equations, it is possible to rearrange the $n_s$ constraints in matrix form
 \begin{equation}
     \label{eq:pfaffian-constraints-matrix-form}
     \underbrace{
@@ -207,7 +206,7 @@ shifted by $\pi$. We select the one closest to the current $\beta_i$.}
     \label{eq:coordinating-function-pre-kinematic-model}
     \beta_i = h_i(\bm{\xi}, \dot{\bm{\xi}}) = \mathrm{arctan} \frac{-\sin\theta\dot{x}+\cos\theta\dot{y}+b_i\dot{\theta}}{\cos\theta\dot{x}+\sin\theta\dot{y}-a_i\dot{\theta}},
 \end{equation}
-which can be used to ``transform'' the last $n_s-1$ constraints of
+which can be used to transform the last $n_s-1$ constraints of
 \eqref{eq:pfaffian-constraints-matrix-form}, obtaining:
 \begin{equation}
     \label{eq:reduced-pfaffian-constraints-matrix-form}
@@ -231,8 +230,8 @@ get the reduced kinematic model
 \begin{equation}
 \label{eq:reduced-kinematic-model}
 \begin{split}
-    \dot{x} &= v_{W_1} \cos(\theta + \beta_1) + \omega (b_1 \sin\theta + a_1 \cos\theta) \\
-    \dot{y} &= v_{W_1} \sin(\theta + \beta_1) + \omega (-b_1 \cos\theta + a_1 \sin\theta) \\
+    \dot{x} &= v_{S_1} \cos(\theta + \beta_1) + \omega (b_1 \sin\theta + a_1 \cos\theta) \\
+    \dot{y} &= v_{S_1} \sin(\theta + \beta_1) + \omega (-b_1 \cos\theta + a_1 \sin\theta) \\
     \dot{\theta} &= \omega \\
     \dot{\beta}_1 &= v_{\beta_1},
 \end{split}
@@ -241,7 +240,7 @@ which can be used together with \eqref{eq:coordinating-function-pre-kinematic-mo
 to express $\beta_i$ as
 \begin{equation}
     \label{eq:coordinating-function-post-kinematic-model}
-    \beta_i = h_i(v_{W_1}, \omega, \beta_1) = \mathrm{arctan} \frac{v_{W_1}\sin\beta_1+\omega(b_i-b_1)}{v_{W_1}\cos\beta_1+\omega(a_1-a_i)}.
+    \beta_i = h_i(v_{S_1}, \omega, \beta_1) = \mathrm{arctan} \frac{v_{S_1}\sin\beta_1+\omega(b_i-b_1)}{v_{S_1}\cos\beta_1+\omega(a_1-a_i)}.
 \end{equation}
 
 Note that the above equations (named \textit{coordinating functions}) present a singularity whenever the position of the $i$-th steering joint $S_i$ is constant (i.e., $\dot{\bm{o}}_{S_i}=\bm{0}$). This needs to be considered when designing a controller. Note that this condition is met when the platform is not moving or when the position of the ICR coincides with the position of $S_i$. 
@@ -251,26 +250,26 @@ and if it does not change through time (i.e. $\dot{\beta}_i = 0$), all
 coordinating functions $h_i$ are free of singularity. Two interesting cases when
 these hypotheses hold are when the ICR is constant at infinity
 (i.e., $\omega = 0$), and when the ICR is constant, not at infinity
-(i.e., $v_{W_1} = \omega R$, with $R > 0$ the distance between ICR and
-$\bm{o}_{W_1}$). Hereby, we define the reduced kinematic models and coordinating
+(i.e., $v_{S_1} = \omega R$, with $R > 0$ the distance between ICR and
+$\bm{o}_{S_1}$). Hereby, we define the reduced kinematic models and coordinating
 functions for these 2 cases, which we use to start/stop the robot.
 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/SWMR/blockscheme.pdf}
     \caption{Block scheme of the proposed framework. A user-defined reference
-        pose trajectory $\bm{\xi}^{\rm ref}$ of the mobile base is fed to a
-        Finite State Machine (FSM), which determines when to start/stop robot
-        motion. As soon as a reference trajectory is available, the state of
-        the FSM becomes \textit{Starting}, and the mobile base is accelerated
-        (using open-loop commands) until all wheel driving velocities are non
-        null. When this condition is met, the state of the FSM becomes
-        \textit{Moving}, and the Nonlinear MPC takes full control of the
-        robot motion. In this case, an auxiliary trajectory generation scheme
-        based on dynamic feedback linearization computes the trajectories
-        $\bm{q}^{\rm aux}$ and $\bm{u}^{\rm aux}$ (using $\bm{\xi}^{\rm ref}$),
-        which are used by the Nonlinear MPC to compute optimal control inputs
-        $\bm{u}^*$. The state of the FSM becomes \textit{Stopping} when
+        pose trajectory $\bm{\xi}^{\rm ref}$ is fed to a Finite State Machine (FSM),
+        which determines when to start/stop robot motion. As soon as a reference
+        trajectory is available, the state of the FSM becomes \textit{Starting},
+        and the mobile base is accelerated (using open-loop commands) until all
+        wheel driving velocities are non null. When this condition is met, the
+        state of the FSM becomes \textit{Moving}, and the Nonlinear MPC takes
+        full control of the robot motion. In this case, a state trajectory
+        generation scheme based on dynamic feedback linearization computes the
+        trajectories $\bm{q}^{\rm ref}$ and $\bm{u}^{\rm ref}$
+        (using $\bm{\xi}^{\rm ref}$), which are used by the Nonlinear MPC to
+        compute control inputs $\bm{v}_{W_i}, \bm{\beta}_i$.
+        The state of the FSM becomes \textit{Stopping} when
         $\bm{\xi}^{\rm ref} = \bm{0}$, and the robot decelerates, then stops.
     }
     \label{fig:block-scheme}
@@ -291,8 +290,8 @@ Then, the robot's reduced kinematic model \eqref{eq:reduced-kinematic-model} bec
 \begin{align}
 \label{eq:icr-constant-at-infinity-kinematic-model}
 \begin{split}
-    \dot{x} &= v_{W_1} \cos(\theta + \beta_1) \\
-    \dot{y} &= v_{W_1} \sin(\theta + \beta_1), \\
+    \dot{x} &= v_{S_1} \cos(\theta + \beta_1) \\
+    \dot{y} &= v_{S_1} \sin(\theta + \beta_1), \\
 %    \dot{\theta} &= 0 \\
 %    \dot{\beta}_1 &= 0,
 \end{split}
@@ -329,7 +328,7 @@ the position of the robot and the ICR itself.
 This section describes in detail the main components of our framework
 (shown in Fig. \ref{fig:block-scheme}), namely: the finite state machine,
 responsible for starting and stopping the robot while avoiding kinematic
-singularities, the auxiliary trajectory generation scheme, which provides
+singularities, the state trajectory generation scheme, which provides
 trajectories to the NMPC, and the NMPC itself, which computes control inputs
 for the robot, while satisfying the driving and steering velocity constraints
 of each wheel.
@@ -387,15 +386,15 @@ velocities $\dot{\bm{o}}_{S_i}$ are non-null (respectively, null).
 
 If the ICR is constant at infinity, the robot evolves according
 to~\eqref{eq:icr-constant-at-infinity-kinematic-model}.
-Considering the dynamic extension $\dot{v}_{W_1}=a_{W_1}$, with $a_{W_1}$ new control input:
+Considering the dynamic extension $\dot{v}_{S_1}=a_{S_1}$, with $a_{S_1}$ new control input:
 \begin{itemize}
     \item when the state of the FSM is \textit{Starting},
         we accelerate the mobile base by choosing
-        $a_{W_1} = a_{W_1}^{\mathrm{init}}$, where $a_{W_1}^{\mathrm{init}}$
+        $a_{S_1} = a_{S_1}^{\mathrm{init}}$, where $a_{S_1}^{\mathrm{init}}$
         is a parameter;
     \item when the state of the FSM is \textit{Stopping}, we decelerate the
-        mobile base by choosing $a_{W_1} = -K_{v_{W_1}}^{\mathrm{stop}} v_{W_1}$,
-        with $K_{v_{W_1}}^{\mathrm{stop}} > 0$.
+        mobile base by choosing $a_{S_1} = -K_{v_{S_1}}^{\mathrm{stop}} v_{S_1}$,
+        with $K_{v_{S_1}}^{\mathrm{stop}} > 0$.
 \end{itemize}
 
 Assuming that the ICR is constant, but not at infinity and not lying on any of
@@ -404,47 +403,46 @@ Considering the dynamic extension $\dot{\omega}=a_{\omega}$, with
 $a_{\omega}$ new control input:
 \begin{itemize}
     \item when the state of the FSM is \textit{Starting}, we accelerate the
-        mobile base via $a_{\omega} = a_{W_1}^{\mathrm{init}} / R$, which,
-        since $\dot{v}_{W_1}=a_{\omega} R$, is equivalent to accelerate $W_1$ by $a_{W_1}^{\mathrm{init}}$;
+        mobile base via $a_{\omega} = a_{S_1}^{\mathrm{init}} / R$, which,
+        since $\dot{v}_{W_1}=a_{\omega} R$, is equivalent to accelerate $S_1$ by $a_{S_1}^{\mathrm{init}}$;
     \item when the state of the FSM is \textit{Stopping}, we decelerate the
-        mobile base via $a_{\omega} = -K_{v_{W_1}}^{\mathrm{stop}} v_{W_1} / R$,
-        which is equivalent to decelerate $W_1$ by $-K_{v_{W_1}}^{\mathrm{stop}} v_{W_1}$.
+        mobile base via $a_{\omega} = -K_{v_{S_1}}^{\mathrm{stop}} v_{S_1} / R$,
+        which is equivalent to decelerate $S_1$ by $-K_{v_{S_1}}^{\mathrm{stop}} v_{S_1}$.
 \end{itemize}
 
-\subsection{Auxiliary trajectory generation}
+\subsection{State trajectory generation}
 Once the velocities $\dot{\bm{o}}_{S_i}$ become non-null, the state becomes
 \textit{Moving}, and the robot is controlled by the NMPC. In this section, we
-present the auxiliary trajectory generation scheme based on dynamic feedback
-linearization \cite{Oriolo2002WMRControlDFL}, which computes auxiliary
+present the state trajectory generation scheme based on dynamic feedback
+linearization \cite{Oriolo2002WMRControlDFL}, which computes state
 configurations and control input trajectories for the NMPC, given a reference
 pose trajectory $\bm{\xi}^{\mathrm{ref}}$ of the mobile base. Note that both
-auxiliary trajectory generation and NMPC are only active when the state is
+state trajectory generation and NMPC are only active when the state is
 \textit{Moving}.
 
 Consider the output function $\bm{z}(\bm{q})=\bm{\xi}$ and dynamically extend
 \eqref{eq:reduced-kinematic-model} by adding the following integrators:
 \begin{subequations}
     \begin{align*}
-        \dot{v}_{W_1} &= a_{W_1} \\
+        \dot{v}_{S_1} &= a_{S_1} \\
         \dot{\omega} &= a_{\omega},
     \end{align*}
 \end{subequations}
-so that $\bm{u} = \left[ a_{W_1}, a_{\omega}, v_{\beta_1} \right]^\top $ are
+so that $\bm{u} = \left[ a_{S_1}, a_{\omega}, v_{\beta_1} \right]^\top $ are
 the new control inputs. In the following, unless otherwise specified, we denote
 the robot configuration with dynamic extension as
-%$\bm{q} = [x, y, \theta, \beta_1, \beta_2, \dots, \beta_{n_s}, v_{W_1}, \omega]^\top$.
-$\bm{q} = [x, y, \theta, \beta_1, v_{W_1}, \omega]^\top$.
+$\bm{q} = [x, y, \theta, \beta_1, v_{S_1}, \omega]^\top$.
 %Note that $\bm{q}$ is a non-minimal configuration.
 The dynamically extended kinematic model is
 \begin{equation}
 \label{eq:dynamically-extended-kinematic-model}
 \begin{split}
-    \dot{x} &= v_{W_1} \cos(\theta + \beta_1) + \omega (b_1 \sin\theta + a_1 \cos\theta) \\
-    \dot{y} &= v_{W_1} \sin(\theta + \beta_1) + \omega (-b_1 \cos\theta + a_1 \sin\theta) \\
+    \dot{x} &= v_{S_1} \cos(\theta + \beta_1) + \omega (b_1 \sin\theta + a_1 \cos\theta) \\
+    \dot{y} &= v_{S_1} \sin(\theta + \beta_1) + \omega (-b_1 \cos\theta + a_1 \sin\theta) \\
     \dot{\theta} &= \omega \\
     \dot{\beta}_1 &= v_{\beta_1} \\
     %\dot{\beta}_i &= \dot{h}_i(\bm{q}, \bm{u}), \quad i = 2, \dots, n_s \\
-    \dot{v}_{W_1} &= a_{{W_1}} \\
+    \dot{v}_{S_1} &= a_{{S_1}} \\
     \dot{\omega} &= a_{\omega},
 \end{split}
 \end{equation}
@@ -462,7 +460,7 @@ By deriving twice $\bm{z}(\bm{q})$, we obtain
     \bm{M}(\bm{q}) +
     \bm{H}(\bm{q})
     \begin{bmatrix}
-        a_{W_1} \\ a_{\omega} \\ v_{\beta_1}
+        a_{S_1} \\ a_{\omega} \\ v_{\beta_1}
     \end{bmatrix},
 \end{equation}
 with $\bm{M}(\bm{q}) \in \mathbb{R}^3$ and $\bm{H}(\bm{q}) \in \mathbb{R}^{3 \times 3}$ defined as
@@ -470,15 +468,15 @@ with $\bm{M}(\bm{q}) \in \mathbb{R}^3$ and $\bm{H}(\bm{q}) \in \mathbb{R}^{3 \ti
     \bm{M}(\bm{q})
     &=
     \begin{bmatrix}
-        -\sin(\theta+\beta_1) \omega v_{W_1} + ( b_1 \cos\theta - a_1 \sin\theta) \omega^2 \\
-         \cos(\theta+\beta_1) \omega v_{W_1} + (-b_1 \sin\theta + a_1 \cos\theta) \omega^2 \\
+        -\sin(\theta+\beta_1) \omega v_{S_1} + ( b_1 \cos\theta - a_1 \sin\theta) \omega^2 \\
+         \cos(\theta+\beta_1) \omega v_{S_1} + (-b_1 \sin\theta + a_1 \cos\theta) \omega^2 \\
         0
     \end{bmatrix}, \\
     \bm{H}(\bm{q})
     &=
     \begin{bmatrix}
-        \cos(\theta+\beta_1) &  b_1 \sin\theta + a_1 \cos\theta & -\sin(\theta+\beta_1) v_{W_1} \\
-        \sin(\theta+\beta_1) & -b_1 \cos\theta + a_1 \sin\theta &  \cos(\theta+\beta_1) v_{W_1} \\
+        \cos(\theta+\beta_1) &  b_1 \sin\theta + a_1 \cos\theta & -\sin(\theta+\beta_1) v_{S_1} \\
+        \sin(\theta+\beta_1) & -b_1 \cos\theta + a_1 \sin\theta &  \cos(\theta+\beta_1) v_{S_1} \\
         0 & 1 & 0
     \end{bmatrix}.
 \end{align*}
@@ -486,7 +484,7 @@ with $\bm{M}(\bm{q}) \in \mathbb{R}^3$ and $\bm{H}(\bm{q}) \in \mathbb{R}^{3 \ti
 By choosing
 \begin{equation*}
     \bm{u} = \begin{bmatrix}
-        a_{W_1} \\ a_{\omega} \\ v_{\beta_1}
+        a_{S_1} \\ a_{\omega} \\ v_{\beta_1}
     \end{bmatrix}
     = \bm{H}(\bm{q})^{-1} \left(\bm{a} - \bm{M}(\bm{q})\right),
 \end{equation*}
@@ -501,18 +499,18 @@ achieved by taking
     \bm{a} = \ddot{\bm{z}}^{\mathrm{ref}} + \bm{K}_P \bm{e} + \bm{K}_D \dot{\bm{e}}, \quad \bm{K}_P, \bm{K}_D > 0,
 \end{equation*}
 with $\bm{z}^{\mathrm{ref}}(t)$ twice differentiable and persistent
-(i.e., $v_{W_1} \ne 0$) reference trajectory. Note that the above decoupling
-matrix $\bm{H}(\bm{q})$ is singular at $v_{W_1} = 0$. This kind of singularity
+(i.e., $v_{S_1} \ne 0$) reference trajectory. Note that the above decoupling
+matrix $\bm{H}(\bm{q})$ is singular at $v_{S_1} = 0$. This kind of singularity
 is structural for mobile robots \cite{Oriolo2002WMRControlDFL}.
 
 Given the reference trajectories
 $\bm{\xi}^{\mathrm{ref}}, \dot{\bm{\xi}}^{\mathrm{ref}}, \ddot{\bm{\xi}}^{\mathrm{ref}}$,
-Algorithm \ref{alg:AuxiliaryTrajectoryGeneration} generates, at each timestep
-$t_k$, the auxiliary configurations $\bm{q}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N$),
-together with the auxiliary control inputs
-$\bm{u}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N-1$). These will be used by the
+Algorithm \ref{alg:StateTrajectoryGeneration} generates, at each timestep
+$t_k$, the states $\bm{q}_{j|k}^{\mathrm{ref}}$ ($j = 0, \dots, N$),
+together with the control inputs
+$\bm{u}_{j|k}^{\mathrm{ref}}$ ($j = 0, \dots, N-1$). These will be used by the
 NMPC, described in the next section, to compute control inputs
-$(a_{W_1, k}, a_{\omega, k}, v_{\beta_1, k})^T$ for the mobile base.
+$(a_{S_1, k}, a_{\omega, k}, v_{\beta_1, k})^T$ for the mobile base.
 In the pseudocode: function $\mathrm{Sample}$ discretizes a trajectory,
 given over a time interval $[t_k, t_{k} + N \delta_{\mathrm{MPC}}]$, into
 $N + 1$ elements, with $\delta_{\mathrm{MPC}}$ timestep of the NMPC, and
@@ -524,21 +522,21 @@ over timestep $\delta_{\mathrm{MPC}}$.%, considering coordinating functions
 
 \begin{algorithm}
 \small
-\caption{AuxiliaryTrajectoryGeneration}
-\label{alg:AuxiliaryTrajectoryGeneration}
+\caption{StateTrajectoryGeneration}
+\label{alg:StateTrajectoryGeneration}
 \KwIn{$\bm{\xi}^{\mathrm{ref}}, \dot{\bm{\xi}}^{\mathrm{ref}}, \ddot{\bm{\xi}}^{\mathrm{ref}}$}
-\KwOut{$\bm{q}_{0|k}^{\mathrm{aux}}, \dots, \bm{q}_{N|k}^{\mathrm{aux}}, \bm{u}_{0|k}^{\mathrm{aux}}, \dots, \bm{u}_{N-1|k}^{\mathrm{aux}}$}
+\KwOut{$\bm{q}_{0|k}^{\mathrm{ref}}, \dots, \bm{q}_{N|k}^{\mathrm{ref}}, \bm{u}_{0|k}^{\mathrm{ref}}, \dots, \bm{u}_{N-1|k}^{\mathrm{ref}}$}
 \BlankLine
 $\bm{\xi}_{0|k}^{\mathrm{ref}}, \dots, \bm{\xi}_{N|k}^{\mathrm{ref}} \gets \mathrm{Sample}(\bm{\xi}^{\mathrm{ref}})$\;
 $\dot{\bm{\xi}}_{0|k}^{\mathrm{ref}}, \dots, \dot{\bm{\xi}}_{N|k}^{\mathrm{ref}} \gets \mathrm{Sample}(\dot{\bm{\xi}}^{\mathrm{ref}})$\;
 $\ddot{\bm{\xi}}_{0|k}^{\mathrm{ref}}, \dots, \ddot{\bm{\xi}}_{N|k}^{\mathrm{ref}} \gets \mathrm{Sample}(\ddot{\bm{\xi}}^{\mathrm{ref}})$\;
-$\bm{q}_{0|k}^{\mathrm{aux}} \gets \bm{q}_{0|k}^{\mathrm{ref}}$\;
+$\bm{q}_{0|k}^{\mathrm{ref}} \gets \bm{q}_{0|k}^{\mathrm{ref}}$\;
 \For{$j \gets 0$ \KwTo $N - 1$}{
     $\bm{a}_{j|k} \gets \ddot{\bm{z}}_{j|k}^{\mathrm{ref}} + \bm{K}_P (\bm{z}_{j|k}^{\mathrm{ref}} - \bm{z}_{j|k}) + \bm{K}_D (\dot{\bm{z}}_{j|k}^{\mathrm{ref}} - \dot{\bm{z}}_{j|k})$\;
-    $\bm{u}_{j|k}^{\mathrm{aux}} \gets \bm{H}(\bm{q}_{j|k}^{\mathrm{aux}})^{-1} (\bm{a}_{j|k} - \bm{M}(\bm{q}_{j|k}^{\mathrm{aux}}))$\;
-    $\bm{q}_{j+1|k}^{\mathrm{aux}} \gets \bm{F}(\bm{q}_{j+1|k}^{\mathrm{aux}}, \bm{u}_{j|k}^{\mathrm{aux}})$\;
+    $\bm{u}_{j|k}^{\mathrm{ref}} \gets \bm{H}(\bm{q}_{j|k}^{\mathrm{ref}})^{-1} (\bm{a}_{j|k} - \bm{M}(\bm{q}_{j|k}^{\mathrm{ref}}))$\;
+    $\bm{q}_{j+1|k}^{\mathrm{ref}} \gets \bm{F}(\bm{q}_{j+1|k}^{\mathrm{ref}}, \bm{u}_{j|k}^{\mathrm{ref}})$\;
 }
-\Return{$\bm{q}_{0|k}^{\mathrm{aux}}, \dots, \bm{q}_{N|k}^{\mathrm{aux}}, \bm{u}_{0|k}^{\mathrm{aux}}, \dots, \bm{u}_{N-1|k}^{\mathrm{aux}}$}\;
+\Return{$\bm{q}_{0|k}^{\mathrm{ref}}, \dots, \bm{q}_{N|k}^{\mathrm{ref}}, \bm{u}_{0|k}^{\mathrm{ref}}, \dots, \bm{u}_{N-1|k}^{\mathrm{ref}}$}\;
 \end{algorithm}
 %\begin{algorithm}
 %\small
@@ -560,7 +558,7 @@ Optimal Control Problem (OCP), taking into account the kinematic model
 \eqref{eq:reduced-kinematic-model}, wheel velocity and control inputs
 constraints, singularities of the coordinating functions
 \eqref{eq:coordinating-function-post-kinematic-model}, and singularity of the
-decoupling matrix $\bm{H}(\bm{q})$ in the auxiliary trajectory generation scheme.
+decoupling matrix $\bm{H}(\bm{q})$ in the state trajectory generation scheme.
 In the following, we will denote as
 $\mathbb{I}_a^b=\{a,\, \dots,\, b\}\subset\mathbb{N}$ the subset of natural
 numbers containing all naturals from $a$ to $b$.
@@ -572,29 +570,26 @@ The OCP can be defined as
         \min_{\bm{u}(\cdot)} \;\;
             & \; \Phi(\bm{q}(t_k + T_{\mathrm{MPC}})) + \int_{t_k}^{t_k + T_{\mathrm{MPC}}} \mathcal{L}(\bm{q}, \bm{u}) dt \\
             \text{s.t. } & \dot{\bm{q}} = \bm{f}(\bm{q}, \bm{u}) \\
-                         & v_{W_1} \ne 0 \\
-                         & v_W^- \le v_{W_i} \le v_W^+,\:  \forall i \in \mathbb{I}_2^{n_s} \\
-                         %& v_W^- \le v_{W_i}(\bm{q}, \bm{u}) \le v_W^+, \forall i \in \mathbb{I}_2^{n_s} \\
+                         & v_W^- \le v_{W_i} \le v_W^+,\:  \forall i \in \mathbb{I}_1^{n_s} \\
                          & \dot{\bm{o}}_{S_i} \ne \bm{0},\: \forall i \in \mathbb{I}_1^{n_s} \\
-                         & a_W^- \le a_{W_1} \le a_W^+ \\
+                         & a_S^- \le a_{S_1} \le a_S^+ \\
                          & v_{\beta}^- \le v_{\beta_i} \le v_{\beta}^+,\: \forall i \in \mathbb{I}_1^{n_s} \\
-                         %& v_{\beta}^- \le \dot{h}_i(\bm{q}, \bm{u}) \le v_{\beta}^+, \forall i \in \mathbb{I}_2^{n_s} \\
                          & \bm{q}(t_k) = \bm{q}_k,
     \end{aligned}
 \end{equation*}
 with $T_{\mathrm{MPC}}$ duration of the prediction horizon, stage and terminal
 cost respectively defined as
 \begin{align*}
-    \mathcal{L}(\bm{q}, \bm{u}) &= \left\|\bm{q}^{\mathrm{aux}} - \bm{q}\right\|_{\bm{W_q}}^2 + \left\|\bm{u}^{\mathrm{aux}} - \bm{u}\right\|_{\bm{W_u}}^2 \\
-    \Phi(\bm{q}) &= \left\|\bm{q}^{\mathrm{aux}} - \bm{q}\right\|_{\bm{W_q}}^2,
+    \mathcal{L}(\bm{q}, \bm{u}) &= \left\|\bm{q}^{\mathrm{ref}} - \bm{q}\right\|_{\bm{W_q}}^2 + \left\|\bm{u}^{\mathrm{ref}} - \bm{u}\right\|_{\bm{W_u}}^2 \\
+    \Phi(\bm{q}) &= \left\|\bm{q}^{\mathrm{ref}} - \bm{q}\right\|_{\bm{W_q}}^2,
 \end{align*}
 $\bm{W_q}, \bm{W_u}$ positive semi-definite weighting matrices, $v_W^-$ and
-$v_W^+$ min/max wheel driving velocity, $a_W^-$ and $a_W^+$ min/max wheel
-driving acceleration, $v_{\beta}^-$ and $v_{\beta}^+$  min/max  wheel steering
+$v_W^+$ min/max wheel driving velocity, $a_S^-$ and $a_S^+$ min/max acceleration
+of points $S_i$, $v_{\beta}^-$ and $v_{\beta}^+$  min/max wheel steering
 velocity and $\bm{q}_k$ initial configuration.
 
 Note that the velocity constraints are linear for the coordinating wheel
-(since $v_{W_1}$ and $v_{\beta_1}$ are part of $\bm{q}$) and nonlinear for the
+(since $v_{S_1}$ and $v_{\beta_1}$ are part of $\bm{q}$) and nonlinear for the
 coordinated wheels. In particular, because of the assumption of no lateral
 skidding \eqref{eq:no-lateral-skidding-constraint}, the driving velocity of
 the coordinated wheels can be computed as
@@ -606,12 +601,9 @@ the coordinated wheels can be computed as
     \end{bmatrix}^\top \dot{\bm{o}}_{W_i}.
 \end{equation*}
 Since the steering angles of the coordinated wheels are defined as
-$\beta_i=h_i(v_{W_1}, \omega, \beta_1)$, the steering velocities can simply be
+$\beta_i=h_i(v_{S_1}, \omega, \beta_1)$, the steering velocities can simply be
 computed as their time derivatives.
 
-%\begin{equation}
-%        v_{W_i}(\bm{q}, \bm{u}) = \cos(\theta + \beta_i) \dot{x} + \sin(\theta + \beta_i) \dot{y} + (d - a_i \cos\beta_i + b_i \sin\beta_i) \dot{\theta} + d \dot{\beta}_i.
-%\end{equation}
 As already mentioned, since the coordinating function $h_i$ is singular when
 $\dot{\bm{o}}_{S_i}=\bm{0}$, it is important to carefully design the control
 scheme. A simple strategy to make the NMPC free of singularities, is to never
@@ -646,9 +638,8 @@ This implies that the constraint will simply be
     v_{S_i} < 0, & \text{otherwise}
 \end{cases},
 \end{equation*}
-with $t_0$ time of activation of the NMPC. A similar reasoning can be done
-for the constraint $v_{W_1} \ne 0$, which guarantees that subsequent calls of
-the auxiliary trajectory generation scheme are free of singularities.
+with $t_0$ time of activation of the NMPC. This guarantees that subsequent calls of
+the state trajectory generation scheme are free of singularities.
 
 We can transcribe the above OCP into the following nonlinear programming (NLP)
 problem by using multiple shooting \cite{Bock1984MultipleShooting}:
@@ -657,11 +648,10 @@ problem by using multiple shooting \cite{Bock1984MultipleShooting}:
         \min_{\bm{Q}_k, \bm{U}_k} \;
             & \Phi(\bm{q}_{N|k}) + \sum_{j=0}^{N-1} \mathcal{L}(\bm{q}_{j|k}, \bm{u}_{j|k}) \\
             \text{s.t. } & \bm{q}_{j+1|k} = \bm{F}(\bm{q}_{j|k}, \bm{u}_{j|k}),\: \forall j \in \mathbb{I}_0^{N-1} \\
-                         & \mathrm{sgn}(v_{W_1,j|k}) = \mathrm{sgn}(v_{W_1}(t_0)),\: \forall j \in \mathbb{I}_0^N \\
-                         & v_W^- \le v_{W_{i,j|k}}(\cdot) \le v_W^+,\: \forall i \in \mathbb{I}_2^{n_s}, \forall j \in \mathbb{I}_0^{N-1} \\
-                         & \mathrm{sgn}(v_{S_{1,j|k}}(\cdot)) = \mathrm{sgn}(v_{S_1}(t_0)),\: \forall j \in \mathbb{I}_0^N \\
+                         & v_W^- \le v_{W_{i,j|k}}(\cdot) \le v_W^+,\: \forall i \in \mathbb{I}_1^{n_s}, \forall j \in \mathbb{I}_0^{N-1} \\
+                         & \mathrm{sgn}(v_{S_{1,j|k}}) = \mathrm{sgn}(v_{S_1}(t_0)),\: \forall j \in \mathbb{I}_0^N \\
                          & \mathrm{sgn}(v_{S_{i,j|k}}(\cdot)) = \mathrm{sgn}(v_{S_i}(t_0)),\: \forall i \in \mathbb{I}_2^{n_s}, \forall j \in \mathbb{I}_0^{N-1} \\
-                         & a_W^- \le a_{W_1,j|k} \le a_W^+,\: \forall j \in \mathbb{I}_0^{N-1} \\
+                         & a_S^- \le a_{S_1,j|k} \le a_S^+,\: \forall j \in \mathbb{I}_0^{N-1} \\
                          & v_{\beta}^- \le v_{\beta_1,j|k} \le v_{\beta}^+,\: \forall j \in \mathbb{I}_0^{N-1} \\
                          & v_{\beta}^- \le v_{\beta_i,j|k}(\cdot) \le v_{\beta}^+,\: \forall i \in \mathbb{I}_2^{n_s}, \forall j \in \mathbb{I}_0^{N-1} \\
                          & \bm{q}_{0|k} = \bm{q}_k,
@@ -675,8 +665,8 @@ with vectors
 collecting the decision variables of the NMPC at $t_k$,
 $T_{\mathrm{MPC}}=N\delta_{\mathrm{MPC}}$, $\delta_{\mathrm{MPC}}$ timestep of
 the NMPC, and the cost function evaluated using
-$\bm{q}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N$) and
-$\bm{u}_{j|k}^{\mathrm{aux}}$ ($j = 0, \dots, N - 1$), computed by the auxiliary
+$\bm{q}_{j|k}^{\mathrm{ref}}$ ($j = 0, \dots, N$) and
+$\bm{u}_{j|k}^{\mathrm{ref}}$ ($j = 0, \dots, N - 1$), computed by the state
 trajectory generation scheme. Note that, within the constraints, we used
 $(\cdot)$ to denote the use of nonlinear functions.
 
@@ -862,8 +852,8 @@ clips of all the experiments described in this section.
     $\bm{a}$ & $(-0.19, 0.19, 0.19, -0.19)$ [m] \\
     $\bm{b}$ & $(0.24, 0.24, -0.24, -0.24)$ [m] \\
     $d$ & 0.045 [m] \\
-    $a_{W_1}^{\mathrm{init}}$ & $0.1$ [m/s$^2$] \\ 
-    $K_{v_{W_1}}^{\mathrm{stop}}$ & $1.0$ \\ 
+    $a_{S_1}^{\mathrm{init}}$ & $0.1$ [m/s$^2$] \\ 
+    $K_{v_{S_1}}^{\mathrm{stop}}$ & $1.0$ \\ 
     $\bm{K}_P$ & $\mathrm{diag}(4.0, 4.0, 2.0)$ \\ 
     $\bm{K}_D$ & $\mathrm{diag}(2.0, 2.0, 1.0)$ \\ 
     $N$ & 5 \\
@@ -872,8 +862,8 @@ clips of all the experiments described in this section.
     $\bm{W_u}$ & $\bm{I}_3$ \\
     $v_W^-$ & -0.9 [m/s] \\
     $v_W^+$ & 0.9 [m/s] \\
-    $a_W^-$ & $-0.5$ [m/s$^2$] \\ 
-    $a_W^+$ & $0.5$ [m/s$^2$] \\ 
+    $a_S^-$ & $-0.5$ [m/s$^2$] \\ 
+    $a_S^+$ & $0.5$ [m/s$^2$] \\ 
     $v_{\beta}^-$ & $-2.0$ [rad/s] \\ 
     $v_{\beta}^+$ & $2.0$ [rad/s] \\ 
     \hline
@@ -910,7 +900,7 @@ robot starts moving, it accelerates until completing the first half of the
 trajectory, it then decelerate, finally stopping its motion.
 Figure \ref{fig:simulations:forward:inputs-and-errors} show the control inputs 
 computed by the NMPC and the trajectory tracking error. Notice that both 
-driving acceleration $a_{W_1}$ and steering velocity $v_{\beta_1}$ are within 
+driving acceleration $a_{S_1}$ and steering velocity $v_{\beta_1}$ are within 
 their boundaries.
 Figure \ref{fig:simulations:forward:wheel-velocities} shows the corresponding
 driving and steering velocities. Note that the initial spike in the 
@@ -1229,8 +1219,8 @@ shows the corresponding driving and steering velocities. Note that the spike
 in the steering velocities computed by the NMPC is due to the initial 
 configuration of the wheels, which are not aligned with respect to the 
 reference trajectory the robot is required to track.
-In this case, the auxiliary trajectory generation scheme 
-generates an auxiliary trajectory of the steering velocities which do not 
+In this case, the state trajectory generation scheme 
+generates a state trajectory of the steering velocities which do not 
 satisfy the constraints of the platform. The NMPC is able to take this into 
 account, generating a control action which satisfy all requirements. The
 resulting behavior is a realignment of the steerable wheels at the beginning of 
@@ -1252,7 +1242,7 @@ the motion, which makes it possible to successfully complete the assigned task.
         \textit{slalom with constant orientation} trajectory. Notice how 
         the steering velocity $v_{\beta_1}$ is at the upper bound when 
         the FSM changes its state from \textit{Starting} to \textit{Moving}.
-        This is because of the auxiliary trajectory generation scheme, which 
+        This is because of the state trajectory generation scheme, which 
         generates too high velocities, because of the steerable wheels which
         are not aligned with the reference trajectory at the beginning of 
         the motion. The NMPC is capable of taking this into account, generating

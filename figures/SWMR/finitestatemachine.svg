@@ -7,7 +7,7 @@
    viewBox="0 0 153.882 50.609878"
    version="1.1"
    id="svg1"
-   inkscape:version="1.3.2 (091e20e, 2023-11-25)"
+   inkscape:version="1.3.2 (1:1.3.2+202311252150+091e20ef0f)"
    sodipodi:docname="finitestatemachine.svg"
    inkscape:export-filename="finitestatemachine.pdf"
    inkscape:export-xdpi="96"
@@ -28,15 +28,15 @@
      inkscape:document-units="mm"
      showgrid="true"
      showguides="true"
-     inkscape:zoom="3.0039562"
-     inkscape:cx="296.10951"
-     inkscape:cy="114.18276"
-     inkscape:window-width="2490"
-     inkscape:window-height="1536"
-     inkscape:window-x="70"
-     inkscape:window-y="27"
+     inkscape:zoom="2.1241178"
+     inkscape:cx="280.11629"
+     inkscape:cy="92.03821"
+     inkscape:window-width="2560"
+     inkscape:window-height="1043"
+     inkscape:window-x="2560"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g6">
+     inkscape:current-layer="g9">
     <inkscape:grid
        id="grid1"
        units="px"
@@ -84,7 +84,7 @@
        id="guide23"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="140.19481,18.369718"
+       position="148.46534,63.67543"
        orientation="1,0"
        id="guide24"
        inkscape:locked="false" />
@@ -188,25 +188,6 @@
     </marker>
     <marker
        style="overflow:visible"
-       id="marker18-7-7-9-9-8-1-6-6-44-3"
-       refX="0"
-       refY="0"
-       orient="auto-start-reverse"
-       inkscape:stockid="Concave triangle arrow"
-       markerWidth="2"
-       markerHeight="2"
-       viewBox="0 0 1 1"
-       inkscape:isstock="true"
-       inkscape:collect="always"
-       preserveAspectRatio="xMidYMid">
-      <path
-         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
-         id="path18-9-5-7-3-4-0-1-5-3-6"
-         transform="scale(0.7)" />
-    </marker>
-    <marker
-       style="overflow:visible"
        id="marker18-7-7-9-9-8-1-6-6-44-1"
        refX="0"
        refY="0"
@@ -222,6 +203,25 @@
          d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
          style="fill:context-stroke;fill-rule:evenodd;stroke:none"
          id="path18-9-5-7-3-4-0-1-5-3-8"
+         transform="scale(0.7)" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="marker18-7-7-9-9-8-1-6-6-44-1-7"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Concave triangle arrow"
+       markerWidth="2"
+       markerHeight="2"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path18-9-5-7-3-4-0-1-5-3-8-5"
          transform="scale(0.7)" />
     </marker>
   </defs>
@@ -255,7 +255,7 @@
            id="tspan1"
            style="font-style:italic;font-size:4.23333px;stroke-width:0.264583"
            x="85.850914"
-           y="128.26091">NoIcr</tspan></text>
+           y="128.26091">NoICR</tspan></text>
       <path
          style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.25026;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker18)"
          d="m 99.497491,126.99238 12.299859,0.0331"
@@ -274,10 +274,6 @@
          style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker18-7-7-9-9-8-1-6-6-44-9)"
          d="m 166.61316,105.77255 c -2.58642,-7.821098 -0.33038,-8.005158 3.88738,-8.009468 4.21775,-0.004 5.89185,1.32808 4.95086,4.706178"
          id="path1-7" />
-      <path
-         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker18-7-7-9-9-8-1-6-6-44-3)"
-         d="m 208.99853,118.96303 c -2.58642,-7.82111 -0.33038,-8.00517 3.88737,-8.00948 4.21776,-0.004 5.89186,1.32808 4.95087,4.70619"
-         id="path1-6" />
       <path
          style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker18-7-7-9-9-8-1-6-6-44-1)"
          d="m 166.70727,132.27435 c -2.58642,-7.8211 -0.33038,-8.00516 3.88737,-8.00947 4.21776,-0.004 5.89186,1.32808 4.95087,4.70618"
@@ -357,29 +353,7 @@
        inkscape:groupmode="layer"
        id="g7"
        inkscape:label="Moving"
-       transform="translate(125.50339)">
-      <rect
-         style="fill:#9d9d9d;fill-opacity:0;stroke:#000000;stroke-width:0.25;stroke-miterlimit:3.7;stroke-dasharray:none"
-         id="rect7"
-         width="26.805702"
-         height="15.92543"
-         x="72.586731"
-         y="119.0625"
-         ry="7.9627151"
-         inkscape:label="Rect" />
-      <text
-         xml:space="preserve"
-         style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:0.264583"
-         x="85.850914"
-         y="128.26091"
-         id="text7"
-         inkscape:label="Text"><tspan
-           sodipodi:role="line"
-           style="font-style:italic;font-size:4.23333px;stroke-width:0.264583"
-           x="85.850914"
-           y="128.26091"
-           id="tspan8">Moving</tspan></text>
-    </g>
+       transform="translate(125.50339)" />
     <g
        inkscape:groupmode="layer"
        id="g9"
@@ -406,6 +380,31 @@
            x="85.850914"
            y="128.26091"
            id="tspan9">Stopping</tspan></text>
+      <path
+         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker18-7-7-9-9-8-1-6-6-44-1-7)"
+         d="m 124.5213,105.74603 c -2.58642,-7.8211 -0.33038,-8.00516 3.88737,-8.00947 4.21776,-0.004 5.89186,1.32808 4.95087,4.70618"
+         id="path1-9-5" />
+      <rect
+         style="fill:#9d9d9d;fill-opacity:0;stroke:#000000;stroke-width:0.25;stroke-miterlimit:3.7;stroke-dasharray:none"
+         id="rect9-6"
+         width="26.805702"
+         height="15.92543"
+         x="114.89375"
+         y="105.83305"
+         ry="7.9627151"
+         inkscape:label="Rect" />
+      <text
+         xml:space="preserve"
+         style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:0.264583"
+         x="128.15793"
+         y="115.03139"
+         id="text9-2"
+         inkscape:label="Text"><tspan
+           sodipodi:role="line"
+           style="font-style:italic;font-size:4.23333px;stroke-width:0.264583"
+           x="128.15793"
+           y="115.03139"
+           id="tspan9-9">Moving</tspan></text>
     </g>
   </g>
 </svg>
